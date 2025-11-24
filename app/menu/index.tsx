@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.background,
     },
     categoryTitleBox: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         paddingHorizontal: 24,
         paddingVertical: 12,
         borderRadius: 12,
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
     categoryHeroTitle: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: Colors.text,
+        color: '#FFFFFF',
         textTransform: 'capitalize',
         letterSpacing: 1,
     },
