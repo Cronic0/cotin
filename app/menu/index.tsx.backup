@@ -1,0 +1,1047 @@
+import { Colors, LightColors, Spacing, Typography } from '@/constants/Theme';
+import { useAdmin } from '@/context/AdminContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { CATEGORIES } from '@/data/menuData';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, useNavigation } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Image, ImageBackground, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+
+const RecommendationCard = ({ item }: { item: any }) => {
+    const { t } = useLanguage();
+    return (
+        <Link href={`/menu/${item.id}` as any} asChild>
+            <Pressable style={styles.recommendationCard}>
+                <Image source={{ uri: item.image }} style={styles.recommendationImage} />
+                {item.isNew && (
+                    <LinearGradient
+                        colors={['#F59E0B', '#D97706']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.newBadge}
+                    >
+                        <Text style={styles.newBadgeText}>NUEVO</Text>
+                    </LinearGradient>
+                )}
+                {item.isOffMenu && (
+                    <LinearGradient
+                        colors={['#10B981', '#059669']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.offMenuBadge}
+                    >
+                        <Text style={styles.offMenuBadgeText}>F:CARTA</Text>
+                    </LinearGradient>
+                )}
+                <View style={styles.recommendationContent}>
+                    <Text style={styles.recommendationTitle} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.recommendationPrice}>{item.price.toFixed(2)}€</Text>
+                </View>
+            </Pressable>
+        </Link>
+    );
+};
+
+const NewsletterSection = () => {
+    const [email, setEmail] = useState('');
+    const [accepted, setAccepted] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const { addSubscriber } = useAdmin();
+    const { t } = useLanguage();
+
+    const handleSubscribe = () => {
+        if (!email || !email.includes('@')) {
+            Alert.alert('Error', 'Por favor introduce un email válido');
+            return;
+        }
+        if (!accepted) {
+            Alert.alert('Error', 'Debes aceptar las condiciones');
+            return;
+        }
+
+        addSubscriber(email);
+        setIsSubmitted(true);
+        setEmail('');
+        setAccepted(false);
+
+        // Reset after 5 seconds so they can see the form again if needed
+        setTimeout(() => setIsSubmitted(false), 5000);
+    };
+
+    return (
+        <View style={styles.newsletterContainer}>
+            <LinearGradient
+                colors={['rgba(16, 185, 129, 0.1)', 'rgba(16, 185, 129, 0.05)']}
+                style={styles.newsletterGradient}
+            >
+                {isSubmitted ? (
+                    <View style={styles.successContainer}>
+                        <View style={styles.successIconCircle}>
+                            <MaterialCommunityIcons name="check" size={40} color="#FFF" />
+                        </View>
+                        <Text style={styles.successTitle}>¡Gracias por suscribirte!</Text>
+                        <Text style={styles.successSubtitle}>
+                            Te hemos añadido a nuestra lista. Pronto recibirás noticias nuestras.
+                        </Text>
+                    </View>
+                ) : (
+                    <>
+                        <MaterialCommunityIcons name="email-newsletter" size={40} color={Colors.primary} style={{ marginBottom: 12 }} />
+                        <Text style={styles.newsletterTitle}>¡Únete a nuestra comunidad!</Text>
+                        <Text style={styles.newsletterSubtitle}>
+                            Recibe nuestras novedades, eventos especiales y promociones exclusivas directamente en tu email.
+                        </Text>
+
+                        <View style={styles.inputContainer}>
+                            <MaterialCommunityIcons name="email-outline" size={20} color={Colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Tu correo electrónico"
+                                placeholderTextColor={Colors.textSecondary}
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+                        </View>
+
+                        <Pressable style={styles.checkboxContainer} onPress={() => setAccepted(!accepted)}>
+                            <MaterialCommunityIcons
+                                name={accepted ? "checkbox-marked" : "checkbox-blank-outline"}
+                                size={24}
+                                color={accepted ? Colors.primary : Colors.textSecondary}
+                            />
+                            <Text style={styles.checkboxText}>
+                                He leído y acepto la política de privacidad y condiciones de uso.
+                            </Text>
+                        </Pressable>
+
+                        <Pressable style={styles.subscribeButton} onPress={handleSubscribe}>
+                            <Text style={styles.subscribeButtonText}>Suscribirme</Text>
+                        </Pressable>
+                    </>
+                )}
+            </LinearGradient>
+        </View>
+    );
+};
+
+const StoryView = () => {
+    const { t } = useLanguage();
+    const { products, showRecommendations, showOffMenu, showTunaWeek, bannerConfig } = useAdmin();
+    const tunaDishes = products.filter(item => item.category === 'semana-atun');
+    const recommendations = products.filter(item => item.isRecommendation);
+    const offMenuItems = products.filter(item => item.isOffMenu);
+
+    return (
+        <ScrollView contentContainerStyle={styles.storyContainer} showsVerticalScrollIndicator={false}>
+            <ImageBackground
+                source={{ uri: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1974&auto=format&fit=crop' }}
+                style={styles.heroContainer}
+            >
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.8)']}
+                    style={styles.heroGradient}
+                >
+                    <View style={styles.heroContent}>
+                        <MaterialCommunityIcons name="clover" size={64} color={Colors.primary} style={styles.heroIcon} />
+                        <Text style={styles.heroTitle}>{t('storyHeroTitle')}</Text>
+                        {
+                            showRecommendations && recommendations.length > 0 && (
+                                <View style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>{t('chefRecommendations')}</Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.recommendationsList}
+                                        snapToInterval={220} // card width + gap
+                                        decelerationRate="fast"
+                                        pagingEnabled={false}
+                                    >
+                                        {recommendations.map((item) => (
+                                            <RecommendationCard key={item.id} item={item} />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            )
+                        }
+
+                        {/* Off Menu Section - Fuera de Carta */}
+                        {
+                            showOffMenu && offMenuItems.length > 0 && (
+                                <View style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>Fuera de Carta</Text>
+                                    <Text style={styles.offMenuIntro}>
+                                        Platos especiales que no encontrarás en nuestra carta habitual. Creaciones únicas del chef disponibles por tiempo limitado.
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.recommendationsList}
+                                        snapToInterval={220}
+                                        decelerationRate="fast"
+                                        pagingEnabled={false}
+                                    >
+                                        {offMenuItems.map((item) => (
+                                            <RecommendationCard key={item.id} item={item} />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            )
+                        }
+
+                        {/* Info Section */}
+                        <View style={styles.infoContainer}>
+                            <Text style={styles.infoTitle}>{t('infoTitle')}</Text>
+
+                            <View style={styles.widgetsGrid}>
+                                {/* Map Widget */}
+                                <View style={styles.mapWidget}>
+                                    <Image
+                                        source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1774&auto=format&fit=crop' }}
+                                        style={styles.mapImage}
+                                    />
+                                    <View style={styles.mapOverlay}>
+                                        <View style={styles.mapContent}>
+                                            <MaterialCommunityIcons name="map-marker" size={24} color={Colors.primary} />
+                                            <Text style={styles.mapAddress}>{t('location')}</Text>
+                                        </View>
+                                        <Pressable style={styles.mapButton}>
+                                            <Text style={styles.mapButtonText}>{t('navigate' as any)}</Text>
+                                            <MaterialCommunityIcons name="arrow-right" size={16} color="#FFF" />
+                                        </Pressable>
+                                    </View>
+                                </View>
+
+                                <View style={styles.rowWidgets}>
+                                    {/* Hours Widget */}
+                                    <View style={styles.infoWidget}>
+                                        <View style={styles.iconCircle}>
+                                            <MaterialCommunityIcons name="clock-outline" size={24} color={Colors.primary} />
+                                        </View>
+                                        <Text style={styles.widgetLabel}>{t('hours')}</Text>
+                                    </View>
+
+                                    {/* Contact Widget */}
+                                    <Pressable style={styles.infoWidget}>
+                                        <View style={styles.iconCircle}>
+                                            <MaterialCommunityIcons name="phone" size={24} color={Colors.primary} />
+                                        </View>
+                                        <Text style={styles.widgetLabel}>{t('reservations')}</Text>
+                                    </Pressable>
+                                </View>
+                            </View>
+                        </View>
+
+                        <NewsletterSection />
+
+                        <View style={styles.signatureContainer}>
+                            <Text style={styles.signature}>{t('familySignature')}</Text>
+                        </View>
+
+                        <View style={styles.footerContainer}>
+                            <Link href="/gastrocode" asChild>
+                                <Pressable>
+                                    <Text style={styles.footerText}>App creada por GastroCode</Text>
+                                </Pressable>
+                            </Link>
+                        </View>
+                    </ScrollView >
+                    );
+};
+
+                    export default function MenuScreen() {
+    const [activeCategory, setActiveCategory] = useState('el-trebol');
+                    const navigation = useNavigation();
+                    const {t, language} = useLanguage();
+                    const {products, isLoading} = useAdmin();
+                    const scrollViewRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+                            navigation.setOptions({ title: t('menuTitle') });
+    }, [t, navigation]);
+
+    // Auto-scroll to active category
+    useEffect(() => {
+        const index = CATEGORIES.findIndex((cat) => cat.id === activeCategory);
+                        if (index !== -1 && scrollViewRef.current) {
+                            // Scroll to position: each tab is ~80px wide
+                            scrollViewRef.current.scrollTo({ x: index * 80, animated: true });
+        }
+    }, [activeCategory]);
+
+                        if (isLoading) {
+        return (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background }}>
+                            <ActivityIndicator size="large" color={Colors.primary} />
+                            <Text style={{ marginTop: 16, color: Colors.textSecondary, fontFamily: 'Inter_400Regular' }}>
+                                Cargando carta...
+                            </Text>
+                        </View>
+                        );
+    }
+
+                        const filteredItems = products.filter(
+        (item) => item.category === activeCategory
+                        );
+
+                        const renderItem = ({item}: {item: any }) => (
+                        <Link href={`/menu/${item.id}` as any} asChild>
+                            <Pressable style={styles.minimalCard}>
+                                <View style={styles.minimalCardContent}>
+                                    <View style={styles.textContainer}>
+                                        <Text style={styles.minimalTitle}>{item.title}</Text>
+                                        <Text style={styles.minimalDescription} numberOfLines={2}>
+                                            {item.description}
+                                        </Text>
+                                        <Text style={styles.minimalPrice}>{item.price.toFixed(2)}€</Text>
+                                    </View>
+                                    <View>
+                                        <Image
+                                            source={{ uri: item.image }}
+                                            style={[
+                                                styles.minimalImage,
+                                                item.available === false && styles.imageUnavailable
+                                            ]}
+                                        />
+                                        {item.available === false && (
+                                            <View style={styles.unavailableOverlay}>
+                                                <Text style={styles.unavailableText}>No disponible</Text>
+                                            </View>
+                                        )}
+                                        {item.isNew && (
+                                            <LinearGradient
+                                                colors={['#F59E0B', '#D97706']}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={styles.newBadgeMinimal}
+                                            >
+                                                <Text style={styles.newBadgeTextMinimal}>NUEVO</Text>
+                                            </LinearGradient>
+                                        )}
+                                        {item.isOffMenu && (
+                                            <LinearGradient
+                                                colors={['#10B981', '#059669']}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={styles.offMenuBadgeMinimal}
+                                            >
+                                                <Text style={styles.offMenuBadgeTextMinimal}>F:CARTA</Text>
+                                            </LinearGradient>
+                                        )}
+                                    </View>
+                                </View>
+                            </Pressable>
+                        </Link>
+                        );
+
+                        return (
+                        <View style={styles.container}>
+                            {activeCategory === 'el-trebol' ? (
+                                <StoryView key={language} />
+                            ) : (
+                                <RNFlatList
+                                    key={activeCategory}
+                                    data={filteredItems}
+                                    keyExtractor={(item, index) => `${item.id}-${index}`}
+                                    renderItem={renderItem}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                                />
+                            )}
+
+                            {/* Bottom Navigation Dock */}
+                            <View style={styles.bottomDockContainer}>
+                                <View style={styles.dockGlass}>
+                                    <ScrollView
+                                        ref={scrollViewRef}
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.dockContent}
+                                    >
+                                        {CATEGORIES.map((cat) => {
+                                            const isActive = activeCategory === cat.id;
+                                            const isSpecial = cat.id === 'el-trebol';
+
+                                            // Icon mapping
+                                            let iconName = 'food';
+                                            if (cat.id === 'entrantes') iconName = 'silverware-fork-knife';
+                                            if (cat.id === 'principales') iconName = 'room-service';
+                                            if (cat.id === 'postres') iconName = 'cupcake';
+                                            if (cat.id === 'bebidas') iconName = 'glass-cocktail';
+                                            if (cat.id === 'vinos') iconName = 'glass-wine';
+                                            if (cat.id === 'el-trebol') iconName = 'clover';
+
+                                            return (
+                                                <Pressable
+                                                    key={cat.id}
+                                                    style={[
+                                                        styles.dockTab,
+                                                        isActive && styles.dockTabActive,
+                                                        isSpecial && styles.dockTabSpecial
+                                                    ]}
+                                                    onPress={() => setActiveCategory(cat.id)}
+                                                >
+                                                    <View style={[
+                                                        styles.dockIconContainer,
+                                                        isActive && styles.dockIconContainerActive,
+                                                        isSpecial && styles.dockIconContainerSpecial
+                                                    ]}>
+                                                        <MaterialCommunityIcons
+                                                            name={iconName as any}
+                                                            size={isSpecial ? 28 : 22}
+                                                            color={isActive ? (isSpecial ? '#FFF' : '#FFF') : LightColors.textSecondary}
+                                                        />
+                                                    </View>
+                                                    {isActive && !isSpecial && (
+                                                        <Text style={styles.dockLabel} numberOfLines={1}>
+                                                            {t(`cat_${cat.id}` as any)}
+                                                        </Text>
+                                                    )}
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </ScrollView>
+                                </View>
+                            </View>
+                        </View>
+                        );
+}
+
+                        const styles = StyleSheet.create({
+                            container: {
+                            flex: 1,
+                        backgroundColor: LightColors.background,
+    },
+                        listContent: {
+                            padding: Spacing.m,
+                        paddingBottom: 100, // Space for bottom bar
+    },
+                        minimalCard: {
+                            backgroundColor: LightColors.surface,
+                        paddingVertical: Spacing.m,
+                        paddingHorizontal: Spacing.s,
+    },
+                        minimalCardContent: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: Spacing.m,
+    },
+                        textContainer: {
+                            flex: 1,
+                        paddingRight: Spacing.s,
+    },
+                        minimalTitle: {
+                            ...Typography.h3,
+                            fontSize: 16,
+                        color: LightColors.text,
+                        marginBottom: 4,
+    },
+                        minimalDescription: {
+                            ...Typography.body,
+                            fontSize: 14,
+                        color: LightColors.textSecondary,
+                        marginBottom: 8,
+                        lineHeight: 20,
+    },
+                        minimalPrice: {
+                            ...Typography.price,
+                            fontSize: 16,
+                        color: Colors.primary,
+                        fontWeight: '600',
+    },
+                        minimalImage: {
+                            width: 80,
+                        height: 80,
+                        borderRadius: 12,
+                        backgroundColor: LightColors.background,
+    },
+                        imageUnavailable: {
+                            opacity: 0.4,
+    },
+                        unavailableOverlay: {
+                            position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        paddingHorizontal: 6,
+                        paddingVertical: 3,
+                        borderTopRightRadius: 12,
+                        borderBottomLeftRadius: 8,
+    },
+                        unavailableText: {
+                            color: '#FFF',
+                        fontSize: 9,
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+    },
+                        separator: {
+                            height: 1,
+                        backgroundColor: LightColors.border,
+                        opacity: 0.5,
+                        marginHorizontal: Spacing.s,
+    },
+                        // Recommendation Card Styles
+                        recommendationCard: {
+                            width: 200,
+                        backgroundColor: LightColors.surface,
+                        borderRadius: 16,
+                        overflow: 'hidden',
+                        marginRight: Spacing.m,
+                        shadowColor: '#000',
+                        shadowOffset: {width: 0, height: 2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 8,
+                        elevation: 4,
+                        borderWidth: 1,
+                        borderColor: LightColors.border,
+    },
+                        recommendationImage: {
+                            width: '100%',
+                        height: 120,
+    },
+                        recommendationContent: {
+                            padding: Spacing.m,
+    },
+                        recommendationTitle: {
+                            ...Typography.body,
+                            fontWeight: 'bold',
+                        marginBottom: 4,
+                        color: LightColors.text,
+    },
+                        recommendationPrice: {
+                            color: Colors.primary,
+                        fontWeight: 'bold',
+    },
+                        // Story View Styles
+                        storyContainer: {
+                            paddingBottom: 100,
+    },
+                        heroContainer: {
+                            height: 300,
+                        width: '100%',
+                        marginBottom: Spacing.l,
+    },
+                        heroImage: {
+                            width: '100%',
+                        height: '100%',
+    },
+                        heroGradient: {
+                            flex: 1,
+                        justifyContent: 'center',
+                        padding: Spacing.l,
+    },
+                        heroContent: {
+                            alignItems: 'center',
+    },
+                        heroIcon: {
+                            marginBottom: Spacing.s,
+    },
+                        heroTitle: {
+                            ...Typography.h1,
+                            color: '#FFF',
+                        textAlign: 'center',
+                        marginBottom: 4,
+                        textShadowColor: 'rgba(0,0,0,0.5)',
+                        textShadowOffset: {width: 0, height: 2 },
+                        textShadowRadius: 4,
+                        fontSize: 42,
+    },
+                        heroSubtitle: {
+                            ...Typography.h3,
+                            color: Colors.secondary,
+                        fontWeight: '400',
+                        letterSpacing: 2,
+                        textTransform: 'uppercase',
+                        fontSize: 18,
+    },
+                        sectionContainer: {
+                            paddingHorizontal: Spacing.l,
+                        marginBottom: Spacing.xl,
+    },
+                        storyText: {
+                            ...Typography.body,
+                            color: LightColors.textSecondary,
+                        textAlign: 'center',
+                        lineHeight: 24,
+                        fontStyle: 'italic',
+    },
+                        sectionTitle: {
+                            ...Typography.h2,
+                            color: LightColors.text,
+                        marginBottom: Spacing.m,
+                        textAlign: 'left',
+    },
+                        recommendationsList: {
+                            paddingRight: Spacing.l,
+                        gap: Spacing.m,
+    },
+                        // Allergen Banner
+                        allergenBanner: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                        padding: Spacing.m,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: 'rgba(16, 185, 129, 0.2)',
+    },
+                        allergenBannerContent: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+    },
+                        allergenBannerTitle: {
+                            ...Typography.body,
+                            fontWeight: 'bold',
+                        color: Colors.primary,
+    },
+                        allergenBannerSubtitle: {
+                            fontSize: 12,
+                        color: LightColors.textSecondary,
+    },
+                        allergenInfoText: {
+                            ...Typography.body,
+                            color: LightColors.textSecondary,
+                        marginTop: Spacing.m,
+                        marginBottom: Spacing.m,
+                        textAlign: 'center',
+                        paddingHorizontal: Spacing.s,
+                        fontStyle: 'italic',
+    },
+                        offMenuIntro: {
+                            ...Typography.body,
+                            color: LightColors.textSecondary,
+                        marginBottom: Spacing.m,
+                        textAlign: 'center',
+                        paddingHorizontal: Spacing.s,
+                        fontStyle: 'italic',
+                        lineHeight: 22,
+    },
+                        // Tuna Banner
+                        tunaBanner: {
+                            width: '100%',
+                        height: 160,
+                        marginBottom: Spacing.m,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                        borderRadius: 16,
+    },
+                        tunaBannerOverlay: {
+                            width: '100%',
+                        height: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        padding: Spacing.m,
+    },
+                        tunaBannerTitle: {
+                            ...Typography.h2,
+                            color: Colors.primary,
+                        textAlign: 'center',
+                        marginBottom: 4,
+                        fontWeight: 'bold',
+                        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+                        textShadowOffset: {width: -1, height: 1 },
+                        textShadowRadius: 10
+    },
+                        tunaBannerSubtitle: {
+                            ...Typography.body,
+                            color: '#FFFFFF',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        letterSpacing: 1,
+    },
+                        // Info Section
+                        infoContainer: {
+                            paddingHorizontal: Spacing.l,
+                        marginBottom: Spacing.xl,
+    },
+                        infoTitle: {
+                            ...Typography.h2,
+                            color: LightColors.text,
+                        marginBottom: Spacing.m,
+                        textAlign: 'left',
+    },
+                        widgetsGrid: {
+                            gap: Spacing.m,
+    },
+                        mapWidget: {
+                            height: 180,
+                        borderRadius: 24,
+                        overflow: 'hidden',
+                        backgroundColor: LightColors.surface,
+                        shadowColor: '#000',
+                        shadowOffset: {width: 0, height: 4 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 12,
+                        elevation: 5,
+    },
+                        mapImage: {
+                            width: '100%',
+                        height: '100%',
+    },
+                        mapOverlay: {
+                            ...StyleSheet.absoluteFillObject,
+                            backgroundColor: 'rgba(0,0,0,0.3)',
+                        padding: Spacing.m,
+                        justifyContent: 'space-between',
+    },
+                        mapContent: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+    },
+                        mapAddress: {
+                            color: '#FFF',
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                        textShadowColor: 'rgba(0,0,0,0.5)',
+                        textShadowOffset: {width: 0, height: 1 },
+                        textShadowRadius: 4,
+    },
+                        mapButton: {
+                            backgroundColor: Colors.primary,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        alignSelf: 'flex-start',
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 20,
+                        gap: 8,
+    },
+                        mapButtonText: {
+                            color: '#FFF',
+                        fontWeight: 'bold',
+                        fontSize: 14,
+    },
+                        rowWidgets: {
+                            flexDirection: 'row',
+                        gap: Spacing.m,
+    },
+                        infoWidget: {
+                            flex: 1,
+                        backgroundColor: LightColors.surface,
+                        padding: Spacing.m,
+                        borderRadius: 24,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        shadowColor: '#000',
+                        shadowOffset: {width: 0, height: 2 },
+                        shadowOpacity: 0.05,
+                        shadowRadius: 8,
+                        elevation: 3,
+                        gap: 8,
+    },
+                        iconCircle: {
+                            width: 48,
+                        height: 48,
+                        borderRadius: 24,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: 4,
+    },
+                        widgetLabel: {
+                            ...Typography.body,
+                            fontSize: 13,
+                        color: LightColors.textSecondary,
+                        textAlign: 'center',
+    },
+
+                        signatureContainer: {
+                            alignItems: 'center',
+                        marginTop: Spacing.m,
+                        marginBottom: Spacing.xl,
+    },
+                        signature: {
+                            fontFamily: 'serif',
+                        fontSize: 24,
+                        color: Colors.primary,
+                        fontStyle: 'italic',
+    },
+                        // Bottom Dock Styles
+                        bottomDockContainer: {
+                            position: 'absolute',
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                        alignItems: 'center',
+                        paddingHorizontal: Spacing.m,
+    },
+                        dockGlass: {
+                            flexDirection: 'row',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: 32,
+                        padding: 6,
+                        shadowColor: '#000',
+                        shadowOffset: {width: 0, height: 4 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 12,
+                        elevation: 8,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.5)',
+    },
+                        dockContent: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 4,
+    },
+                        dockTab: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        borderRadius: 24,
+                        gap: 8,
+    },
+                        dockTabActive: {
+                            backgroundColor: Colors.primary,
+    },
+                        dockTabSpecial: {
+                            paddingHorizontal: 8,
+    },
+                        dockIconContainer: {
+                            width: 36,
+                        height: 36,
+                        borderRadius: 18,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+    },
+                        dockIconContainerActive: {
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+    },
+                        dockIconContainerSpecial: {
+                            width: 36,
+                        height: 36,
+                        borderRadius: 18,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'transparent',
+    },
+                        // New Badge Styles
+                        newBadge: {
+                            position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        borderRadius: 8,
+                        shadowColor: '#000',
+                        shadowOffset: {width: 0, height: 2 },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 4,
+                        elevation: 3,
+                        zIndex: 10,
+    },
+                        newBadgeText: {
+                            color: '#FFF',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+    },
+                        newBadgeMinimal: {
+                            position: 'absolute',
+                        top: -6,
+                        left: -6,
+                        paddingHorizontal: 6,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                        zIndex: 10,
+    },
+                        newBadgeTextMinimal: {
+                            color: '#FFF',
+                        fontSize: 8,
+                        fontWeight: 'bold',
+    },
+                        dockLabel: {
+                            color: '#FFF',
+                        fontWeight: 'bold',
+                        fontSize: 13,
+    },
+                        footerContainer: {
+                            alignItems: 'center',
+                        marginBottom: Spacing.xl * 3,
+                        opacity: 0.6,
+    },
+                        footerText: {
+                            ...Typography.caption,
+                            color: LightColors.textSecondary,
+                        fontSize: 12,
+                        letterSpacing: 1,
+    },
+                        // Newsletter Styles
+                        newsletterContainer: {
+                            marginHorizontal: Spacing.l,
+                        marginBottom: Spacing.xl,
+                        borderRadius: 24,
+                        overflow: 'hidden',
+                        borderWidth: 1,
+                        borderColor: 'rgba(16, 185, 129, 0.2)',
+    },
+                        newsletterGradient: {
+                            padding: Spacing.l,
+                        alignItems: 'center',
+    },
+                        newsletterTitle: {
+                            ...Typography.h2,
+                            color: Colors.primary,
+                        marginBottom: 8,
+                        textAlign: 'center',
+    },
+                        newsletterSubtitle: {
+                            ...Typography.body,
+                            color: LightColors.textSecondary,
+                        textAlign: 'center',
+                        marginBottom: Spacing.l,
+                        fontSize: 14,
+    },
+                        inputContainer: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: LightColors.surface,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: Colors.border,
+                        paddingHorizontal: Spacing.m,
+                        marginBottom: Spacing.m,
+                        width: '100%',
+                        height: 50,
+    },
+                        inputIcon: {
+                            marginRight: Spacing.s,
+    },
+                        input: {
+                            flex: 1,
+                        height: '100%',
+                        color: LightColors.text,
+                        fontSize: 16,
+    },
+                        checkboxContainer: {
+                            flexDirection: 'row',
+                        alignItems: 'center',
+                        marginBottom: Spacing.l,
+                        width: '100%',
+    },
+                        checkboxText: {
+                            ...Typography.caption,
+                            color: LightColors.textSecondary,
+                        marginLeft: Spacing.s,
+                        flex: 1,
+                        fontSize: 12,
+    },
+                        subscribeButton: {
+                            backgroundColor: Colors.primary,
+                        paddingVertical: 14,
+                        paddingHorizontal: 32,
+                        borderRadius: 12,
+                        width: '100%',
+                        alignItems: 'center',
+                        shadowColor: Colors.primary,
+                        shadowOffset: {width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 8,
+                        elevation: 4,
+    },
+                        subscribeButtonText: {
+                            color: '#FFF',
+                        fontWeight: 'bold',
+                        fontSize: 16,
+    },
+                        // Success State Styles
+                        successContainer: {
+                            alignItems: 'center',
+                        padding: Spacing.m,
+                        width: '100%',
+    },
+                        successIconCircle: {
+                            width: 80,
+                        height: 80,
+                        borderRadius: 40,
+                        backgroundColor: Colors.primary,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: Spacing.m,
+                        shadowColor: Colors.primary,
+                        shadowOffset: {width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 12,
+                        elevation: 6,
+    },
+                        successTitle: {
+                            ...Typography.h2,
+                            color: Colors.primary,
+                        marginBottom: 8,
+                        textAlign: 'center',
+    },
+                        successSubtitle: {
+                            ...Typography.body,
+                            color: LightColors.textSecondary,
+                        textAlign: 'center',
+                        fontSize: 16,
+    },
+                        // Badge Styles
+                        newBadge: {
+                            position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        borderRadius: 8,
+                        zIndex: 10,
+    },
+                        newBadgeText: {
+                            color: '#FFF',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.5,
+    },
+                        offMenuBadge: {
+                            position: 'absolute',
+                        top: 40,
+                        left: 8,
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        borderRadius: 8,
+                        zIndex: 10,
+    },
+                        offMenuBadgeText: {
+                            color: '#FFF',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.5,
+    },
+                        newBadgeMinimal: {
+                            position: 'absolute',
+                        top: 4,
+                        left: 4,
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        borderRadius: 6,
+                        zIndex: 10,
+    },
+                        newBadgeTextMinimal: {
+                            color: '#FFF',
+                        fontSize: 8,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.3,
+    },
+                        offMenuBadgeMinimal: {
+                            position: 'absolute',
+                        top: 28,
+                        left: 4,
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        borderRadius: 6,
+                        zIndex: 10,
+    },
+                        offMenuBadgeTextMinimal: {
+                            color: '#FFF',
+                        fontSize: 8,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.3,
+    },
+});

@@ -1,33 +1,30 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { HeaderRight } from '@/components/HeaderRight';
+import CustomSplashScreen from '@/components/SplashScreen';
+import { LightColors } from '@/constants/Theme';
+import { AdminProvider } from '@/context/AdminContext';
+import { AnalyticsProvider } from '@/context/AnalyticsContext';
+import { FavoritesProvider } from '@/context/FavoritesContext';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/components/useColorScheme';
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
+    // Load icon fonts explicitly
+    MaterialCommunityIcons: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf'),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  const [showCustomSplash, setShowCustomSplash] = useState(true);
+  const router = useRouter();
+
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -42,18 +39,65 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <LanguageProvider>
+      <AdminProvider>
+        <AnalyticsProvider>
+          <FavoritesProvider>
+            <View style={{ flex: 1, backgroundColor: LightColors.background }}>
+              <StatusBar style="dark" />
+              <Stack
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: LightColors.background,
+                  },
+                  headerTintColor: LightColors.text,
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                  contentStyle: {
+                    backgroundColor: LightColors.background,
+                  },
+                  headerShadowVisible: false,
+                }}
+              >
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="menu/index"
+                  options={{
+                    title: '',
+                    headerBackTitle: 'Volver',
+                    headerRight: () => <HeaderRight />
+                  }}
+                />
+                <Stack.Screen
+                  name="allergens"
+                />
+                <Stack.Screen
+                  name="favorites"
+                  options={{
+                    presentation: 'modal',
+                    title: 'Mis Favoritos',
+                    headerLeft: () => (
+                      <Pressable
+                        onPress={() => router.navigate('/')}
+                        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 8, marginLeft: -8 })}
+                      >
+                        <MaterialCommunityIcons name="close" size={24} color={LightColors.text} />
+                      </Pressable>
+                    )
+                  }}
+                />
+              </Stack>
+
+              {/* Custom Splash Screen with Progressive Logo Fill */}
+              {showCustomSplash && (
+                <CustomSplashScreen onFinish={() => setShowCustomSplash(false)} />
+              )}
+            </View>
+          </FavoritesProvider>
+        </AnalyticsProvider>
+      </AdminProvider>
+    </LanguageProvider>
   );
 }

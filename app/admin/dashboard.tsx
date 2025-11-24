@@ -1,0 +1,525 @@
+import { Colors, LightColors, Spacing } from '@/constants/Theme';
+import { useAdmin } from '@/context/AdminContext';
+import { useAnalytics } from '@/context/AnalyticsContext';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, Stack, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+// Simple Bar Chart Component
+const SimpleBarChart = ({ data, maxValue }: { data: { label: string; value: number }[]; maxValue: number }) => {
+    return (
+        <View style={styles.chartContainer}>
+            {data.map((item, index) => {
+                const heightPercent = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+                return (
+                    <View key={index} style={styles.chartBar}>
+                        <View style={styles.barContainer}>
+                            <View style={[styles.bar, { height: `${Math.max(heightPercent, 2)}%` }]}>
+                                {item.value > 0 && (
+                                    <Text style={styles.barValue}>{item.value}</Text>
+                                )}
+                            </View>
+                        </View>
+                        <Text style={styles.barLabel}>{item.label}</Text>
+                    </View>
+                );
+            })}
+        </View>
+    );
+};
+
+export default function AdminDashboard() {
+    const { isAuthenticated, logout, products } = useAdmin();
+    const { data } = useAnalytics();
+    const [showFavorites, setShowFavorites] = useState(false);
+    const [showTopProducts, setShowTopProducts] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.replace('/admin/login');
+        }
+    }, [isAuthenticated]);
+
+    if (!isAuthenticated) {
+        return null;
+    }
+
+    // Calculate analytics
+    const totalViews = Object.values(data.productAnalytics).reduce(
+        (sum, item) => sum + item.viewCount,
+        0
+    );
+
+    const avgTimePerView = totalViews > 0
+        ? Object.values(data.productAnalytics).reduce(
+            (sum, item) => sum + item.totalTimeSpent,
+            0
+        ) / totalViews
+        : 0;
+
+    // Get top 15 most viewed products
+    const topProducts = Object.entries(data.productAnalytics)
+        .map(([id, stats]) => ({
+            id,
+            ...stats,
+            product: products.find(p => p.id === id),
+        }))
+        .filter(item => item.product)
+        .sort((a, b) => b.viewCount - a.viewCount)
+        .slice(0, 15);
+
+    // Get most favorited products (up to 15)
+    const topFavorites = Object.entries(data.favoriteAdditions || {})
+        .map(([id, count]) => ({
+            id,
+            count,
+            product: products.find(p => p.id === id),
+        }))
+        .filter(item => item.product)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 15);
+
+    // Prepare monthly data for chart - total product VIEWS (last 12 months)
+    const now = new Date();
+    const monthlyData = [];
+    for (let i = 11; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthKey = date.toISOString().slice(0, 7);
+        const monthLabel = date.toLocaleDateString('es-ES', { month: 'short' });
+
+        // Count total product views for this month
+        const monthViews = Object.values(data.productAnalytics).reduce((sum, productStats) => {
+            // This is a simplification - ideally we'd track views per month per product
+            // For now, we'll use the session count as a proxy
+            return sum;
+        }, data.monthlyViews?.[monthKey] || 0);
+
+        monthlyData.push({
+            label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1, 3),
+            value: monthViews,
+        });
+    }
+
+    const maxMonthlyValue = Math.max(...monthlyData.map(d => d.value), 1);
+
+    const handleLogout = () => {
+        logout();
+        router.replace('/admin/login');
+    };
+
+    return (
+        <View style={styles.container}>
+            <StatusBar style="light" />
+            <Stack.Screen options={{ headerShown: false }} />
+
+            <LinearGradient
+                colors={['#0f172a', '#1e293b']}
+                style={styles.gradient}
+            >
+                <View style={styles.header}>
+                    <View style={styles.headerTop}>
+                        <Pressable
+                            onPress={() => {
+                                if (router.canGoBack()) {
+                                    router.back();
+                                } else {
+                                    router.replace('/admin');
+                                }
+                            }}
+                            style={styles.backButton}
+                        >
+                            <MaterialCommunityIcons name="arrow-left" size={24} color="#FFF" />
+                        </Pressable>
+                        <Pressable onPress={handleLogout} style={styles.logoutButton}>
+                            <MaterialCommunityIcons name="logout" size={20} color="#FFF" />
+                        </Pressable>
+                    </View>
+                    <Text style={styles.headerTitle}>Estadísticas</Text>
+                    <Text style={styles.headerSubtitle}>Métricas y Análisis</Text>
+                </View>
+
+                <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                    {/* Stats Grid - Row 1: Total, Web, QR */}
+                    <View style={styles.statsGrid}>
+                        <View style={styles.statCard}>
+                            <MaterialCommunityIcons name="qrcode-scan" size={80} color="rgba(16, 185, 129, 0.05)" style={styles.watermarkIcon} />
+                            <View style={styles.statIconContainer}>
+                                <MaterialCommunityIcons name="qrcode-scan" size={24} color="#10b981" />
+                            </View>
+                            <Text style={styles.statValue}>{data.sessionCount}</Text>
+                            <Text style={styles.statLabel}>TOTAL ACCESOS</Text>
+                        </View>
+
+                        <View style={styles.statCard}>
+                            <MaterialCommunityIcons name="monitor" size={80} color="rgba(59, 130, 246, 0.05)" style={styles.watermarkIcon} />
+                            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+                                <MaterialCommunityIcons name="monitor" size={24} color="#3b82f6" />
+                            </View>
+                            <Text style={styles.statValue}>{data.webAccessCount}</Text>
+                            <Text style={styles.statLabel}>WEB</Text>
+                        </View>
+
+                        <View style={styles.statCard}>
+                            <MaterialCommunityIcons name="cellphone" size={80} color="rgba(245, 158, 11, 0.05)" style={styles.watermarkIcon} />
+                            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
+                                <MaterialCommunityIcons name="cellphone" size={24} color="#f59e0b" />
+                            </View>
+                            <Text style={styles.statValue}>{data.sessionCount - data.webAccessCount}</Text>
+                            <Text style={styles.statLabel}>QR</Text>
+                        </View>
+                    </View>
+
+                    {/* Stats Grid - Row 2: Views and Time */}
+                    <View style={styles.statsGrid}>
+                        <View style={styles.statCard}>
+                            <MaterialCommunityIcons name="eye" size={80} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
+                            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)' }]}>
+                                <MaterialCommunityIcons name="eye" size={24} color="#8b5cf6" />
+                            </View>
+                            <Text style={styles.statValue}>{totalViews}</Text>
+                            <Text style={styles.statLabel}>PLATOS VISTOS</Text>
+                        </View>
+
+                        <View style={styles.statCard}>
+                            <MaterialCommunityIcons name="clock-outline" size={80} color="rgba(236, 72, 153, 0.05)" style={styles.watermarkIcon} />
+                            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(236, 72, 153, 0.1)' }]}>
+                                <MaterialCommunityIcons name="clock-outline" size={24} color="#ec4899" />
+                            </View>
+                            <Text style={styles.statValue}>{avgTimePerView.toFixed(0)}s</Text>
+                            <Text style={styles.statLabel}>TIEMPO PROMEDIO</Text>
+                        </View>
+                    </View>
+
+                    {/* Monthly Chart */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Visitas Mensuales</Text>
+                        <View style={styles.chartCard}>
+                            <SimpleBarChart data={monthlyData} maxValue={maxMonthlyValue} />
+                        </View>
+                    </View>
+
+                    {/* Top Favorites */}
+                    {topFavorites.length > 0 && (
+                        <View style={styles.section}>
+                            <Pressable
+                                style={styles.sectionHeader}
+                                onPress={() => setShowFavorites(!showFavorites)}
+                            >
+                                <View style={styles.sectionHeaderLeft}>
+                                    <MaterialCommunityIcons name="heart" size={20} color={Colors.primary} />
+                                    <Text style={styles.sectionHeaderText}>Más Añadidos a Favoritos ({topFavorites.length})</Text>
+                                </View>
+                                <MaterialCommunityIcons
+                                    name={showFavorites ? "chevron-up" : "chevron-down"}
+                                    size={24}
+                                    color="#FFF"
+                                />
+                            </Pressable>
+                            {showFavorites && topFavorites.map((item, index) => (
+                                <Link key={item.id} href={`/admin/products/${item.id}` as any} asChild>
+                                    <Pressable style={styles.productItem}>
+                                        <View style={styles.productRank}>
+                                            <Text style={styles.productRankText}>#{index + 1}</Text>
+                                        </View>
+                                        <Image
+                                            source={{ uri: item.product!.image }}
+                                            style={styles.productImage}
+                                        />
+                                        <View style={styles.productInfo}>
+                                            <Text style={styles.productName}>{item.product!.title}</Text>
+                                            <Text style={styles.productStats}>
+                                                {item.count} {item.count === 1 ? 'vez' : 'veces'} añadido
+                                            </Text>
+                                        </View>
+                                        <MaterialCommunityIcons name="chevron-right" size={24} color={LightColors.textSecondary} />
+                                    </Pressable>
+                                </Link>
+                            ))}
+                        </View>
+                    )}
+
+                    {/* Top Viewed Products */}
+                    <View style={styles.section}>
+                        <Pressable
+                            style={styles.sectionHeader}
+                            onPress={() => setShowTopProducts(!showTopProducts)}
+                        >
+                            <View style={styles.sectionHeaderLeft}>
+                                <MaterialCommunityIcons name="eye" size={20} color={Colors.primary} />
+                                <Text style={styles.sectionHeaderText}>Platos Más Vistos ({topProducts.length})</Text>
+                            </View>
+                            <MaterialCommunityIcons
+                                name={showTopProducts ? "chevron-up" : "chevron-down"}
+                                size={24}
+                                color="#FFF"
+                            />
+                        </Pressable>
+                        {topProducts.length > 0 ? (
+                            showTopProducts && topProducts.map((item, index) => (
+                                <Link key={item.id} href={`/admin/products/${item.id}` as any} asChild>
+                                    <Pressable style={styles.productItem}>
+                                        <View style={styles.productRank}>
+                                            <Text style={styles.productRankText}>#{index + 1}</Text>
+                                        </View>
+                                        <Image
+                                            source={{ uri: item.product!.image }}
+                                            style={styles.productImage}
+                                        />
+                                        <View style={styles.productInfo}>
+                                            <Text style={styles.productName}>{item.product!.title}</Text>
+                                            <Text style={styles.productStats}>
+                                                {item.viewCount} vistas · {(item.totalTimeSpent / item.viewCount).toFixed(0)}s promedio
+                                            </Text>
+                                        </View>
+                                        <MaterialCommunityIcons name="chevron-right" size={24} color={LightColors.textSecondary} />
+                                    </Pressable>
+                                </Link>
+                            ))
+                        ) : (
+                            !showTopProducts && <Text style={styles.emptyText}>Pulsa para ver los platos más vistos</Text>
+                        )}
+                    </View>
+
+                    <View style={styles.footerSpacer} />
+                </ScrollView>
+            </LinearGradient>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    gradient: {
+        flex: 1,
+    },
+    header: {
+        paddingHorizontal: Spacing.l,
+        paddingTop: 60,
+        paddingBottom: Spacing.l,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: Spacing.m,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    logoutButton: {
+        paddingHorizontal: Spacing.m,
+        paddingVertical: Spacing.s,
+        borderRadius: 8,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+        letterSpacing: 0.5,
+    },
+    headerSubtitle: {
+        fontSize: 16,
+        color: '#FFF',
+        opacity: 0.8,
+    },
+    content: {
+        flex: 1,
+        paddingHorizontal: Spacing.l,
+    },
+    statsGrid: {
+        flexDirection: 'row',
+        gap: Spacing.m,
+        marginBottom: Spacing.l,
+    },
+    statCard: {
+        flex: 1,
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        padding: Spacing.m,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        alignItems: 'center',
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    watermarkIcon: {
+        position: 'absolute',
+        right: -20,
+        bottom: -20,
+        transform: [{ rotate: '-15deg' }],
+    },
+    statIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: Spacing.s,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    statValue: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+    },
+    statLabel: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: 'rgba(255,255,255,0.7)',
+        textAlign: 'center',
+        letterSpacing: 0.5,
+    },
+    section: {
+        marginBottom: Spacing.xl,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: Spacing.m,
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        padding: Spacing.m,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    sectionHeaderText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginLeft: Spacing.s,
+    },
+    sectionHeaderLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Spacing.s,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: Spacing.m,
+        letterSpacing: 0.5,
+    },
+    chartCard: {
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        padding: Spacing.l,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    chartContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        height: 150,
+        gap: 4,
+    },
+    chartBar: {
+        flex: 1,
+        alignItems: 'center',
+        gap: 8,
+    },
+    barContainer: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'flex-end',
+    },
+    bar: {
+        backgroundColor: '#10b981',
+        borderRadius: 4,
+        minHeight: 4,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        paddingTop: 4,
+    },
+    barValue: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    barLabel: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 10,
+        textAlign: 'center',
+        fontWeight: '600',
+    },
+    productItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        padding: Spacing.m,
+        borderRadius: 16,
+        marginBottom: Spacing.s,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+    },
+    productRank: {
+        width: 32,
+        height: 32,
+        borderRadius: 12,
+        backgroundColor: '#10b981',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Spacing.m,
+        shadowColor: '#10b981',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    productImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 12,
+        marginRight: Spacing.m,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+    productRankText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 14,
+    },
+    productInfo: {
+        flex: 1,
+    },
+    productName: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    productStats: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    emptyText: {
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 14,
+        textAlign: 'center',
+        fontStyle: 'italic',
+        paddingVertical: Spacing.xl,
+    },
+    footerSpacer: {
+        height: 40,
+    },
+});
