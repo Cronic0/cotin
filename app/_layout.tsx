@@ -1,6 +1,6 @@
 import { HeaderRight } from '@/components/HeaderRight';
 import CustomSplashScreen from '@/components/SplashScreen';
-import { LightColors } from '@/constants/Theme';
+import { Colors, LightColors } from '@/constants/Theme';
 import { AdminProvider } from '@/context/AdminContext';
 import { AnalyticsProvider } from '@/context/AnalyticsContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
@@ -51,9 +51,11 @@ export default function RootLayout() {
                   headerStyle: {
                     backgroundColor: LightColors.background,
                   },
-                  headerTintColor: LightColors.text,
+                  headerTintColor: Colors.primary, // Teal for brand consistency
                   headerTitleStyle: {
-                    fontWeight: 'bold',
+                    fontFamily: 'Playfair Display, serif', // Hardcoded for now as Typography.h3.fontFamily might be platform specific logic
+                    fontWeight: '700',
+                    fontSize: 20,
                   },
                   contentStyle: {
                     backgroundColor: LightColors.background,

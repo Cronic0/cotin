@@ -1,63 +1,125 @@
-import { Colors, Spacing, Typography } from '@/constants/Theme';
+
+import { GastroCodeLogo } from '@/components/GastroCodeLogo';
+import { Colors, Shadows, Spacing, Typography } from '@/constants/Theme';
 import { Language } from '@/constants/Translations';
 import { useLanguage } from '@/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link, useRouter } from 'expo-router';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Dimensions, ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+    FadeIn,
+    FadeInDown,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withSpring,
+    withTiming
+} from 'react-native-reanimated';
+
+const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
     const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
     const languages: Language[] = ['es', 'en', 'fr', 'de'];
 
+    // Animation values
+    const titleOpacity = useSharedValue(0);
+    const titleTranslateY = useSharedValue(50);
+    const contentOpacity = useSharedValue(0);
+
+    useEffect(() => {
+        titleOpacity.value = withDelay(300, withTiming(1, { duration: 1000 }));
+        titleTranslateY.value = withDelay(300, withSpring(0, { damping: 12 }));
+        contentOpacity.value = withDelay(800, withTiming(1, { duration: 800 }));
+    }, []);
+
+    const titleStyle = useAnimatedStyle(() => ({
+        opacity: titleOpacity.value,
+        transform: [{ translateY: titleTranslateY.value }],
+    }));
+
+    const contentStyle = useAnimatedStyle(() => ({
+        opacity: contentOpacity.value,
+    }));
+
     return (
         <View style={styles.container}>
             <ImageBackground
-                source={{ uri: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1000&auto=format&fit=crop' }}
+                source={{ uri: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=1000&auto=format&fit=crop' }}
                 style={styles.background}
                 resizeMode="cover"
             >
                 <LinearGradient
-                    colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.45)']}
+                    colors={['rgba(15, 23, 42, 0.3)', 'rgba(15, 23, 42, 0.8)']}
                     style={styles.overlay}
                 >
-                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                        <View style={styles.content}>
-                            <View style={styles.header}>
-                                <Text style={styles.subtitle}>{t('welcome')}</Text>
-                                <Text style={styles.title}>EL TRÉBOL</Text>
+                    <View style={styles.safeArea}>
+
+                        {/* Header / Logo Area */}
+                        <Animated.View entering={FadeInDown.delay(200).duration(800)} style={styles.headerTop}>
+                            <GastroCodeLogo variant="light" size={24} style={{ opacity: 0.9 }} />
+                        </Animated.View>
+
+                        {/* Main Content */}
+                        <View style={styles.mainContent}>
+                            <Animated.View style={[styles.titleContainer, titleStyle]}>
+                                <Text style={styles.welcomeText}>{t('welcome')}</Text>
+                                <Text style={styles.mainTitle}>PURE BEACH</Text>
+                                <Text style={styles.mainTitleAccent}>CLUB</Text>
                                 <View style={styles.separator} />
                                 <Text style={styles.tagline}>{t('experienceTagline')}</Text>
-                            </View>
+                            </Animated.View>
 
-                            <View style={styles.actions}>
-                                <Link href="/menu" asChild>
-                                    <Pressable style={styles.button}>
-                                        <Text style={styles.buttonText}>{t('viewMenu')}</Text>
-                                    </Pressable>
-                                </Link>
+                            <Animated.View style={[styles.actionContainer, contentStyle]}>
+                                <Pressable
+                                    style={({ pressed }) => [
+                                        styles.primaryButton,
+                                        pressed && styles.primaryButtonPressed
+                                    ]}
+                                    onPress={() => router.push('/menu')}
+                                >
+                                    <LinearGradient
+                                        colors={[Colors.primary, Colors.primaryDark]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 1 }}
+                                        style={styles.gradientButton}
+                                    >
+                                        <Text style={styles.primaryButtonText}>{t('viewMenu')}</Text>
+                                    </LinearGradient>
+                                </Pressable>
 
-                                <View style={styles.languageContainer}>
-                                    {languages.map((lang, index) => (
-                                        <View key={lang} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Pressable onPress={() => setLanguage(lang)} style={styles.languageButton}>
+                                {/* Language Selector */}
+                                <View style={styles.languageWrapper}>
+                                    <View style={styles.languageContainer}>
+                                        {languages.map((lang, index) => (
+                                            <Pressable
+                                                key={lang}
+                                                onPress={() => setLanguage(lang)}
+                                                style={[
+                                                    styles.langButton,
+                                                    language === lang && styles.langButtonActive
+                                                ]}
+                                            >
                                                 <Text style={[
-                                                    styles.languageText,
-                                                    language === lang && styles.languageTextActive
+                                                    styles.langText,
+                                                    language === lang && styles.langTextActive
                                                 ]}>
                                                     {lang.toUpperCase()}
                                                 </Text>
                                             </Pressable>
-                                            {index < languages.length - 1 && (
-                                                <Text style={styles.languageSeparator}>|</Text>
-                                            )}
-                                        </View>
-                                    ))}
+                                        ))}
+                                    </View>
                                 </View>
-                            </View>
-
+                            </Animated.View>
                         </View>
-                    </ScrollView>
+
+                        {/* Footer */}
+                        <Animated.View entering={FadeIn.delay(1200)} style={styles.footer}>
+                            <Text style={styles.footerText}>POWERED BY GASTROCODE</Text>
+                        </Animated.View>
+                    </View>
                 </LinearGradient>
             </ImageBackground>
         </View>
@@ -67,6 +129,7 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background,
     },
     background: {
         flex: 1,
@@ -76,128 +139,135 @@ const styles = StyleSheet.create({
     overlay: {
         flex: 1,
     },
-    scrollContent: {
-        flexGrow: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: Spacing.xl,
-        paddingTop: 160, // Push header down a bit more
-        paddingBottom: 80, // Push buttons up from bottom
-    },
-    content: {
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: 500,
+    safeArea: {
         flex: 1,
-        justifyContent: 'space-between', // Distribute space
+        paddingHorizontal: Spacing.l,
+        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingBottom: 40,
+        justifyContent: 'space-between',
     },
-    header: {
+    headerTop: {
         alignItems: 'center',
-        marginBottom: Spacing.xl,
     },
-    subtitle: {
-        ...Typography.h3,
+    mainContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: Spacing.xl,
+    },
+    titleContainer: {
+        alignItems: 'center',
+    },
+    welcomeText: {
+        ...Typography.caption,
         color: Colors.secondary,
+        fontSize: 14,
+        letterSpacing: 3,
         marginBottom: Spacing.s,
-        letterSpacing: 2,
         textTransform: 'uppercase',
-        fontSize: 16,
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4,
+        fontWeight: '700',
     },
-    title: {
+    mainTitle: {
+        ...Typography.h1,
+        color: '#FFFFFF',
+        fontSize: 56,
+        lineHeight: 60,
+        textAlign: 'center',
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 0, height: 4 },
+        textShadowRadius: 10,
+    },
+    mainTitleAccent: {
         ...Typography.h1,
         fontSize: 56,
-        color: Colors.text,
-        marginBottom: Spacing.m,
+        lineHeight: 60,
         textAlign: 'center',
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 8,
+        color: '#FFFFFF', // Fallback
+        opacity: 0.9,
+        fontStyle: 'italic',
     },
     separator: {
         width: 60,
         height: 4,
         backgroundColor: Colors.primary,
-        marginBottom: Spacing.m,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 2,
+        marginVertical: Spacing.l,
+        borderRadius: 2,
     },
     tagline: {
         ...Typography.body,
+        color: '#E2E8F0',
         fontSize: 18,
-        color: '#FFFFFF', // Changed to white
-        letterSpacing: 1,
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4,
+        textAlign: 'center',
+        maxWidth: 300,
+        opacity: 0.9,
     },
-    actions: {
+    actionContainer: {
         width: '100%',
         alignItems: 'center',
+        gap: Spacing.l,
+        marginTop: Spacing.xl,
     },
-    button: {
-        backgroundColor: Colors.primary,
-        paddingVertical: Spacing.m,
-        paddingHorizontal: Spacing.xl,
-        borderRadius: 30,
+    primaryButton: {
         width: '100%',
-        alignItems: 'center',
-        shadowColor: Colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
+        maxWidth: 320,
+        height: 56,
+        borderRadius: 28,
+        ...Shadows.large,
+        overflow: 'hidden',
+        alignSelf: 'center', // Ensure it centers itself if needed
     },
-    buttonText: {
-        ...Typography.h3,
+    primaryButtonPressed: {
+        transform: [{ scale: 0.98 }],
+        opacity: 0.9,
+    },
+    gradientButton: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    primaryButtonText: {
+        ...Typography.button,
         color: '#FFFFFF',
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        fontSize: 16,
+    },
+    languageWrapper: {
+        borderRadius: 20,
+        overflow: 'hidden',
+        ...Shadows.medium,
     },
     languageContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: Spacing.xl,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 24,
+        padding: 4,
+        backgroundColor: 'rgba(0,0,0,0.4)', // Replaced BlurView with semi-transparent background
+        borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
-    languageButton: {
-        padding: 8,
-        paddingHorizontal: 12,
-        borderRadius: 12,
+    langButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 16,
     },
-    languageText: {
-        color: 'rgba(255,255,255,0.6)',
-        fontSize: 14,
-        fontWeight: '500',
-        letterSpacing: 1,
+    langButtonActive: {
+        backgroundColor: Colors.surface,
     },
-    languageTextActive: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontSize: 16,
-        textShadowColor: 'rgba(16, 185, 129, 0.5)',
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 8,
-        backgroundColor: Colors.primary,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        overflow: 'hidden',
+    langText: {
+        ...Typography.caption,
+        color: 'rgba(255,255,255,0.7)',
+        fontWeight: '600',
     },
-    languageSeparator: {
-        color: 'rgba(255,255,255,0.2)',
-        marginHorizontal: 4,
-        fontSize: 14,
+    langTextActive: {
+        color: Colors.text, // Dark text on white surface
+        fontWeight: '800',
     },
+    footer: {
+        alignItems: 'center',
+    },
+    footerText: {
+        ...Typography.caption,
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: 10,
+        letterSpacing: 2,
+    }
 });

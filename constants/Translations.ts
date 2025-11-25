@@ -3,19 +3,19 @@ export type Language = 'es' | 'en' | 'fr' | 'de';
 export const Translations = {
     es: {
         // Landing Page
-        welcome: 'BIENVENIDO',
-        experienceTagline: 'Sabores que conquistan',
-        viewMenu: 'VER LA CARTA',
+        welcome: 'BIENVENIDO AL PARAÍSO',
+        experienceTagline: 'Donde el verano nunca acaba',
+        viewMenu: 'EMPEZAR LA EXPERIENCIA',
 
         menuTitle: 'Nuestra Carta',
         back: 'Volver',
         favoritesTitle: 'Mis Favoritos',
-        chefRecommendations: 'Las recomendaciones de la casa',
-        infoTitle: 'Info & Horarios',
-        location: 'Puesto Cruz Roja, Playa de la Barrosa',
-        hours: 'Mar-Dom: 13:00 - 23:30',
-        reservations: 'Reservas: 912 345 678',
-        familySignature: 'La Familia del Trébol',
+        chefRecommendations: 'Los Hits del Verano',
+        infoTitle: 'Info & Vibes',
+        location: 'Playa de la Barrosa, Chiclana',
+        hours: 'Todos los días: 12:00 - Madrugada',
+        reservations: 'VIP & Reservas: 912 345 678',
+        familySignature: 'Pure Beach Club Team',
         addToFavorites: 'Añadir a Favoritos',
         removeFromFavorites: 'Eliminar de Favoritos',
         allergensTitle: 'Alérgenos e Intolerancias',
@@ -37,9 +37,9 @@ export const Translations = {
         semanaAtunBanner: 'Descubre nuestra Semana del Atún',
 
         // Story View
-        storyHeroTitle: 'El Trébol',
-        storyHeroSubtitle: 'Tradición & Vanguardia',
-        storyText: 'Desde 1985, El Trébol ha sido un referente de la gastronomía local. Nuestra pasión por el producto de proximidad y las técnicas tradicionales se fusionan para crear una experiencia única.',
+        storyHeroTitle: 'Pure Beach Club',
+        storyHeroSubtitle: 'Vibes & Bites',
+        storyText: 'Más que un chiringuito, somos un estilo de vida. Nacidos en la arena, criados por el sol. Aquí la única regla es disfrutar.',
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -54,15 +54,13 @@ export const Translations = {
         allergen_mostaza: 'Mostaza',
 
         // Categories
-
-        // Categories
-        cat_entrantes: 'Entrantes',
-        cat_principales: 'Principales',
-        cat_postres: 'Postres',
-        cat_bebidas: 'Bebidas',
-        cat_vinos: 'Vinos',
-        cat_el_trebol: 'El Trébol',
-        cat_semana_atun: 'Semana del Atún',
+        cat_entrantes: 'Para Picar',
+        cat_principales: 'Platos Fuertes',
+        cat_postres: 'Dulces',
+        cat_bebidas: 'Tragos',
+        cat_vinos: 'Bodega',
+        cat_el_trebol: 'Pure Specials',
+        cat_semana_atun: 'Tuna Week',
 
         // Menu Items
         // Entrantes
@@ -84,7 +82,7 @@ export const Translations = {
         product_p2_desc: 'Lomo de salmón premium a la plancha, servido con espárragos trigueros, patatas baby y una suave salsa de eneldo y limón.',
         product_p3_title: 'Risotto de Setas y Trufa',
         product_p3_desc: 'Arroz Carnaroli cremoso cocinado con boletus edulis, champiñones silvestres y terminado con aceite de trufa negra y parmesano.',
-        product_p4_title: 'Hamburguesa Gourmet "El Trébol"',
+        product_p4_title: 'Hamburguesa Gourmet "Pure Beach"',
         product_p4_desc: '200g de carne de vaca madurada, queso cheddar fundido, cebolla caramelizada, bacon crujiente y nuestra salsa secreta en pan brioche.',
         product_p5_title: 'Carrillada Ibérica Estofada',
         product_p5_desc: 'Carrilleras de cerdo ibérico cocinadas a fuego lento en vino tinto durante 4 horas, acompañadas de puré de boniato.',
@@ -105,19 +103,31 @@ export const Translations = {
         product_b1_title: 'Agua Mineral Premium',
         product_b1_desc: 'Botella de agua mineral natural de manantial (500ml).',
         product_b2_title: 'Refrescos Variados',
-        product_v2_desc: 'La esencia pura del Atlántico en una copa. Este Albariño 100% de las Rías Baixas destaca por su brillante color amarillo pajizo y sus intensos aromas a cítricos, manzana verde y flores blancas. Su paso por boca es fresco, vibrante y con esa salinidad característica.',
+        product_b2_desc: 'Coca-Cola, Fanta, Sprite o Tónica (330ml).',
+        product_b3_title: 'Cerveza Artesana IPA',
+        product_b3_desc: 'Cerveza artesana estilo India Pale Ale, con notas cítricas y amargor equilibrado.',
+        product_b4_title: 'Limonada Casera',
+        product_b4_desc: 'Preparada al momento con limones frescos, azúcar de caña, hierbabuena y un toque de jengibre.',
+        product_b5_title: 'Café Espresso',
+        product_b5_desc: 'Café de especialidad 100% Arábica, tueste natural.',
+
+        // Vinos
+        product_v1_title: 'Marqués de Riscal Reserva',
+        product_v1_desc: 'D.O. Rioja. Vino tinto intenso con aromas a frutos negros y especias. Crianza de 24 meses en barrica.',
+        product_v2_title: 'Albariño Martín Códax',
+        product_v2_desc: 'D.O. Rías Baixas. Vino blanco 100% Albariño, fresco y elegante, con notas cítricas y florales.',
         product_v3_title: 'Ribera del Duero Pago de Carraovejas',
-        product_v3_desc: 'La excelencia de la Ribera del Duero. Un vino potente y elegante, elaborado con un coupage de Tinto Fino, Cabernet Sauvignon y Merlot. Sus aromas a frutos rojos maduros, vainilla y toques tostados anticipan una boca carnosa, amplia y de taninos aterciopelados.',
+        product_v3_desc: 'D.O. Ribera del Duero. Tinto fino, cabernet sauvignon y merlot. Potente, estructurado y muy sabroso.',
         product_v4_title: 'Cava Juvé & Camps Reserva de la Familia',
-        product_v4_desc: 'Un Cava Gran Reserva Brut Nature que es sinónimo de celebración. Su burbuja fina y cremosa acaricia el paladar, revelando notas de fruta blanca madura, pan tostado y frutos secos. Seco, complejo y con una acidez equilibrada.',
+        product_v4_desc: 'D.O. Cava. Brut Nature Gran Reserva. Burbuja fina y persistente, con notas de fruta blanca y pan tostado.',
         product_v5_title: 'Moët & Chandon Brut Imperial',
-        product_v5_desc: 'El champagne más icónico del mundo. Brut Imperial es la encarnación del estilo Moët: vibrante, generoso y seductor. Sus notas de manzana verde, cítricos y flores blancas se combinan con matices de brioche y cereales. En boca es fresco, mineral y elegante.',
+        product_v5_desc: 'Champagne francés. Vibrante, generoso y seductor. Notas de manzana verde, cítricos y flores blancas.',
         product_v6_title: 'Ramón Bilbao Crianza',
-        product_v6_desc: 'Un Rioja moderno y frutal que nunca defrauda. Elaborado 100% con Tempranillo, ofrece aromas limpios de fruta negra fresca, regaliz y notas de madera noble (coco, vainilla). En boca es amable, equilibrado y muy versátil.',
+        product_v6_desc: 'D.O. Rioja. Tempranillo. Fruta negra fresca, regaliz y notas de madera noble. Amable y equilibrado.',
         product_v7_title: 'José Pariente Verdejo',
-        product_v7_desc: 'El referente de los blancos de Rueda. Elaborado con uvas procedentes de viñedos viejos, este Verdejo expresa la tipicidad de la variedad con intensidad: hinojo, fruta de hueso y toques anisados. Untuoso, complejo y con un ligero amargor final elegante.',
+        product_v7_desc: 'D.O. Rueda. Verdejo. Intenso, con notas de hinojo, fruta de hueso y toques anisados. Untuoso y complejo.',
         product_v8_title: 'Protos Roble',
-        product_v8_desc: 'La juventud y el carácter de la Ribera del Duero. Un tinto roble con 6 meses de barrica que conserva toda la fuerza de la fruta fresca, complementada con sutiles notas especiadas. Sabroso, frutal y con un tanino dulce muy agradable.',
+        product_v8_desc: 'D.O. Ribera del Duero. Tinto roble. Fruta fresca y notas especiadas. Sabroso y con tanino dulce.',
 
         // Semana del Atún
         product_sa1_title: 'Tataki de Atún Rojo',
@@ -138,11 +148,11 @@ export const Translations = {
         pairing_desc_p1: 'Potencia y elegancia. Una cita nocturna donde la carne se deshace y el vino susurra promesas.',
         pairing_desc_p2: 'Frescura atlántica. Como una brisa de verano, este maridaje es ligero, vibrante y lleno de vida.',
         pairing_desc_p3: 'Tierra y tradición. Los hongos y el vino tinto se abrazan en un confort cálido y sofisticado.',
-        pairing_desc_p4: 'Rebeldes con causa. La grasa jugosa de la carne encuentra su igual en el amargor cítrico de la IPA. ¡Rock & Roll!',
+        pairing_desc_p4: 'Rebeldes con causa. La grasa jugosa de la carne encuentra su igual en el amargor cítrico de la IPA. Rock & Roll!',
         pairing_desc_p5: 'Amor a fuego lento. Sabores profundos que se han tomado su tiempo para conocerse y enamorarte.',
 
         // Allergen Info
-        allergenInfoText: 'En El Trébol nos preocupamos por tu bienestar. Hemos preparado este filtro de alérgenos para que disfrutes de nuestra cocina con total tranquilidad.',
+        allergenInfoText: 'En Pure Beach Club nos preocupamos por tu bienestar. Hemos preparado este filtro de alérgenos para que disfrutes de nuestra cocina con total tranquilidad.',
         call: 'Llamar',
         navigate: 'Cómo llegar',
 
@@ -160,15 +170,20 @@ export const Translations = {
         scheduleTitle: 'Horario de Apertura',
     },
     en: {
+        // Landing Page
+        welcome: 'WELCOME TO PARADISE',
+        experienceTagline: 'Where summer never ends',
+        viewMenu: 'START THE EXPERIENCE',
+
         menuTitle: 'Our Menu',
         back: 'Back',
         favoritesTitle: 'My Favorites',
-        chefRecommendations: "Chef's Recommendations",
-        infoTitle: 'Info & Hours',
-        location: 'Puesto Cruz Roja, Playa de la Barrosa',
-        hours: 'Tue-Sun: 13:00 - 23:30',
-        reservations: 'Reservations: 912 345 678',
-        familySignature: 'The Trébol Family',
+        chefRecommendations: "Summer Hits",
+        infoTitle: 'Info & Vibes',
+        location: 'Playa de la Barrosa, Chiclana',
+        hours: 'Every day: 12:00 - Late',
+        reservations: 'VIP & Bookings: 912 345 678',
+        familySignature: 'Pure Beach Club Team',
         addToFavorites: 'Add to Favorites',
         removeFromFavorites: 'Remove from Favorites',
         allergensTitle: 'Allergens & Intolerances',
@@ -203,9 +218,9 @@ export const Translations = {
         semanaAtunBanner: 'Discover our Tuna Week',
 
         // Story View
-        storyHeroTitle: 'El Trébol',
-        storyHeroSubtitle: 'Tradition & Avant-garde',
-        storyText: 'Since 1985, El Trébol has been a benchmark of local gastronomy. Our passion for local products and traditional techniques merge to create a unique experience.',
+        storyHeroTitle: 'Pure Beach Club',
+        storyHeroSubtitle: 'Vibes & Bites',
+        storyText: 'More than a beach bar, we are a lifestyle. Born in the sand, raised by the sun. Here the only rule is to enjoy.',
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -225,7 +240,7 @@ export const Translations = {
         cat_postres: 'Desserts',
         cat_bebidas: 'Drinks',
         cat_vinos: 'Wines',
-        cat_el_trebol: 'El Trébol',
+        cat_el_trebol: 'Pure Specials',
         cat_semana_atun: 'Tuna Week',
 
         // Menu Items
@@ -248,7 +263,7 @@ export const Translations = {
         product_p2_desc: 'Premium grilled salmon fillet, served with wild asparagus, baby potatoes and a smooth dill and lemon sauce.',
         product_p3_title: 'Mushroom and Truffle Risotto',
         product_p3_desc: 'Creamy Carnaroli rice cooked with boletus edulis, wild mushrooms and finished with black truffle oil and parmesan.',
-        product_p4_title: '"El Trébol" Gourmet Burger',
+        product_p4_title: '"Pure Beach" Gourmet Burger',
         product_p4_desc: '200g of matured beef, melted cheddar cheese, caramelized onion, crispy bacon and our secret sauce on brioche bun.',
         product_p5_title: 'Stewed Iberian Cheeks',
         product_p5_desc: 'Iberian pork cheeks slow-cooked in red wine for 4 hours, accompanied by sweet potato puree.',
@@ -275,6 +290,19 @@ export const Translations = {
         product_b4_title: 'Homemade Lemonade',
         product_b4_desc: 'Freshly prepared with lemons, cane sugar, mint and a touch of ginger.',
         product_b5_title: 'Espresso Coffee',
+        product_b5_desc: '100% Arabica specialty coffee, natural roast.',
+
+        // Vinos
+        product_v1_title: 'Marqués de Riscal Reserva',
+        product_v1_desc: 'D.O. Rioja. Intense red wine with aromas of black fruits and spices. Aged for 24 months in barrels.',
+        product_v2_title: 'Albariño Martín Códax',
+        product_v2_desc: 'D.O. Rías Baixas. 100% Albariño white wine, fresh and elegant, with citrus and floral notes.',
+        product_v3_title: 'Ribera del Duero Pago de Carraovejas',
+        product_v3_desc: 'D.O. Ribera del Duero. Tinto Fino, Cabernet Sauvignon and Merlot. Powerful, structured and very tasty.',
+        product_v4_title: 'Cava Juvé & Camps Reserva de la Familia',
+        product_v4_desc: 'D.O. Cava. Brut Nature Gran Reserva. Fine and persistent bubbles, with notes of white fruit and toasted bread.',
+        product_v5_title: 'Moët & Chandon Brut Imperial',
+        product_v5_desc: 'French Champagne. Vibrant, generous and seductive. Notes of green apple, citrus and white flowers.',
 
         // Semana del Atún
         product_sa1_title: 'Red Tuna Tataki',
@@ -299,20 +327,25 @@ export const Translations = {
         pairing_desc_p5: 'Slow-cooked love. Deep flavors that have taken their time to get to know each other and make you fall in love.',
 
         // Allergen Info
-        allergenInfoText: 'At El Trébol we care about your well-being. We have prepared this allergen filter so you can enjoy our cuisine with complete peace of mind.',
+        allergenInfoText: 'At Pure Beach Club we care about your well-being. We have prepared this allergen filter so you can enjoy our cuisine with complete peace of mind.',
         call: 'Call',
         navigate: 'Navigate',
     },
     fr: {
+        // Landing Page
+        welcome: 'BIENVENUE AU PARADIS',
+        experienceTagline: "Où l'été ne finit jamais",
+        viewMenu: "COMMENCER L'EXPÉRIENCE",
+
         menuTitle: 'Notre Carte',
         back: 'Retour',
         favoritesTitle: 'Mes Favoris',
-        chefRecommendations: 'Suggestions du Chef',
-        infoTitle: 'Infos & Horaires',
-        location: 'Puesto Cruz Roja, Playa de la Barrosa',
-        hours: 'Mar-Dim: 13:00 - 23:30',
-        reservations: 'Réservations: 912 345 678',
-        familySignature: 'La Famille Trébol',
+        chefRecommendations: "Les Hits de l'Été",
+        infoTitle: 'Infos & Vibes',
+        location: 'Playa de la Barrosa, Chiclana',
+        hours: 'Tous les jours: 12:00 - Tard',
+        reservations: 'VIP & Réservations: 912 345 678',
+        familySignature: 'Pure Beach Club Team',
         addToFavorites: 'Ajouter aux Favoris',
         removeFromFavorites: 'Retirer des Favoris',
         allergensTitle: 'Allergènes & Intolérances',
@@ -334,9 +367,9 @@ export const Translations = {
         semanaAtunBanner: 'Découvrez notre Semaine du Thon',
 
         // Story View
-        storyHeroTitle: 'El Trébol',
-        storyHeroSubtitle: 'Tradition & Avant-garde',
-        storyText: 'Depuis 1985, El Trébol est une référence de la gastronomie locale. Notre passion pour les produits locaux et les techniques traditionnelles se fondent pour créer une expérience unique.',
+        storyHeroTitle: 'Pure Beach Club',
+        storyHeroSubtitle: 'Vibes & Bites',
+        storyText: "Plus qu'un bar de plage, nous sommes un style de vie. Nés dans le sable, élevés par le soleil. Ici, la seule règle est de profiter.",
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -351,14 +384,12 @@ export const Translations = {
         allergen_mostaza: 'Moutarde',
 
         // Categories
-
-        // Categories
         cat_entrantes: 'Entrées',
         cat_principales: 'Plats Principaux',
         cat_postres: 'Desserts',
         cat_bebidas: 'Boissons',
         cat_vinos: 'Vins',
-        cat_el_trebol: 'El Trébol',
+        cat_el_trebol: 'Pure Specials',
         cat_semana_atun: 'Semaine du Thon',
 
         // Menu Items
@@ -381,7 +412,7 @@ export const Translations = {
         product_p2_desc: 'Pavé de saumon premium grillé, servi avec asperges sauvages, pommes de terre grenailles et une sauce douce aneth-citron.',
         product_p3_title: 'Risotto aux Champignons et Truffe',
         product_p3_desc: 'Riz Carnaroli crémeux cuisiné aux cèpes, champignons sauvages et fini à l\'huile de truffe noire et parmesan.',
-        product_p4_title: 'Burger Gourmet "El Trébol"',
+        product_p4_title: 'Burger Gourmet "Pure Beach"',
         product_p4_desc: '200g de bœuf maturé, cheddar fondu, oignons caramélisés, bacon croustillant et notre sauce secrète sur pain brioché.',
         product_p5_title: 'Joues de Porc Ibérique Braisées',
         product_p5_desc: 'Joues de porc ibérique mijotées au vin rouge pendant 4 heures, accompagnées de purée de patate douce.',
@@ -445,20 +476,38 @@ export const Translations = {
         pairing_desc_p5: 'L\'amour à feu doux. Des saveurs profondes qui ont pris leur temps pour se connaître et vous faire tomber amoureux.',
 
         // Allergen Info
-        allergenInfoText: 'Chez El Trébol, nous nous soucions de votre bien-être. Nous avons préparé ce filtre allergènes pour que vous puissiez profiter de notre cuisine en toute tranquillité.',
+        allergenInfoText: 'Chez Pure Beach Club, nous nous soucions de votre bien-être. Nous avons préparé ce filtre allergènes pour que vous puissiez profiter de notre cuisine en toute tranquillité.',
         call: 'Appeler',
         navigate: 'Y aller',
+
+        // Schedule
+        monday: 'Lundi',
+        tuesday: 'Mardi',
+        wednesday: 'Mercredi',
+        thursday: 'Jeudi',
+        friday: 'Vendredi',
+        saturday: 'Samedi',
+        sunday: 'Dimanche',
+        closed: 'Fermé',
+        open: 'Ouvert',
+        today: "Aujourd'hui",
+        scheduleTitle: "Horaires d'Ouverture",
     },
     de: {
-        menuTitle: 'Unsere Speisekarte',
+        // Landing Page
+        welcome: 'WILLKOMMEN IM PARADIES',
+        experienceTagline: 'Wo der Sommer nie endet',
+        viewMenu: 'ERLEBNIS STARTEN',
+
+        menuTitle: 'Unsere Karte',
         back: 'Zurück',
         favoritesTitle: 'Meine Favoriten',
-        chefRecommendations: 'Empfehlungen des Chefs',
-        infoTitle: 'Info & Öffnungszeiten',
-        location: 'Puesto Cruz Roja, Playa de la Barrosa',
-        hours: 'Di-So: 13:00 - 23:30',
-        reservations: 'Reservierungen: 912 345 678',
-        familySignature: 'Die Familie Trébol',
+        chefRecommendations: 'Sommer-Hits',
+        infoTitle: 'Infos & Vibes',
+        location: 'Playa de la Barrosa, Chiclana',
+        hours: 'Täglich: 12:00 - Spät',
+        reservations: 'VIP & Reservierungen: 912 345 678',
+        familySignature: 'Pure Beach Club Team',
         addToFavorites: 'Zu Favoriten hinzufügen',
         removeFromFavorites: 'Aus Favoriten entfernen',
         allergensTitle: 'Allergene & Unverträglichkeiten',
@@ -480,9 +529,9 @@ export const Translations = {
         semanaAtunBanner: 'Entdecken Sie unsere Thunfisch-Woche',
 
         // Story View
-        storyHeroTitle: 'El Trébol',
-        storyHeroSubtitle: 'Tradition & Avantgarde',
-        storyText: 'Seit 1985 ist El Trébol ein Maßstab für die lokale Gastronomie. Unsere Leidenschaft für lokale Produkte und traditionelle Techniken verschmelzen zu einem einzigartigen Erlebnis.',
+        storyHeroTitle: 'Pure Beach Club',
+        storyHeroSubtitle: 'Vibes & Bites',
+        storyText: 'Mehr als eine Strandbar, wir sind ein Lebensstil. Im Sand geboren, von der Sonne aufgezogen. Hier ist die einzige Regel zu genießen.',
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -497,14 +546,12 @@ export const Translations = {
         allergen_mostaza: 'Senf',
 
         // Categories
-
-        // Categories
         cat_entrantes: 'Vorspeisen',
         cat_principales: 'Hauptgerichte',
         cat_postres: 'Desserts',
         cat_bebidas: 'Getränke',
         cat_vinos: 'Weine',
-        cat_el_trebol: 'El Trébol',
+        cat_el_trebol: 'Pure Specials',
         cat_semana_atun: 'Thunfisch-Woche',
 
         // Menu Items
@@ -527,7 +574,7 @@ export const Translations = {
         product_p2_desc: 'Premium gegrilltes Lachsfilet, serviert mit wildem Spargel, Babykartoffeln und einer sanften Dill-Zitronen-Sauce.',
         product_p3_title: 'Pilz-Trüffel-Risotto',
         product_p3_desc: 'Cremiger Carnaroli-Reis gekocht mit Steinpilzen, Waldpilzen und verfeinert mit schwarzem Trüffelöl und Parmesan.',
-        product_p4_title: 'Gourmet-Burger "El Trébol"',
+        product_p4_title: 'Gourmet-Burger "Pure Beach"',
         product_p4_desc: '200g gereiftes Rindfleisch, geschmolzener Cheddar, karamellisierte Zwiebeln, knuspriger Speck und unsere geheime Sauce auf Brioche-Brötchen.',
         product_p5_title: 'Geschmorte Iberische Bäckchen',
         product_p5_desc: 'Iberische Schweinebäckchen, 4 Stunden in Rotwein geschmort, begleitet von Süßkartoffelpüree.',
@@ -591,8 +638,21 @@ export const Translations = {
         pairing_desc_p5: 'Liebe auf kleiner Flamme. Tiefe Aromen, die sich Zeit genommen haben, sich kennenzulernen und Sie zu verlieben.',
 
         // Allergen Info
-        allergenInfoText: 'Bei El Trébol liegt uns Ihr Wohlbefinden am Herzen. Wir haben diesen Allergenfilter vorbereitet, damit Sie unsere Küche in aller Ruhe genießen können.',
+        allergenInfoText: 'Bei Pure Beach Club liegt uns Ihr Wohlbefinden am Herzen. Wir haben diesen Allergenfilter vorbereitet, damit Sie unsere Küche in aller Ruhe genießen können.',
         call: 'Anrufen',
         navigate: 'Navigieren',
+
+        // Schedule
+        monday: 'Montag',
+        tuesday: 'Dienstag',
+        wednesday: 'Mittwoch',
+        thursday: 'Donnerstag',
+        friday: 'Freitag',
+        saturday: 'Samstag',
+        sunday: 'Sonntag',
+        closed: 'Geschlossen',
+        open: 'Geöffnet',
+        today: 'Heute',
+        scheduleTitle: 'Öffnungszeiten',
     },
 };

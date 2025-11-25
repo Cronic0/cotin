@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ElTrebol",
-    "slug": "ElTrebol",
+    "name": "GastroCode Demo",
+    "slug": "gastrocode-pure-beach",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "eltrebol",
+    "scheme": "gastrocode",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {

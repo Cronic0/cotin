@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, FlatList, SafeAreaView } from 'react-native';
-import { LightColors as Colors, Spacing, Typography } from '@/constants/Theme';
+import { ModernProductCard } from '@/components/ModernProductCard';
+import { Colors, Shadows, Spacing, Typography } from '@/constants/Theme';
 import { MENU_ITEMS } from '@/data/menuData';
-import { MenuItem } from '@/components/MenuItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
+import React, { useState } from 'react';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { HeaderRight } from '@/components/HeaderRight';
 
@@ -45,12 +46,6 @@ export default function AllergensScreen() {
     const filteredItems = MENU_ITEMS.filter(item => {
         if (selectedAllergens.length === 0) return true;
 
-        // We need to map the selected allergen keys back to the Spanish names stored in menuData
-        // OR better, update the logic to match based on keys if possible.
-        // Since menuData has Spanish strings like 'Gluten', 'Lácteos', we need a mapping.
-        // Let's create a simple mapping for now or assume the keys in Translations match the data if we normalized them.
-        // Given menuData is hardcoded Spanish, let's map keys to Spanish values for filtering.
-
         const keyToSpanish: Record<string, string> = {
             'gluten': 'Gluten',
             'lacteos': 'Lácteos',
@@ -75,7 +70,9 @@ export default function AllergensScreen() {
             <Stack.Screen options={{
                 title: t('allergenFilterTitle'),
                 headerBackTitle: t('back'),
-                headerRight: () => <HeaderRight />
+                headerRight: () => <HeaderRight />,
+                headerStyle: { backgroundColor: Colors.background },
+                headerTintColor: '#FFF',
             }} />
 
             <View style={styles.header}>
@@ -92,19 +89,22 @@ export default function AllergensScreen() {
                         return (
                             <Pressable
                                 key={allergenKey}
-                                style={[styles.allergenChip, isSelected && styles.allergenChipSelected]}
                                 onPress={() => toggleAllergen(allergenKey)}
                             >
-                                <MaterialCommunityIcons
-                                    name={iconName}
-                                    size={20}
-                                    color={isSelected ? "#FFF" : Colors.primary}
-                                    style={{ marginRight: 8 }}
-                                />
-                                {isSelected && <MaterialCommunityIcons name="close-circle" size={16} color="#FFF" style={{ marginRight: 4, display: 'none' }} />}
-                                <Text style={[styles.allergenText, isSelected && styles.allergenTextSelected]}>
-                                    {t(`allergen_${allergenKey}` as any)}
-                                </Text>
+                                <LinearGradient
+                                    colors={isSelected ? [Colors.primary, Colors.primaryDark] : [Colors.surface, Colors.surface]}
+                                    style={[styles.allergenChip, isSelected && styles.allergenChipSelected]}
+                                >
+                                    <MaterialCommunityIcons
+                                        name={iconName}
+                                        size={20}
+                                        color={isSelected ? "#FFF" : Colors.textSecondary}
+                                        style={{ marginRight: 8 }}
+                                    />
+                                    <Text style={[styles.allergenText, isSelected && styles.allergenTextSelected]}>
+                                        {t(`allergen_${allergenKey}` as any)}
+                                    </Text>
+                                </LinearGradient>
                             </Pressable>
                         );
                     })}
@@ -123,13 +123,14 @@ export default function AllergensScreen() {
             <FlatList
                 data={filteredItems}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <MenuItem item={item} />}
+                renderItem={({ item, index }) => <ModernProductCard item={item} index={index} />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <MaterialCommunityIcons name="food-off" size={48} color={Colors.textSecondary} />
+                        <MaterialCommunityIcons name="food-off" size={64} color={Colors.textSecondary} style={{ opacity: 0.5 }} />
                         <Text style={styles.emptyText}>{t('noSafeDishes')}</Text>
+                        <Text style={styles.emptySubText}>Intenta deseleccionar algunos alérgenos</Text>
                     </View>
                 }
             />
@@ -144,13 +145,12 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: Spacing.m,
-        backgroundColor: Colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.border,
+        paddingTop: Spacing.l,
+        backgroundColor: Colors.background,
     },
     title: {
         ...Typography.h2,
-        color: Colors.text,
+        color: '#FFFFFF',
         marginBottom: Spacing.xs,
     },
     subtitle: {
@@ -169,26 +169,22 @@ const styles = StyleSheet.create({
     allergenChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 20,
+        borderRadius: 16,
         backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        ...Shadows.small,
     },
     allergenChipSelected: {
-        backgroundColor: '#EF4444', // Red for "danger/excluded"
-        borderColor: '#EF4444',
+        borderColor: Colors.primary,
+        ...Shadows.medium,
     },
     allergenText: {
         fontSize: 14,
-        fontWeight: '500',
-        color: Colors.text,
+        fontWeight: '600',
+        color: Colors.textSecondary,
     },
     allergenTextSelected: {
         color: '#FFFFFF',
@@ -198,32 +194,43 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.m,
-        paddingBottom: Spacing.s,
+        paddingBottom: Spacing.m,
     },
     resultsTitle: {
         ...Typography.h3,
-        fontSize: 16,
-        color: Colors.text,
+        fontSize: 18,
+        color: '#FFFFFF',
         flex: 1,
     },
     resultsCount: {
         fontSize: 12,
-        color: Colors.textSecondary,
-        fontWeight: '600',
+        color: Colors.primary,
+        fontWeight: '700',
+        backgroundColor: 'rgba(45, 212, 191, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
     listContent: {
         padding: Spacing.m,
         paddingTop: 0,
+        paddingBottom: 40,
     },
     emptyContainer: {
         padding: Spacing.xl,
         alignItems: 'center',
-        marginTop: Spacing.xl,
+        marginTop: Spacing.xl * 2,
     },
     emptyText: {
+        ...Typography.h3,
+        color: '#FFFFFF',
+        marginTop: Spacing.m,
+        textAlign: 'center',
+    },
+    emptySubText: {
         ...Typography.body,
         color: Colors.textSecondary,
-        marginTop: Spacing.m,
+        marginTop: 8,
         textAlign: 'center',
     },
 });

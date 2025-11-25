@@ -1,4 +1,5 @@
-import { Colors, LightColors, Spacing } from '@/constants/Theme';
+import { ModernProductCard } from '@/components/ModernProductCard';
+import { Colors, LightColors, Spacing, Typography } from '@/constants/Theme';
 import { useAdmin } from '@/context/AdminContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CATEGORIES } from '@/data/menuData';
@@ -7,52 +8,58 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useNavigation } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Image, ImageBackground, Modal, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 
-const RecommendationCard = ({ item }: { item: any }) => {
+const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) => {
     const { t } = useLanguage();
     return (
         <Link href={`/menu/${item.id}` as any} asChild>
-            <Pressable style={styles.recommendationCard}>
-                <Image
-                    source={{ uri: item.image }}
-                    style={[
-                        styles.recommendationImage,
-                        item.available === false && styles.imageUnavailable
-                    ]}
-                />
-                {/* Unavailable Overlay */}
-                {item.available === false && (
-                    <View style={styles.unavailableOverlay} />
-                )}
-                {item.isNew && (
-                    <LinearGradient
-                        colors={['#F59E0B', '#D97706']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.newBadge}
-                    >
-                        <Text style={styles.newBadgeText}>NUEVO</Text>
-                    </LinearGradient>
-                )}
-                {item.available === false && (
-                    <View style={styles.unavailableBadge}>
-                        <Text style={styles.unavailableBadgeText}>No disponible</Text>
+            <Pressable>
+                <Animated.View
+                    entering={FadeInRight.delay(index * 100).springify()}
+                    style={styles.recommendationCard}
+                >
+                    <Image
+                        source={{ uri: item.image }}
+                        style={[
+                            styles.recommendationImage,
+                            item.available === false && styles.imageUnavailable
+                        ]}
+                    />
+                    {/* Unavailable Overlay */}
+                    {item.available === false && (
+                        <View style={styles.unavailableOverlay} />
+                    )}
+                    {item.isNew && (
+                        <LinearGradient
+                            colors={[Colors.secondary, Colors.secondaryDark]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.newBadge}
+                        >
+                            <Text style={styles.newBadgeText}>NUEVO</Text>
+                        </LinearGradient>
+                    )}
+                    {item.available === false && (
+                        <View style={styles.unavailableBadge}>
+                            <Text style={styles.unavailableBadgeText}>No disponible</Text>
+                        </View>
+                    )}
+                    {item.isOffMenu && (
+                        <LinearGradient
+                            colors={[Colors.primary, Colors.primaryDark]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.offMenuBadge}
+                        >
+                            <Text style={styles.offMenuBadgeText}>Fuera de Carta</Text>
+                        </LinearGradient>
+                    )}
+                    <View style={styles.recommendationContent}>
+                        <Text style={styles.recommendationTitle} numberOfLines={1}>{item.title}</Text>
+                        <Text style={styles.recommendationPrice}>{item.price.toFixed(2)}€</Text>
                     </View>
-                )}
-                {item.isOffMenu && (
-                    <LinearGradient
-                        colors={['#10B981', '#059669']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.offMenuBadge}
-                    >
-                        <Text style={styles.offMenuBadgeText}>Fuera de Carta</Text>
-                    </LinearGradient>
-                )}
-                <View style={styles.recommendationContent}>
-                    <Text style={styles.recommendationTitle} numberOfLines={1}>{item.title}</Text>
-                    <Text style={styles.recommendationPrice}>{item.price.toFixed(2)}€</Text>
-                </View>
+                </Animated.View>
             </Pressable>
         </Link>
     );
@@ -481,59 +488,8 @@ export default function MenuScreen() {
         (item) => item.category === activeCategory
     );
 
-    const renderItem = ({ item }: { item: any }) => (
-        <Link href={`/menu/${item.id}` as any} asChild>
-            <Pressable style={styles.minimalCard}>
-                <View style={styles.minimalCardContent}>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.minimalTitle}>{item.title}</Text>
-                        <Text style={styles.minimalDescription} numberOfLines={2}>
-                            {item.description}
-                        </Text>
-                        <Text style={styles.minimalPrice}>{item.price.toFixed(2)}€</Text>
-                    </View>
-                    <View>
-                        <Image
-                            source={{ uri: item.image }}
-                            style={[
-                                styles.minimalImage,
-                                item.available === false && styles.imageUnavailable
-                            ]}
-                        />
-                        {/* Unavailable Overlay */}
-                        {item.available === false && (
-                            <View style={styles.unavailableOverlay} />
-                        )}
-                        {/* Unavailable Badge */}
-                        {item.available === false && (
-                            <View style={styles.unavailableBadgeMinimal}>
-                                <Text style={styles.unavailableBadgeTextMinimal}>No disponible</Text>
-                            </View>
-                        )}
-                        {item.isNew && (
-                            <LinearGradient
-                                colors={['#F59E0B', '#D97706']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.newBadgeMinimal}
-                            >
-                                <Text style={styles.newBadgeTextMinimal}>NUEVO</Text>
-                            </LinearGradient>
-                        )}
-                        {item.isOffMenu && (
-                            <LinearGradient
-                                colors={['#10B981', '#059669']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.offMenuBadgeMinimal}
-                            >
-                                <Text style={styles.offMenuBadgeTextMinimal}>Fuera de Carta</Text>
-                            </LinearGradient>
-                        )}
-                    </View>
-                </View>
-            </Pressable>
-        </Link>
+    const renderItem = ({ item, index }: { item: any, index: number }) => (
+        <ModernProductCard item={item} index={index} />
     );
 
     return (
@@ -542,78 +498,70 @@ export default function MenuScreen() {
                 <StoryView key={language} />
             ) : (
                 <>
-                    {/* Category Hero */}
-                    <ImageBackground
-                        source={{ uri: getCategoryImage(activeCategory) }}
-                        style={styles.categoryHero}
-                    >
-                        <View style={styles.categoryTitleBox}>
-                            <Text style={styles.categoryHeroTitle}>
-                                {CATEGORIES.find(cat => cat.id === activeCategory)?.title}
-                            </Text>
-                        </View>
-                    </ImageBackground>
+                    {/* Immersive Category Hero (Fixed Background) */}
+                    <View style={styles.immersiveHeader}>
+                        <ImageBackground
+                            source={{ uri: getCategoryImage(activeCategory) }}
+                            style={styles.immersiveHeroImage}
+                            resizeMode="cover"
+                        >
+                            <LinearGradient
+                                colors={['rgba(0,0,0,0.3)', 'rgba(15, 23, 42, 0.8)']}
+                                style={styles.immersiveGradient}
+                            />
+                            <View style={styles.immersiveTitleContainer}>
+                                <Text style={styles.immersiveTitle}>
+                                    {CATEGORIES.find(cat => cat.id === activeCategory)?.title}
+                                </Text>
+                                <Text style={styles.immersiveSubtitle}>
+                                    Explora nuestra selección
+                                </Text>
+                            </View>
+                        </ImageBackground>
+                    </View>
 
-                    <RNFlatList
-                        key={activeCategory}
-                        data={filteredItems}
-                        keyExtractor={(item, index) => `${item.id}-${index}`}
-                        renderItem={renderItem}
-                        contentContainerStyle={styles.listContent}
-                        showsVerticalScrollIndicator={false}
-                        ItemSeparatorComponent={() => <View style={styles.separator} />}
-                    />
+                    {/* Sheet Container (Scrollable) */}
+                    <View style={styles.sheetContainer}>
+                        <RNFlatList
+                            key={activeCategory}
+                            data={filteredItems}
+                            keyExtractor={(item, index) => `${item.id}-${index}`}
+                            renderItem={renderItem}
+                            contentContainerStyle={styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                            ItemSeparatorComponent={() => <View style={styles.separator} />}
+                        />
+                    </View>
                 </>
             )}
 
-            {/* Bottom Navigation Dock */}
-            <View style={styles.bottomDockContainer}>
-                <View style={styles.dockGlass}>
+            {/* Floating Category Selector */}
+            <View style={styles.floatingSelectorContainer}>
+                <View style={styles.floatingSelectorGlass}>
                     <ScrollView
                         ref={scrollViewRef}
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.dockContent}
+                        contentContainerStyle={styles.floatingSelectorContent}
                     >
                         {CATEGORIES.map((cat) => {
                             const isActive = activeCategory === cat.id;
-                            const isSpecial = cat.id === 'el-trebol';
-
-                            // Icon mapping
-                            let iconName = 'food';
-                            if (cat.id === 'entrantes') iconName = 'silverware-fork-knife';
-                            if (cat.id === 'principales') iconName = 'room-service';
-                            if (cat.id === 'postres') iconName = 'cupcake';
-                            if (cat.id === 'bebidas') iconName = 'glass-cocktail';
-                            if (cat.id === 'vinos') iconName = 'glass-wine';
-                            if (cat.id === 'el-trebol') iconName = 'clover';
 
                             return (
                                 <Pressable
                                     key={cat.id}
                                     style={[
-                                        styles.dockTab,
-                                        isActive && styles.dockTabActive,
-                                        isSpecial && styles.dockTabSpecial
+                                        styles.pill,
+                                        isActive && styles.pillActive
                                     ]}
                                     onPress={() => setActiveCategory(cat.id)}
                                 >
-                                    <View style={[
-                                        styles.dockIconContainer,
-                                        isActive && styles.dockIconContainerActive,
-                                        isSpecial && styles.dockIconContainerSpecial
+                                    <Text style={[
+                                        styles.pillText,
+                                        isActive && styles.pillTextActive
                                     ]}>
-                                        <MaterialCommunityIcons
-                                            name={iconName as any}
-                                            size={isSpecial ? 28 : 22}
-                                            color={isActive ? (isSpecial ? '#FFF' : '#FFF') : LightColors.textSecondary}
-                                        />
-                                    </View>
-                                    {isActive && !isSpecial && (
-                                        <Text style={styles.dockLabel} numberOfLines={1}>
-                                            {t(`cat_${cat.id}` as any)}
-                                        </Text>
-                                    )}
+                                        {cat.title}
+                                    </Text>
                                 </Pressable>
                             );
                         })}
@@ -1379,5 +1327,98 @@ const styles = StyleSheet.create({
         color: Colors.primary,
         fontWeight: '600',
         fontSize: 16,
+    },
+    // Immersive Header
+    immersiveHeader: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 220, // Reduced from 320
+        zIndex: 0,
+    },
+    immersiveHeroImage: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
+    immersiveGradient: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    immersiveTitleContainer: {
+        padding: Spacing.l,
+        paddingBottom: 50, // Adjusted for shorter header
+        alignItems: 'center',
+    },
+    immersiveTitle: {
+        ...Typography.h1,
+        color: '#FFFFFF',
+        fontSize: 36, // Slightly smaller font for shorter header
+        textAlign: 'center',
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: { width: 0, height: 4 },
+        textShadowRadius: 10,
+    },
+    immersiveSubtitle: {
+        ...Typography.body,
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 12,
+        marginTop: 4,
+        letterSpacing: 2,
+        textTransform: 'uppercase',
+    },
+    // Sheet Container
+    sheetContainer: {
+        flex: 1,
+        marginTop: 180, // Overlap with header (220 - 40)
+        backgroundColor: LightColors.background,
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        overflow: 'hidden',
+        zIndex: 1,
+    },
+
+    // Floating Category Selector
+    floatingSelectorContainer: {
+        position: 'absolute',
+        bottom: 30,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        zIndex: 100,
+    },
+    floatingSelectorGlass: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        borderRadius: 40,
+        padding: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
+        maxWidth: '95%',
+    },
+    floatingSelectorContent: {
+        paddingHorizontal: 4,
+    },
+    pill: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 30,
+        marginHorizontal: 4,
+    },
+    pillActive: {
+        backgroundColor: Colors.primary,
+    },
+    pillText: {
+        color: 'rgba(255,255,255,0.6)',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    pillTextActive: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
     },
 });
