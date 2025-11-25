@@ -124,7 +124,11 @@ export default function LandingPage() {
 
                         {/* Footer */}
                         <Animated.View entering={FadeIn.delay(1200)} style={styles.footer}>
-                            <Text style={styles.footerText}>POWERED BY GASTROCODE</Text>
+                            <Link href="/admin/login" asChild>
+                                <Pressable>
+                                    <Text style={styles.footerText}>POWERED BY GASTROCODE</Text>
+                                </Pressable>
+                            </Link>
                         </Animated.View>
                     </View>
                 </LinearGradient>

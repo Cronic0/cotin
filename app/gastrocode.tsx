@@ -3,8 +3,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
-import { ImageBackground, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, Image, ImageBackground, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, {
     FadeInDown,
     useAnimatedStyle,
@@ -34,6 +34,24 @@ export default function GastroCodeScreen() {
     const handleContact = () => {
         Linking.openURL('mailto:contacto@gastrocode.com');
     };
+
+    // Carousel state
+    const [activeIndex, setActiveIndex] = useState(0);
+    const scrollViewRef = useRef<ScrollView>(null);
+    const { width } = Dimensions.get('window');
+
+    const showcaseItems = [
+        {
+            title: 'Analítica Avanzada',
+            description: 'Conoce a tus clientes, sus preferencias y optimiza tu menú basándote en datos reales.',
+            image: require('@/assets/images/analytics_dashboard.png'),
+        },
+        {
+            title: 'Experiencia Móvil',
+            description: 'Tus clientes acceden a tu carta desde cualquier dispositivo, sin apps ni descargas.',
+            image: require('@/assets/images/customer_phone.png'),
+        },
+    ];
 
     return (
         <View style={styles.container}>
@@ -83,7 +101,83 @@ export default function GastroCodeScreen() {
                             </View>
                         </Animated.View>
 
-                        <Animated.View entering={FadeInDown.delay(1000).duration(800)} style={styles.ctaContainer}>
+                        {/* Showcase Carousel */}
+                        <Animated.View entering={FadeInDown.delay(1400).duration(800)} style={styles.showcaseSection}>
+                            <Text style={styles.showcaseSectionTitle}>Características que Destacan</Text>
+                            <ScrollView
+                                ref={scrollViewRef}
+                                horizontal
+                                pagingEnabled
+                                showsHorizontalScrollIndicator={false}
+                                onScroll={(e) => {
+                                    const offset = e.nativeEvent.contentOffset.x;
+                                    const index = Math.round(offset / (width - Spacing.xl * 2));
+                                    setActiveIndex(index);
+                                }}
+                                scrollEventThrottle={16}
+                            >
+                                {showcaseItems.map((item, index) => (
+                                    <View key={index} style={[styles.showcaseCard, { width: width - Spacing.xl * 2 }]}>
+                                        <Image source={item.image} style={styles.showcaseImage} />
+                                        <View style={styles.showcaseContent}>
+                                            <Text style={styles.showcaseTitle}>{item.title}</Text>
+                                            <Text style={styles.showcaseDescription}>{item.description}</Text>
+                                        </View>
+                                    </View>
+                                ))}
+                            </ScrollView>
+
+                            {/* Carousel indicators */}
+                            <View style={styles.carouselIndicators}>
+                                {showcaseItems.map((_, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.indicator,
+                                            index === activeIndex && styles.indicatorActive
+                                        ]}
+                                    />
+                                ))}
+                            </View>
+                        </Animated.View>
+
+                        {/* Why GastroCode Section */}
+                        <Animated.View entering={FadeInDown.delay(1600).duration(800)} style={styles.whySection}>
+                            <Text style={styles.whySectionTitle}>¿Por qué GastroCode?</Text>
+
+                            <View style={styles.benefitRow}>
+                                <View style={styles.benefitIconContainer}>
+                                    <MaterialCommunityIcons name="chart-line" size={28} color={Colors.primary} />
+                                </View>
+                                <View style={styles.benefitTextContainer}>
+                                    <Text style={styles.benefitTitle}>Aumenta tus Ventas</Text>
+                                    <Text style={styles.benefitText}>Menús visuales atractivos que impulsan el ticket medio hasta un 30%</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.benefitRow}>
+                                <View style={styles.benefitIconContainer}>
+                                    <MaterialCommunityIcons name="clock-fast" size={28} color={Colors.primary} />
+                                </View>
+                                <View style={styles.benefitTextContainer}>
+                                    <Text style={styles.benefitTitle}>Actualizaciones Instantáneas</Text>
+                                    <Text style={styles.benefitText}>Modifica precios y productos en tiempo real desde cualquier lugar</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.benefitRow}>
+                                <View style={styles.benefitIconContainer}>
+                                    <MaterialCommunityIcons name="earth" size={28} color={Colors.primary} />
+                                </View>
+                                <View style={styles.benefitTextContainer}>
+                                    <Text style={styles.benefitTitle}>Multiidioma Automático</Text>
+                                    <Text style={styles.benefitText}>Tu carta disponible en varios idiomas para turistas internacionales</Text>
+                                </View>
+                            </View>
+                        </Animated.View>
+
+                        {/* CTA Section at bottom */}
+                        <Animated.View entering={FadeInDown.delay(1800).duration(800)} style={styles.ctaContainer}>
                             <Text style={styles.ctaText}>¿Listo para digitalizar tu restaurante?</Text>
                             <Pressable style={styles.ctaButton} onPress={handleContact}>
                                 <Text style={styles.ctaButtonText}>Contactar Ahora</Text>
@@ -91,10 +185,17 @@ export default function GastroCodeScreen() {
                             </Pressable>
                         </Animated.View>
 
-                        <Animated.View entering={FadeInDown.delay(1200).duration(800)}>
+                        <Animated.View entering={FadeInDown.delay(2000).duration(800)}>
                             <Pressable style={styles.adminButton} onPress={() => router.push('/admin/login' as any)}>
                                 <MaterialCommunityIcons name="shield-account" size={20} color={Colors.primary} />
                                 <Text style={styles.adminButtonText}>Acceso Clientes</Text>
+                            </Pressable>
+                        </Animated.View>
+
+                        {/* Footer */}
+                        <Animated.View entering={FadeInDown.delay(2200).duration(800)} style={styles.footer}>
+                            <Pressable onPress={() => router.push('/admin/login' as any)}>
+                                <Text style={styles.footerText}>Powered by GastroCode</Text>
                             </Pressable>
                         </Animated.View>
 
@@ -237,6 +338,115 @@ const styles = StyleSheet.create({
         color: Colors.primary,
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    showcaseSection: {
+        marginBottom: Spacing.xl * 2,
+    },
+    showcaseSectionTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: Spacing.l,
+        textAlign: 'center',
+    },
+    showcaseCard: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        overflow: 'hidden',
+        marginRight: Spacing.m,
+    },
+    showcaseImage: {
+        width: '100%',
+        height: 200,
+        resizeMode: 'cover',
+    },
+    showcaseContent: {
+        padding: Spacing.l,
+    },
+    showcaseTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: Spacing.s,
+    },
+    showcaseDescription: {
+        fontSize: 15,
+        color: LightColors.textSecondary,
+        lineHeight: 22,
+    },
+    carouselIndicators: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: Spacing.m,
+        gap: 8,
+    },
+    indicator: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255,255,255,0.3)',
+    },
+    indicatorActive: {
+        backgroundColor: Colors.primary,
+        width: 24,
+    },
+    whySection: {
+        marginBottom: Spacing.xl,
+    },
+    whySectionTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: Spacing.xl,
+        textAlign: 'center',
+    },
+    benefitRow: {
+        flexDirection: 'row',
+        marginBottom: Spacing.l,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: Spacing.m,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    benefitIconContainer: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Spacing.m,
+        borderWidth: 1,
+        borderColor: 'rgba(16, 185, 129, 0.3)',
+    },
+    benefitTextContainer: {
+        flex: 1,
+    },
+    benefitTitle: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+    },
+    benefitText: {
+        fontSize: 14,
+        color: LightColors.textSecondary,
+        lineHeight: 20,
+    },
+    footer: {
+        alignItems: 'center',
+        marginTop: Spacing.xl * 2,
+        paddingTop: Spacing.l,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.1)',
+    },
+    footerText: {
+        fontSize: 14,
+        color: LightColors.textSecondary,
+        opacity: 0.7,
     },
     footerSpacer: {
         height: 50,

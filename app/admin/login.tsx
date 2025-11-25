@@ -53,7 +53,6 @@ export default function AdminLoginScreen() {
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry
-                            autoFocus
                             onSubmitEditing={handleLogin}
                         />
                     </View>
