@@ -2,6 +2,7 @@
 import { GastroCodeLogo } from '@/components/GastroCodeLogo';
 import { Colors, Shadows, Spacing, Typography } from '@/constants/Theme';
 import { Language } from '@/constants/Translations';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -22,6 +23,7 @@ const { width, height } = Dimensions.get('window');
 export default function LandingPage() {
     const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
+    const { trackLanguage } = useAnalytics();
     const languages: Language[] = ['es', 'en', 'fr', 'de'];
 
     // Animation values
@@ -34,6 +36,11 @@ export default function LandingPage() {
         titleTranslateY.value = withDelay(300, withSpring(0, { damping: 12 }));
         contentOpacity.value = withDelay(800, withTiming(1, { duration: 800 }));
     }, []);
+
+    const handleViewMenu = () => {
+        trackLanguage(language);
+        router.push('/menu');
+    };
 
     const titleStyle = useAnimatedStyle(() => ({
         opacity: titleOpacity.value,
@@ -78,7 +85,7 @@ export default function LandingPage() {
                                         styles.primaryButton,
                                         pressed && styles.primaryButtonPressed
                                     ]}
-                                    onPress={() => router.push('/menu')}
+                                    onPress={handleViewMenu}
                                 >
                                     <LinearGradient
                                         colors={[Colors.primary, Colors.primaryDark]}

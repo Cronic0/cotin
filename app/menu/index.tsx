@@ -219,7 +219,7 @@ const ScheduleModal = ({ visible, onClose }: { visible: boolean; onClose: () => 
 
 const StoryView = () => {
     const { t } = useLanguage();
-    const { products, showRecommendations, showOffMenu, showTunaWeek, showBannerCarousel, bannerConfig, schedule } = useAdmin();
+    const { products, showRecommendations, showOffMenu, showTunaWeek, showBannerCarousel, bannerConfig, showEvent, eventConfig, schedule, sectionOrder, showAllergens } = useAdmin();
     const bannerItems = products.filter(item => item.isBanner);
     const recommendations = products.filter(item => item.isRecommendation);
     const offMenuItems = products.filter(item => item.isOffMenu);
@@ -240,200 +240,238 @@ const StoryView = () => {
     return (
         <ScrollView contentContainerStyle={styles.storyContainer} showsVerticalScrollIndicator={false}>
             <ImageBackground
-                source={{ uri: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1974&auto=format&fit=crop' }}
+                source={require('@/assets/images/hero_restaurant.png')}
                 style={styles.heroContainer}
             >
                 <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.8)']}
+                    colors={['transparent', 'rgba(0,0,0,0.6)']}
                     style={styles.heroGradient}
                 >
                     <View style={styles.heroContent}>
-                        <MaterialCommunityIcons name="clover" size={64} color={Colors.primary} style={styles.heroIcon} />
+                        <MaterialCommunityIcons name="clover" size={64} color="#FFF" style={styles.heroIcon} />
                         <Text style={styles.heroTitle}>{t('storyHeroTitle')}</Text>
                         <Text style={styles.heroSubtitle}>{t('storyHeroSubtitle')}</Text>
                     </View>
                 </LinearGradient>
             </ImageBackground>
-            <View style={styles.sectionContainer}>
-                <Text style={styles.storyText}>
-                    {t('storyText')}
-                </Text>
-            </View>
 
-            {/* Banner Section */}
-            {showTunaWeek && bannerItems.length > 0 && (
-                <View style={styles.sectionContainer}>
-                    <Link href={bannerConfig.linkPath as any} asChild>
-                        <Pressable>
-                            <ImageBackground
-                                source={{ uri: bannerConfig.imageUrl }}
-                                style={styles.tunaBanner}
-                                imageStyle={{ borderRadius: 16 }}
-                            >
-                                <LinearGradient
-                                    colors={['transparent', 'rgba(0,0,0,0.7)']}
-                                    style={styles.tunaBannerOverlay}
-                                >
-                                    <Text style={styles.tunaBannerTitle}>{bannerConfig.title}</Text>
-                                    <Text style={styles.tunaBannerSubtitle}>{bannerConfig.subtitle}</Text>
-                                </LinearGradient>
-                            </ImageBackground>
-                        </Pressable>
-                    </Link>
-
-                    {/* Banner Carousel - Only show if showBannerCarousel is true */}
-                    {showBannerCarousel && (
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={[styles.recommendationsList, { marginTop: Spacing.m }]}
-                            snapToInterval={220}
-                            decelerationRate="fast"
-                        >
-                            {bannerItems.map((item) => (
-                                <RecommendationCard key={item.id} item={item} />
-                            ))}
-                        </ScrollView>
-                    )}
+            <View style={styles.storySheet}>
+                <View style={[styles.sectionContainer, { marginTop: Spacing.l }]}>
+                    <Text style={styles.storyText}>
+                        {t('storyText')}
+                    </Text>
                 </View>
-            )}
 
-            {/* Allergen Section */}
-            <View style={styles.sectionContainer}>
-                <Text style={styles.allergenInfoText}>
-                    {t('allergenInfoText')}
-                </Text>
-                <Link href="/allergens" asChild>
-                    <Pressable style={styles.allergenBanner}>
-                        <View style={styles.allergenBannerContent}>
-                            <MaterialCommunityIcons name="shield-check-outline" size={24} color={Colors.primary} />
-                            <View style={{ marginLeft: 12 }}>
-                                <Text style={styles.allergenBannerTitle}>{t('allergenFilterTitle')}</Text>
-                                <Text style={styles.allergenBannerSubtitle}>{t('allergenFilterSub')}</Text>
+                {/* Dynamic Sections */}
+                {sectionOrder.map((sectionId) => {
+                    switch (sectionId) {
+                        case 'banner':
+                            return showTunaWeek && bannerItems.length > 0 ? (
+                                <View key={sectionId} style={styles.sectionContainer}>
+                                    <Link href={bannerConfig.linkPath as any} asChild>
+                                        <Pressable>
+                                            <ImageBackground
+                                                source={{ uri: bannerConfig.imageUrl }}
+                                                style={styles.tunaBanner}
+                                                imageStyle={{ borderRadius: 16 }}
+                                            >
+                                                <LinearGradient
+                                                    colors={['transparent', 'rgba(0,0,0,0.7)']}
+                                                    style={styles.tunaBannerOverlay}
+                                                >
+                                                    <Text style={styles.tunaBannerTitle}>{bannerConfig.title}</Text>
+                                                    <Text style={styles.tunaBannerSubtitle}>{bannerConfig.subtitle}</Text>
+                                                </LinearGradient>
+                                            </ImageBackground>
+                                        </Pressable>
+                                    </Link>
+
+                                    {/* Banner Carousel */}
+                                    {showBannerCarousel && (
+                                        <ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={false}
+                                            contentContainerStyle={[styles.recommendationsList, { marginTop: Spacing.m }]}
+                                            snapToInterval={220}
+                                            decelerationRate="fast"
+                                        >
+                                            {bannerItems.map((item) => (
+                                                <RecommendationCard key={item.id} item={item} />
+                                            ))}
+                                        </ScrollView>
+                                    )}
+                                </View>
+                            ) : null;
+
+                        case 'event':
+                            return showEvent ? (
+                                <View key={sectionId} style={styles.sectionContainer}>
+                                    <Link href={eventConfig.linkPath as any || '/menu'} asChild>
+                                        <Pressable>
+                                            <ImageBackground
+                                                source={{ uri: eventConfig.imageUrl }}
+                                                style={styles.tunaBanner}
+                                                imageStyle={{ borderRadius: 16 }}
+                                            >
+                                                <LinearGradient
+                                                    colors={['transparent', 'rgba(0,0,0,0.7)']}
+                                                    style={styles.tunaBannerOverlay}
+                                                >
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                                        <MaterialCommunityIcons name="calendar-star" size={20} color={Colors.secondary} />
+                                                        <Text style={[styles.tunaBannerSubtitle, { color: Colors.secondary, fontWeight: 'bold' }]}>
+                                                            {eventConfig.date}
+                                                        </Text>
+                                                    </View>
+                                                    <Text style={styles.tunaBannerTitle}>{eventConfig.title}</Text>
+                                                    <Text style={styles.tunaBannerSubtitle}>{eventConfig.subtitle}</Text>
+                                                </LinearGradient>
+                                            </ImageBackground>
+                                        </Pressable>
+                                    </Link>
+                                </View>
+                            ) : null;
+
+                        case 'allergens':
+                            return showAllergens ? (
+                                <View key={sectionId} style={styles.sectionContainer}>
+                                    <Text style={styles.allergenInfoText}>
+                                        {t('allergenInfoText')}
+                                    </Text>
+                                    <Link href="/allergens" asChild>
+                                        <Pressable style={styles.allergenBanner}>
+                                            <View style={styles.allergenBannerContent}>
+                                                <MaterialCommunityIcons name="shield-check-outline" size={24} color={Colors.primary} />
+                                                <View style={{ marginLeft: 12 }}>
+                                                    <Text style={styles.allergenBannerTitle}>{t('allergenFilterTitle')}</Text>
+                                                    <Text style={styles.allergenBannerSubtitle}>{t('allergenFilterSub')}</Text>
+                                                </View>
+                                            </View>
+                                            <MaterialCommunityIcons name="chevron-right" size={24} color={Colors.textSecondary} />
+                                        </Pressable>
+                                    </Link>
+                                </View>
+                            ) : null;
+
+                        case 'recommendations':
+                            return showRecommendations && recommendations.length > 0 ? (
+                                <View key={sectionId} style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>{t('chefRecommendations')}</Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.recommendationsList}
+                                        snapToInterval={220}
+                                        decelerationRate="fast"
+                                        pagingEnabled={false}
+                                    >
+                                        {recommendations.map((item) => (
+                                            <RecommendationCard key={item.id} item={item} />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            ) : null;
+
+                        case 'offmenu':
+                            return showOffMenu && offMenuItems.length > 0 ? (
+                                <View key={sectionId} style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>Fuera de Carta</Text>
+                                    <Text style={styles.offMenuIntro}>
+                                        Platos especiales que no encontrarás en nuestra carta habitual. Creaciones únicas del chef disponibles por tiempo limitado.
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.recommendationsList}
+                                        snapToInterval={220}
+                                        decelerationRate="fast"
+                                        pagingEnabled={false}
+                                    >
+                                        {offMenuItems.map((item) => (
+                                            <RecommendationCard key={item.id} item={item} />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            ) : null;
+
+                        default:
+                            return null;
+                    }
+                })}
+
+                {/* Info Section */}
+                <View style={styles.infoContainer}>
+                    <Text style={styles.infoTitle}>{t('infoTitle')}</Text>
+
+                    <View style={styles.widgetsGrid}>
+                        {/* Map Widget */}
+                        <View style={styles.mapWidget}>
+                            <Image
+                                source={require('@/assets/images/location_map.png')}
+                                style={styles.mapImage}
+                            />
+                            <View style={styles.mapOverlay}>
+                                <View style={styles.mapContent}>
+                                    <MaterialCommunityIcons name="map-marker" size={24} color={Colors.primary} />
+                                    <Text style={styles.mapAddress}>{t('location')}</Text>
+                                </View>
+                                <Pressable
+                                    style={styles.mapButton}
+                                    onPress={() => {
+                                        const query = encodeURIComponent("Puesto Cruz Roja, Playa de la Barrosa, Chiclana de la Frontera");
+                                        const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+                                        import('react-native').then(({ Linking }) => Linking.openURL(url));
+                                    }}
+                                >
+                                    <Text style={styles.mapButtonText}>{t('navigate' as any)}</Text>
+                                    <MaterialCommunityIcons name="arrow-right" size={16} color="#FFF" />
+                                </Pressable>
                             </View>
                         </View>
-                        <MaterialCommunityIcons name="chevron-right" size={24} color={Colors.textSecondary} />
-                    </Pressable>
-                </Link>
-            </View>
 
-            {/* Chef Recommendations */}
-            {
-                showRecommendations && recommendations.length > 0 && (
-                    <View style={styles.sectionContainer}>
-                        <Text style={styles.sectionTitle}>{t('chefRecommendations')}</Text>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.recommendationsList}
-                            snapToInterval={220}
-                            decelerationRate="fast"
-                            pagingEnabled={false}
-                        >
-                            {recommendations.map((item) => (
-                                <RecommendationCard key={item.id} item={item} />
-                            ))}
-                        </ScrollView>
-                    </View>
-                )
-            }
+                        <View style={styles.rowWidgets}>
+                            {/* Hours Widget */}
+                            <Pressable style={styles.infoWidget} onPress={() => setShowSchedule(true)}>
+                                <View style={styles.iconCircle}>
+                                    <MaterialCommunityIcons name="clock-outline" size={24} color={Colors.primary} />
+                                </View>
+                                <View style={{ alignItems: 'center', gap: 4 }}>
+                                    <Text style={styles.widgetLabel}>{t('scheduleTitle')}</Text>
+                                    <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: '600' }}>
+                                        {getTodayHours()}
+                                    </Text>
+                                </View>
+                            </Pressable>
 
-            {/* Off Menu Section - Fuera de Carta */}
-            {
-                showOffMenu && offMenuItems.length > 0 && (
-                    <View style={styles.sectionContainer}>
-                        <Text style={styles.sectionTitle}>Fuera de Carta</Text>
-                        <Text style={styles.offMenuIntro}>
-                            Platos especiales que no encontrarás en nuestra carta habitual. Creaciones únicas del chef disponibles por tiempo limitado.
-                        </Text>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.recommendationsList}
-                            snapToInterval={220}
-                            decelerationRate="fast"
-                            pagingEnabled={false}
-                        >
-                            {offMenuItems.map((item) => (
-                                <RecommendationCard key={item.id} item={item} />
-                            ))}
-                        </ScrollView>
-                    </View>
-                )
-            }
-
-            {/* Info Section */}
-            <View style={styles.infoContainer}>
-                <Text style={styles.infoTitle}>{t('infoTitle')}</Text>
-
-                <View style={styles.widgetsGrid}>
-                    {/* Map Widget */}
-                    <View style={styles.mapWidget}>
-                        <Image
-                            source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1774&auto=format&fit=crop' }}
-                            style={styles.mapImage}
-                        />
-                        <View style={styles.mapOverlay}>
-                            <View style={styles.mapContent}>
-                                <MaterialCommunityIcons name="map-marker" size={24} color={Colors.primary} />
-                                <Text style={styles.mapAddress}>{t('location')}</Text>
-                            </View>
-                            <Pressable
-                                style={styles.mapButton}
-                                onPress={() => {
-                                    const query = encodeURIComponent("Puesto Cruz Roja, Playa de la Barrosa, Chiclana de la Frontera");
-                                    const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
-                                    import('react-native').then(({ Linking }) => Linking.openURL(url));
-                                }}
-                            >
-                                <Text style={styles.mapButtonText}>{t('navigate' as any)}</Text>
-                                <MaterialCommunityIcons name="arrow-right" size={16} color="#FFF" />
+                            {/* Contact Widget */}
+                            <Pressable style={styles.infoWidget}>
+                                <View style={styles.iconCircle}>
+                                    <MaterialCommunityIcons name="phone" size={24} color={Colors.primary} />
+                                </View>
+                                <View style={{ alignItems: 'center', gap: 4 }}>
+                                    <Text style={styles.widgetLabel}>{t('reservations')}</Text>
+                                    <Text style={{ fontSize: 11, color: Colors.textSecondary, fontWeight: '500' }}>
+                                        info@eltrebol.com
+                                    </Text>
+                                </View>
                             </Pressable>
                         </View>
                     </View>
-
-                    <View style={styles.rowWidgets}>
-                        {/* Hours Widget */}
-                        <Pressable style={styles.infoWidget} onPress={() => setShowSchedule(true)}>
-                            <View style={styles.iconCircle}>
-                                <MaterialCommunityIcons name="clock-outline" size={24} color={Colors.primary} />
-                            </View>
-                            <View style={{ alignItems: 'center', gap: 4 }}>
-                                <Text style={styles.widgetLabel}>{t('scheduleTitle')}</Text>
-                                <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: '600' }}>
-                                    {getTodayHours()}
-                                </Text>
-                            </View>
-                        </Pressable>
-
-                        {/* Contact Widget */}
-                        <Pressable style={styles.infoWidget}>
-                            <View style={styles.iconCircle}>
-                                <MaterialCommunityIcons name="phone" size={24} color={Colors.primary} />
-                            </View>
-                            <View style={{ alignItems: 'center', gap: 4 }}>
-                                <Text style={styles.widgetLabel}>{t('reservations')}</Text>
-                                <Text style={{ fontSize: 11, color: Colors.textSecondary, fontWeight: '500' }}>
-                                    info@eltrebol.com
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </View>
                 </View>
-            </View>
 
-            <NewsletterSection />
+                <NewsletterSection />
 
-            <View style={styles.signatureContainer}>
-                <Text style={styles.signature}>{t('familySignature')}</Text>
-            </View>
+                <View style={styles.signatureContainer}>
+                    <Text style={styles.signature}>{t('familySignature')}</Text>
+                </View>
 
-            <View style={styles.footerContainer}>
-                <Link href="/gastrocode" asChild>
-                    <Pressable>
-                        <Text style={styles.footerText}>App creada por GastroCode</Text>
-                    </Pressable>
-                </Link>
+                <View style={styles.footerContainer}>
+                    <Link href="/gastrocode" asChild>
+                        <Pressable>
+                            <Text style={styles.footerText}>App creada por GastroCode</Text>
+                        </Pressable>
+                    </Link>
+                </View>
             </View>
             <ScheduleModal visible={showSchedule} onClose={() => setShowSchedule(false)} />
         </ScrollView >
@@ -701,12 +739,19 @@ const styles = StyleSheet.create({
     },
     // Story View Styles
     storyContainer: {
+        paddingBottom: 0,
+    },
+    storySheet: {
+        backgroundColor: LightColors.background,
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        marginTop: -40,
         paddingBottom: 100,
+        overflow: 'hidden',
     },
     heroContainer: {
         height: 300,
         width: '100%',
-        marginBottom: Spacing.l,
     },
     heroImage: {
         width: '100%',

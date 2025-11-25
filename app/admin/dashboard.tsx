@@ -30,12 +30,12 @@ const SimpleBarChart = ({ data, maxValue }: { data: { label: string; value: numb
         </View>
     );
 };
-
 export default function AdminDashboard() {
     const { isAuthenticated, logout, products } = useAdmin();
     const { data } = useAnalytics();
     const [showFavorites, setShowFavorites] = useState(false);
     const [showTopProducts, setShowTopProducts] = useState(false);
+    const [showLanguageStats, setShowLanguageStats] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -200,6 +200,52 @@ export default function AdminDashboard() {
                         <View style={styles.chartCard}>
                             <SimpleBarChart data={monthlyData} maxValue={maxMonthlyValue} />
                         </View>
+                    </View>
+
+                    {/* Language Stats */}
+                    <View style={styles.section}>
+                        <Pressable
+                            style={styles.sectionHeader}
+                            onPress={() => setShowLanguageStats(!showLanguageStats)}
+                        >
+                            <View style={styles.sectionHeaderLeft}>
+                                <MaterialCommunityIcons name="translate" size={20} color={Colors.primary} />
+                                <Text style={styles.sectionHeaderText}>Procedencia de Clientes</Text>
+                            </View>
+                            <MaterialCommunityIcons
+                                name={showLanguageStats ? "chevron-up" : "chevron-down"}
+                                size={24}
+                                color="#FFF"
+                            />
+                        </Pressable>
+
+                        {showLanguageStats && (
+                            <View style={styles.chartCard}>
+                                {Object.entries(data.languageUsage || {}).length > 0 ? (
+                                    Object.entries(data.languageUsage)
+                                        .sort(([, a], [, b]) => b - a)
+                                        .map(([lang, count], index) => {
+                                            const total = Object.values(data.languageUsage).reduce((a, b) => a + b, 0);
+                                            const percentage = total > 0 ? (count / total) * 100 : 0;
+                                            const langNames: Record<string, string> = { es: 'Español', en: 'Inglés', fr: 'Francés', de: 'Alemán' };
+
+                                            return (
+                                                <View key={lang} style={{ marginBottom: 12 }}>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                                                        <Text style={{ color: '#FFF', fontWeight: '600' }}>{langNames[lang] || lang.toUpperCase()}</Text>
+                                                        <Text style={{ color: Colors.textSecondary }}>{count} ({percentage.toFixed(0)}%)</Text>
+                                                    </View>
+                                                    <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden' }}>
+                                                        <View style={{ height: '100%', width: `${percentage}%`, backgroundColor: Colors.primary, borderRadius: 4 }} />
+                                                    </View>
+                                                </View>
+                                            );
+                                        })
+                                ) : (
+                                    <Text style={styles.emptyText}>No hay datos de idioma aún</Text>
+                                )}
+                            </View>
+                        )}
                     </View>
 
                     {/* Top Favorites */}

@@ -5,10 +5,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 
 export default function AdminSettingsScreen() {
-    const { showRecommendations, showOffMenu, showTunaWeek, toggleRecommendations, toggleOffMenu, toggleTunaWeek, isAuthenticated, schedule, updateSchedule } = useAdmin();
+    const {
+        showRecommendations, toggleRecommendations,
+        showOffMenu, toggleOffMenu,
+        showTunaWeek, toggleTunaWeek,
+        showEvent, toggleEvent,
+        showAllergens, toggleAllergens,
+        sectionOrder, reorderSections,
+        isAuthenticated, schedule, updateSchedule
+    } = useAdmin();
     const router = useRouter();
     const [localSchedule, setLocalSchedule] = useState<Schedule>(schedule);
     const [hasChanges, setHasChanges] = useState(false);
@@ -29,21 +38,23 @@ export default function AdminSettingsScreen() {
     }
 
     const handleToggleRecommendations = async () => {
-        console.log('Toggle Recommendations clicked, current value:', showRecommendations);
         await toggleRecommendations();
-        console.log('Toggle completed, new value should be:', !showRecommendations);
     };
 
     const handleToggleOffMenu = async () => {
-        console.log('Toggle Off Menu clicked, current value:', showOffMenu);
         await toggleOffMenu();
-        console.log('Toggle completed, new value should be:', !showOffMenu);
     };
 
     const handleToggleBanner = async () => {
-        console.log('Toggle Banner clicked, current value:', showTunaWeek);
         await toggleTunaWeek();
-        console.log('Toggle completed, new value should be:', !showTunaWeek);
+    };
+
+    const handleToggleEvent = async () => {
+        await toggleEvent();
+    };
+
+    const handleToggleAllergens = async () => {
+        await toggleAllergens();
     };
 
     const toggleDayOpen = (day: string) => {
@@ -77,6 +88,138 @@ export default function AdminSettingsScreen() {
         setHasChanges(false);
     };
 
+    const renderItem = ({ item: sectionId, drag, isActive }: RenderItemParams<string>) => {
+        let config = {
+            title: '',
+            subtitle: '',
+            icon: '',
+            color: '',
+            isVisible: false,
+            onToggle: async () => { },
+            hasEdit: false,
+            editPath: ''
+        };
+
+        switch (sectionId) {
+            case 'recommendations':
+                config = {
+                    title: 'Recomendaciones del Chef',
+                    subtitle: showRecommendations ? '✓ Visible en el menú' : '✕ Oculta',
+                    icon: 'star',
+                    color: '#10b981',
+                    isVisible: showRecommendations,
+                    onToggle: handleToggleRecommendations,
+                    hasEdit: false,
+                    editPath: ''
+                };
+                break;
+            case 'offmenu':
+                config = {
+                    title: 'Fuera de Carta',
+                    subtitle: showOffMenu ? '✓ Visible en el menú' : '✕ Oculta',
+                    icon: 'silverware-variant',
+                    color: '#3b82f6',
+                    isVisible: showOffMenu,
+                    onToggle: handleToggleOffMenu,
+                    hasEdit: false,
+                    editPath: ''
+                };
+                break;
+            case 'banner':
+                config = {
+                    title: 'Banner',
+                    subtitle: showTunaWeek ? '✓ Visible en el menú' : '✕ Oculto',
+                    icon: 'image-area',
+                    color: '#f59e0b',
+                    isVisible: showTunaWeek,
+                    onToggle: handleToggleBanner,
+                    hasEdit: true,
+                    editPath: '/admin/banner'
+                };
+                break;
+            case 'event':
+                config = {
+                    title: 'Evento Especial',
+                    subtitle: showEvent ? '✓ Visible en el menú' : '✕ Oculto',
+                    icon: 'calendar-star',
+                    color: '#ec4899',
+                    isVisible: showEvent,
+                    onToggle: handleToggleEvent,
+                    hasEdit: true,
+                    editPath: '/admin/event'
+                };
+                break;
+            case 'allergens':
+                config = {
+                    title: 'Filtro de Alérgenos',
+                    subtitle: showAllergens ? '✓ Visible en el menú' : '✕ Oculto',
+                    icon: 'alert-circle-outline',
+                    color: '#8b5cf6',
+                    isVisible: showAllergens,
+                    onToggle: handleToggleAllergens,
+                    hasEdit: false,
+                    editPath: ''
+                };
+                break;
+            default:
+                return null;
+        }
+
+        return (
+            <ScaleDecorator>
+                <TouchableOpacity
+                    onLongPress={drag}
+                    disabled={isActive}
+                    style={[
+                        styles.settingRow,
+                        isActive && { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: '#FFF' }
+                    ]}
+                >
+                    <MaterialCommunityIcons name={config.icon as any} size={60} color={`${config.color}10`} style={styles.watermarkIcon} />
+
+                    {/* Drag Handle */}
+                    <View style={styles.dragHandle}>
+                        <MaterialCommunityIcons name="drag" size={24} color="rgba(255,255,255,0.5)" />
+                    </View>
+
+                    <View style={styles.settingInfo}>
+                        <View style={[styles.iconContainer, { backgroundColor: `${config.color}20`, borderColor: `${config.color}50` }]}>
+                            <MaterialCommunityIcons
+                                name={config.icon as any}
+                                size={24}
+                                color={config.color}
+                            />
+                        </View>
+                        <View style={styles.settingText}>
+                            <Text style={styles.settingTitle}>{config.title}</Text>
+                            <Text style={styles.settingSubtitle}>{config.subtitle}</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.settingActions}>
+                        {config.hasEdit && (
+                            <Pressable
+                                style={[styles.editButton, { backgroundColor: `${config.color}20`, borderColor: `${config.color}50` }]}
+                                onPress={(e) => {
+                                    e.stopPropagation();
+                                    router.push(config.editPath as any);
+                                }}
+                            >
+                                <MaterialCommunityIcons name="pencil" size={18} color={config.color} />
+                            </Pressable>
+                        )}
+                        <Pressable
+                            style={[styles.toggleButton, config.isVisible && { backgroundColor: config.color, borderColor: config.color }]}
+                            onPress={config.onToggle}
+                        >
+                            <View style={[styles.toggleThumb, config.isVisible && styles.toggleThumbActive]} />
+                        </Pressable>
+                    </View>
+                </TouchableOpacity>
+            </ScaleDecorator>
+        );
+    };
+
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
@@ -102,224 +245,133 @@ export default function AdminSettingsScreen() {
                     <Text style={styles.headerTitle}>Gestión Página de Inicio</Text>
                 </View>
 
-                <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Secciones del Menú</Text>
-                        <Text style={styles.sectionDescription}>
-                            Activa o desactiva las secciones especiales en la página principal
-                        </Text>
+                <DraggableFlatList
+                    data={sectionOrder}
+                    onDragEnd={({ data }) => reorderSections(data)}
+                    keyExtractor={(item) => item}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.content}
+                    ListHeaderComponent={
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Secciones del Menú</Text>
+                            <Text style={styles.sectionDescription}>
+                                Mantén pulsado y arrastra para reordenar las secciones.
+                            </Text>
+                        </View>
+                    }
+                    ListFooterComponent={
+                        <View style={[styles.section, { marginTop: Spacing.xl }]}>
+                            <Text style={styles.sectionTitle}>Horario del Restaurante</Text>
+                            <Text style={styles.sectionDescription}>
+                                Configura los horarios de apertura y cierre para cada día
+                            </Text>
 
-                        {/* Recommendations Toggle */}
-                        <Pressable
-                            style={styles.settingRow}
-                            onPress={handleToggleRecommendations}
-                        >
-                            <MaterialCommunityIcons name="star" size={60} color="rgba(16, 185, 129, 0.05)" style={styles.watermarkIcon} />
-                            <View style={styles.settingInfo}>
-                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.3)' }]}>
-                                    <MaterialCommunityIcons
-                                        name="star"
-                                        size={24}
-                                        color="#10b981"
-                                    />
-                                </View>
-                                <View style={styles.settingText}>
-                                    <Text style={styles.settingTitle}>Recomendaciones del Chef</Text>
-                                    <Text style={styles.settingSubtitle}>
-                                        {showRecommendations ? '✓ Visible en el menú' : '✕ Oculta'}
-                                    </Text>
-                                </View>
-                            </View>
+                            {/* Collapsible Button */}
                             <Pressable
-                                style={[styles.toggleButton, showRecommendations && styles.toggleButtonActive]}
-                                onPress={handleToggleRecommendations}
+                                style={styles.scheduleHeaderButton}
+                                onPress={() => setShowScheduleEditor(!showScheduleEditor)}
                             >
-                                <View style={[styles.toggleThumb, showRecommendations && styles.toggleThumbActive]} />
-                            </Pressable>
-                        </Pressable>
-
-                        {/* Off Menu Toggle */}
-                        <Pressable
-                            style={styles.settingRow}
-                            onPress={handleToggleOffMenu}
-                        >
-                            <MaterialCommunityIcons name="silverware-variant" size={60} color="rgba(59, 130, 246, 0.05)" style={styles.watermarkIcon} />
-                            <View style={styles.settingInfo}>
-                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)' }]}>
+                                <View style={styles.scheduleHeaderContent}>
+                                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
+                                        <MaterialCommunityIcons
+                                            name="clock-edit-outline"
+                                            size={24}
+                                            color="#8b5cf6"
+                                        />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.scheduleHeaderTitle}>Editar Horarios</Text>
+                                        <Text style={styles.scheduleHeaderSubtitle}>
+                                            {showScheduleEditor ? 'Ocultar editor' : 'Mostrar editor de horarios'}
+                                        </Text>
+                                    </View>
                                     <MaterialCommunityIcons
-                                        name="silverware-variant"
-                                        size={24}
-                                        color="#3b82f6"
-                                    />
-                                </View>
-                                <View style={styles.settingText}>
-                                    <Text style={styles.settingTitle}>Fuera de Carta</Text>
-                                    <Text style={styles.settingSubtitle}>
-                                        {showOffMenu ? '✓ Visible en el menú' : '✕ Oculta'}
-                                    </Text>
-                                </View>
-                            </View>
-                            <Pressable
-                                style={[styles.toggleButton, showOffMenu && styles.toggleButtonActive]}
-                                onPress={handleToggleOffMenu}
-                            >
-                                <View style={[styles.toggleThumb, showOffMenu && styles.toggleThumbActive]} />
-                            </Pressable>
-                        </Pressable>
-
-                        {/* Banner Toggle */}
-                        <Pressable
-                            style={styles.settingRow}
-                            onPress={handleToggleBanner}
-                        >
-                            <MaterialCommunityIcons name="image-area" size={60} color="rgba(245, 158, 11, 0.05)" style={styles.watermarkIcon} />
-                            <View style={styles.settingInfo}>
-                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.3)' }]}>
-                                    <MaterialCommunityIcons
-                                        name="image-area"
-                                        size={24}
-                                        color="#f59e0b"
-                                    />
-                                </View>
-                                <View style={styles.settingText}>
-                                    <Text style={styles.settingTitle}>Banner</Text>
-                                    <Text style={styles.settingSubtitle}>
-                                        {showTunaWeek ? '✓ Visible en el menú' : '✕ Oculto'}
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={styles.settingActions}>
-                                <Pressable
-                                    style={styles.editButton}
-                                    onPress={(e) => {
-                                        e.stopPropagation();
-                                        router.push('/admin/banner');
-                                    }}
-                                >
-                                    <MaterialCommunityIcons name="pencil" size={18} color="#f59e0b" />
-                                </Pressable>
-                                <Pressable
-                                    style={[styles.toggleButton, showTunaWeek && styles.toggleButtonActive]}
-                                    onPress={handleToggleBanner}
-                                >
-                                    <View style={[styles.toggleThumb, showTunaWeek && styles.toggleThumbActive]} />
-                                </Pressable>
-                            </View>
-                        </Pressable>
-                    </View>
-
-                    {/* Schedule Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Horario del Restaurante</Text>
-                        <Text style={styles.sectionDescription}>
-                            Configura los horarios de apertura y cierre para cada día
-                        </Text>
-
-                        {/* Collapsible Button */}
-                        <Pressable
-                            style={styles.scheduleHeaderButton}
-                            onPress={() => setShowScheduleEditor(!showScheduleEditor)}
-                        >
-                            <View style={styles.scheduleHeaderContent}>
-                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
-                                    <MaterialCommunityIcons
-                                        name="clock-edit-outline"
+                                        name={showScheduleEditor ? "chevron-up" : "chevron-down"}
                                         size={24}
                                         color="#8b5cf6"
                                     />
                                 </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.scheduleHeaderTitle}>Editar Horarios</Text>
-                                    <Text style={styles.scheduleHeaderSubtitle}>
-                                        {showScheduleEditor ? 'Ocultar editor' : 'Mostrar editor de horarios'}
-                                    </Text>
-                                </View>
-                                <MaterialCommunityIcons
-                                    name={showScheduleEditor ? "chevron-up" : "chevron-down"}
-                                    size={24}
-                                    color="#8b5cf6"
-                                />
-                            </View>
-                        </Pressable>
+                            </Pressable>
 
-                        {showScheduleEditor && (
-                            <View>
-                                {Object.keys(localSchedule).map((dayKey) => {
-                                    const day = localSchedule[dayKey];
-                                    const dayNames: { [key: string]: string } = {
-                                        monday: 'Lunes',
-                                        tuesday: 'Martes',
-                                        wednesday: 'Miércoles',
-                                        thursday: 'Jueves',
-                                        friday: 'Viernes',
-                                        saturday: 'Sábado',
-                                        sunday: 'Domingo'
-                                    };
+                            {showScheduleEditor && (
+                                <View>
+                                    {Object.keys(localSchedule).map((dayKey) => {
+                                        const day = localSchedule[dayKey];
+                                        const dayNames: { [key: string]: string } = {
+                                            monday: 'Lunes',
+                                            tuesday: 'Martes',
+                                            wednesday: 'Miércoles',
+                                            thursday: 'Jueves',
+                                            friday: 'Viernes',
+                                            saturday: 'Sábado',
+                                            sunday: 'Domingo'
+                                        };
 
-                                    return (
-                                        <View key={dayKey} style={styles.scheduleRow}>
-                                            <MaterialCommunityIcons name="calendar" size={60} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
+                                        return (
+                                            <View key={dayKey} style={styles.scheduleRow}>
+                                                <MaterialCommunityIcons name="calendar" size={60} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
 
-                                            <View style={styles.scheduleInfo}>
-                                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
-                                                    <MaterialCommunityIcons
-                                                        name="clock-outline"
-                                                        size={24}
-                                                        color="#8b5cf6"
-                                                    />
+                                                <View style={styles.scheduleInfo}>
+                                                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
+                                                        <MaterialCommunityIcons
+                                                            name="clock-outline"
+                                                            size={24}
+                                                            color="#8b5cf6"
+                                                        />
+                                                    </View>
+                                                    <View style={styles.scheduleText}>
+                                                        <Text style={styles.scheduleDay}>{dayNames[dayKey]}</Text>
+                                                        {day.isOpen ? (
+                                                            <View style={styles.timeInputs}>
+                                                                <TextInput
+                                                                    style={styles.timeInput}
+                                                                    value={day.openTime}
+                                                                    onChangeText={(value) => updateDayTime(dayKey, 'openTime', value)}
+                                                                    placeholder="13:00"
+                                                                    placeholderTextColor="rgba(255,255,255,0.3)"
+                                                                />
+                                                                <Text style={styles.timeSeparator}>-</Text>
+                                                                <TextInput
+                                                                    style={styles.timeInput}
+                                                                    value={day.closeTime}
+                                                                    onChangeText={(value) => updateDayTime(dayKey, 'closeTime', value)}
+                                                                    placeholder="23:30"
+                                                                    placeholderTextColor="rgba(255,255,255,0.3)"
+                                                                />
+                                                            </View>
+                                                        ) : (
+                                                            <Text style={styles.closedText}>Cerrado</Text>
+                                                        )}
+                                                    </View>
                                                 </View>
-                                                <View style={styles.scheduleText}>
-                                                    <Text style={styles.scheduleDay}>{dayNames[dayKey]}</Text>
-                                                    {day.isOpen ? (
-                                                        <View style={styles.timeInputs}>
-                                                            <TextInput
-                                                                style={styles.timeInput}
-                                                                value={day.openTime}
-                                                                onChangeText={(value) => updateDayTime(dayKey, 'openTime', value)}
-                                                                placeholder="13:00"
-                                                                placeholderTextColor="rgba(255,255,255,0.3)"
-                                                            />
-                                                            <Text style={styles.timeSeparator}>-</Text>
-                                                            <TextInput
-                                                                style={styles.timeInput}
-                                                                value={day.closeTime}
-                                                                onChangeText={(value) => updateDayTime(dayKey, 'closeTime', value)}
-                                                                placeholder="23:30"
-                                                                placeholderTextColor="rgba(255,255,255,0.3)"
-                                                            />
-                                                        </View>
-                                                    ) : (
-                                                        <Text style={styles.closedText}>Cerrado</Text>
-                                                    )}
-                                                </View>
+
+                                                <Pressable
+                                                    style={[styles.toggleButton, day.isOpen && styles.toggleButtonActive]}
+                                                    onPress={() => toggleDayOpen(dayKey)}
+                                                >
+                                                    <View style={[styles.toggleThumb, day.isOpen && styles.toggleThumbActive]} />
+                                                </Pressable>
                                             </View>
+                                        );
+                                    })}
 
-                                            <Pressable
-                                                style={[styles.toggleButton, day.isOpen && styles.toggleButtonActive]}
-                                                onPress={() => toggleDayOpen(dayKey)}
-                                            >
-                                                <View style={[styles.toggleThumb, day.isOpen && styles.toggleThumbActive]} />
+                                    {hasChanges && (
+                                        <View style={styles.scheduleActions}>
+                                            <Pressable style={styles.resetButton} onPress={resetSchedule}>
+                                                <MaterialCommunityIcons name="refresh" size={20} color="#FFF" />
+                                                <Text style={styles.resetButtonText}>Cancelar</Text>
+                                            </Pressable>
+                                            <Pressable style={styles.saveButton} onPress={saveSchedule}>
+                                                <MaterialCommunityIcons name="check" size={20} color="#FFF" />
+                                                <Text style={styles.saveButtonText}>Guardar Horario</Text>
                                             </Pressable>
                                         </View>
-                                    );
-                                })}
-
-                                {hasChanges && (
-                                    <View style={styles.scheduleActions}>
-                                        <Pressable style={styles.resetButton} onPress={resetSchedule}>
-                                            <MaterialCommunityIcons name="refresh" size={20} color="#FFF" />
-                                            <Text style={styles.resetButtonText}>Cancelar</Text>
-                                        </Pressable>
-                                        <Pressable style={styles.saveButton} onPress={saveSchedule}>
-                                            <MaterialCommunityIcons name="check" size={20} color="#FFF" />
-                                            <Text style={styles.saveButtonText}>Guardar Horario</Text>
-                                        </Pressable>
-                                    </View>
-                                )}
-                            </View>
-                        )}
-                    </View>
-                </ScrollView>
+                                    )}
+                                </View>
+                            )}
+                        </View>
+                    }
+                />
             </LinearGradient>
         </View>
     );
@@ -355,11 +407,11 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     content: {
-        flex: 1,
         paddingHorizontal: Spacing.l,
+        paddingBottom: 40,
     },
     section: {
-        marginBottom: Spacing.xl,
+        marginBottom: Spacing.m,
     },
     sectionTitle: {
         fontSize: 18,
@@ -456,6 +508,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: Spacing.s,
+        zIndex: 1,
+    },
+    dragHandle: {
+        marginRight: Spacing.m,
         zIndex: 1,
     },
     editButton: {

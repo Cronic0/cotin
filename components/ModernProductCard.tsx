@@ -73,6 +73,13 @@ export const ModernProductCard = ({ item, index }: ModernProductCardProps) => {
                                     <Text style={styles.badgeText}>AGOTADO</Text>
                                 </View>
                             )}
+
+                            {/* Offer Badge */}
+                            {item.isOffer && (
+                                <View style={styles.badgeOffer}>
+                                    <Text style={styles.badgeText}>{item.offerText || 'OFERTA'}</Text>
+                                </View>
+                            )}
                         </View>
 
                         {/* Content Section */}
@@ -196,5 +203,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
         letterSpacing: 1,
+    },
+    badgeOffer: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        backgroundColor: '#EF4444', // Red
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        ...Shadows.small,
+        zIndex: 10,
     }
 });

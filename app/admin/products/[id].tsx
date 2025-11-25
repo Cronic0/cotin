@@ -53,6 +53,8 @@ export default function ProductCreateEditScreen() {
     const [isNew, setIsNew] = useState(false);
     const [isOffMenu, setIsOffMenu] = useState(false);
     const [isBanner, setIsBanner] = useState(false);
+    const [isOffer, setIsOffer] = useState(false);
+    const [offerText, setOfferText] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -70,6 +72,8 @@ export default function ProductCreateEditScreen() {
             setIsNew(existingProduct.isNew || false);
             setIsOffMenu(existingProduct.isOffMenu || false);
             setIsBanner(existingProduct.isBanner || false);
+            setIsOffer(existingProduct.isOffer || false);
+            setOfferText(existingProduct.offerText || '');
         }
     }, [existingProduct]);
 
@@ -170,6 +174,8 @@ export default function ProductCreateEditScreen() {
             isNew,
             isOffMenu,
             isBanner,
+            isOffer,
+            offerText,
         };
 
         console.log('Product Data to save:', productData);
@@ -496,6 +502,51 @@ export default function ProductCreateEditScreen() {
                                     <View style={[styles.toggleThumb, isBanner && styles.toggleThumbActive]} />
                                 </Pressable>
                             </View>
+
+                            {/* Disponibilidad Toggle */}
+                            <View style={styles.availabilityRow}>
+                                <View style={styles.availabilityInfo}>
+                                    <Text style={styles.label}>Disponibilidad</Text>
+                                    <Text style={styles.availabilityDescription}>
+                                        {available ? 'Producto visible en el menú' : 'Producto oculto con etiqueta'}
+                                    </Text>
+                                </View>
+                                <Pressable
+                                    style={[styles.toggleButton, available && styles.toggleButtonActive]}
+                                    onPress={() => setAvailable(!available)}
+                                >
+                                    <View style={[styles.toggleThumb, available && styles.toggleThumbActive]} />
+                                </Pressable>
+                            </View>
+
+                            {/* Offer Toggle */}
+                            <View style={styles.availabilityRow}>
+                                <View style={styles.availabilityInfo}>
+                                    <Text style={styles.label}>Oferta Especial</Text>
+                                    <Text style={styles.availabilityDescription}>
+                                        {isOffer ? 'Producto marcado con etiqueta de oferta' : 'Sin etiqueta de oferta'}
+                                    </Text>
+                                </View>
+                                <Pressable
+                                    style={[styles.toggleButton, isOffer && styles.toggleButtonActive]}
+                                    onPress={() => setIsOffer(!isOffer)}
+                                >
+                                    <View style={[styles.toggleThumb, isOffer && styles.toggleThumbActive]} />
+                                </Pressable>
+                            </View>
+
+                            {isOffer && (
+                                <View style={styles.field}>
+                                    <Text style={styles.label}>Texto de la Oferta</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={offerText}
+                                        onChangeText={setOfferText}
+                                        placeholder="Ej: 50%, 2x1, -20%"
+                                        placeholderTextColor="rgba(255,255,255,0.4)"
+                                    />
+                                </View>
+                            )}
 
                             {/* Disponibilidad Toggle */}
                             <View style={styles.availabilityRow}>

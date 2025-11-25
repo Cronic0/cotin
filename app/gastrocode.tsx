@@ -41,7 +41,7 @@ export default function GastroCodeScreen() {
             <Stack.Screen options={{ headerShown: false }} />
 
             <ImageBackground
-                source={{ uri: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=1974&auto=format&fit=crop' }}
+                source={require('@/assets/images/gastrocode_office.png')}
                 style={styles.background}
             >
                 <LinearGradient
@@ -100,9 +100,9 @@ export default function GastroCodeScreen() {
 
                         <View style={styles.footerSpacer} />
                     </ScrollView>
-                </LinearGradient>
-            </ImageBackground>
-        </View>
+                </LinearGradient >
+            </ImageBackground >
+        </View >
     );
 }
 

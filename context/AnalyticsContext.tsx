@@ -12,6 +12,7 @@ interface AnalyticsData {
     productAnalytics: Record<string, ProductAnalytics>;
     favoriteAdditions: Record<string, number>; // productId -> count
     monthlyViews: Record<string, number>; // 'YYYY-MM' -> count
+    languageUsage: Record<string, number>; // 'es' | 'en' | 'fr' | 'de' -> count
     lastSessionTime: number;
 }
 
@@ -21,6 +22,7 @@ interface AnalyticsContextType {
     trackProductView: (productId: string) => void;
     trackTimeSpent: (productId: string, duration: number) => void;
     trackFavoriteAdded: (productId: string) => void;
+    trackLanguage: (lang: string) => void;
     resetAnalytics: () => void;
 }
 
@@ -34,6 +36,7 @@ const initialData: AnalyticsData = {
     productAnalytics: {},
     favoriteAdditions: {},
     monthlyViews: {},
+    languageUsage: {},
     lastSessionTime: Date.now(),
 };
 
@@ -65,6 +68,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
                     favoriteAdditions: loadedData.favoriteAdditions || {},
                     monthlyViews: loadedData.monthlyViews || {},
                     webAccessCount: loadedData.webAccessCount || 0,
+                    languageUsage: loadedData.languageUsage || {},
                 });
             }
         } catch (error) {
@@ -141,6 +145,16 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         }));
     };
 
+    const trackLanguage = (lang: string) => {
+        setData(prev => ({
+            ...prev,
+            languageUsage: {
+                ...prev.languageUsage,
+                [lang]: (prev.languageUsage[lang] || 0) + 1,
+            },
+        }));
+    };
+
     const resetAnalytics = async () => {
         setData(initialData);
         try {
@@ -158,6 +172,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
                 trackProductView,
                 trackTimeSpent,
                 trackFavoriteAdded,
+                trackLanguage,
                 resetAnalytics,
             }}
         >
