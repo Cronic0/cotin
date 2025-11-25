@@ -7,6 +7,13 @@ export interface MenuItem {
     image: string;
     allergens: string[];
     pairing?: string;
+
+    // Traducciones automáticas
+    translations?: {
+        en?: { title: string; description: string };
+        fr?: { title: string; description: string };
+        de?: { title: string; description: string };
+    };
 }
 
 export const CATEGORIES = [

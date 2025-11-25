@@ -2,6 +2,11 @@ export type Language = 'es' | 'en' | 'fr' | 'de';
 
 export const Translations = {
     es: {
+        // Landing Page
+        welcome: 'BIENVENIDO',
+        experienceTagline: 'Sabores que conquistan',
+        viewMenu: 'VER LA CARTA',
+
         menuTitle: 'Nuestra Carta',
         back: 'Volver',
         favoritesTitle: 'Mis Favoritos',

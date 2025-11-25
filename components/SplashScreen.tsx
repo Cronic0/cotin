@@ -21,19 +21,22 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 
     useEffect(() => {
         // Update display percentage
+        // Target: 100% in 1400ms
+        // 1400ms / 20 steps = 70ms per step
+        // 100% / 20 steps = 5% per step
         const interval = setInterval(() => {
             setDisplayPercentage((prev) => {
                 if (prev >= 100) {
                     clearInterval(interval);
                     return 100;
                 }
-                return Math.min(prev + 2, 100);
+                return Math.min(prev + 5, 100);
             });
-        }, 50);
+        }, 70);
 
         // Animate progress from 0 to 100
         progress.value = withTiming(100, {
-            duration: 2500,
+            duration: 1400,
             easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         });
 
@@ -46,12 +49,12 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
                     runOnJS(onFinish)();
                 }
             });
-        }, 2700);
+        }, 1600);
 
         // Failsafe: Ensure onFinish is called even if animation callback fails
         const failsafeTimer = setTimeout(() => {
             runOnJS(onFinish)();
-        }, 3500); // 2700 + 400 + buffer
+        }, 2400);
 
         return () => {
             clearInterval(interval);
