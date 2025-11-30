@@ -8,16 +8,32 @@ import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function AdminLoginScreen() {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAdmin();
     const router = useRouter();
 
-    const handleLogin = () => {
-        if (login(password)) {
-            router.replace('/admin');
-        } else {
-            Alert.alert('Error', 'Contraseña incorrecta');
-            setPassword('');
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Por favor ingrese email y contraseña');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const success = await login(email, password);
+            if (success) {
+                router.replace('/admin');
+            } else {
+                Alert.alert('Error', 'Credenciales incorrectas');
+                setPassword('');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Ocurrió un error al iniciar sesión');
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -45,6 +61,19 @@ export default function AdminLoginScreen() {
                     <Text style={styles.subtitle}>Acceso para Clientes GastroCode</Text>
 
                     <View style={styles.inputContainer}>
+                        <MaterialCommunityIcons name="email" size={20} color={LightColors.textSecondary} style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Email"
+                            placeholderTextColor={LightColors.textSecondary}
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
                         <MaterialCommunityIcons name="lock" size={20} color={LightColors.textSecondary} style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
@@ -57,12 +86,16 @@ export default function AdminLoginScreen() {
                         />
                     </View>
 
-                    <Pressable style={styles.loginButton} onPress={handleLogin}>
-                        <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-                        <MaterialCommunityIcons name="arrow-right" size={20} color="#FFF" />
+                    <Pressable
+                        style={[styles.loginButton, loading && { opacity: 0.7 }]}
+                        onPress={handleLogin}
+                        disabled={loading}
+                    >
+                        <Text style={styles.loginButtonText}>
+                            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                        </Text>
+                        {!loading && <MaterialCommunityIcons name="arrow-right" size={20} color="#FFF" />}
                     </Pressable>
-
-                    <Text style={styles.hint}>Pista: 1234</Text>
                 </View>
             </LinearGradient>
         </View>

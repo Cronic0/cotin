@@ -1,4 +1,13 @@
 import { MENU_ITEMS } from '@/data/menuData';
+import { useSupabaseProducts } from '@/hooks/useSupabaseProducts';
+import {
+    getSession,
+    onAuthStateChange,
+    signIn,
+    signOut,
+    addSubscriber as supabaseAddSubscriber,
+    getSubscribers as supabaseGetSubscribers
+} from '@/lib/supabase-helpers';
 import { translateToAllLanguages } from '@/utils/translation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -70,7 +79,7 @@ interface AdminContextType {
     showOffMenu: boolean;
     showTunaWeek: boolean;
     showBannerCarousel: boolean;
-    login: (password: string) => boolean;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
     createProduct: (product: Omit<Product, 'id'>) => Promise<void>;
@@ -114,7 +123,6 @@ export const DEFAULT_SECTION_ORDER = [
     'recommendations', // Chef Recommendations
     'offmenu',      // Off Menu
 ];
-const ADMIN_PASSWORD = '1234'; // Simple password for demo
 
 const DEFAULT_SCHEDULE: Schedule = {
     monday: { day: 'monday', isOpen: false, openTime: '13:00', closeTime: '23:30' },
@@ -127,8 +135,37 @@ const DEFAULT_SCHEDULE: Schedule = {
 };
 
 export function AdminProvider({ children }: { children: ReactNode }) {
+    // Use Supabase for products
+    const {
+        products: supabaseProducts,
+        loading: productsLoading,
+        createProduct: supabaseCreateProduct,
+        updateProduct: supabaseUpdateProduct,
+        deleteProduct: supabaseDeleteProduct,
+    } = useSupabaseProducts();
+
+    // Map Supabase products (snake_case) to App products (camelCase)
+    const products: Product[] = supabaseProducts.map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        image: p.image,
+        category: p.category,
+        allergens: p.allergens,
+        pairing: p.pairing,
+        pairingDescription: p.pairing_description,
+        available: p.available,
+        isNew: p.is_new,
+        isRecommendation: p.is_recommendation,
+        isOffMenu: p.is_off_menu,
+        isBanner: p.is_banner,
+        isOffer: p.is_offer,
+        offerText: p.offer_text,
+        translations: p.translations,
+    }));
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [products, setProducts] = useState<Product[]>([]);
     const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showRecommendations, setShowRecommendations] = useState(true);
@@ -159,33 +196,25 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const loadData = async () => {
         try {
-            console.log('=== Loading data from AsyncStorage ===');
+            console.log('=== Loading data from Supabase & AsyncStorage ===');
 
             // Load auth
-            const authState = await AsyncStorage.getItem(STORAGE_KEY_AUTH);
-            if (authState === 'true') {
+            const { session } = await getSession();
+            if (session) {
                 setIsAuthenticated(true);
             }
 
-            // Load products
-            const productsJson = await AsyncStorage.getItem(STORAGE_KEY_PRODUCTS);
-            if (productsJson) {
-                const loadedProducts = JSON.parse(productsJson);
-                console.log('=== Loaded products from storage:', loadedProducts.length);
-                setProducts(loadedProducts);
-            } else {
-                // Initialize with default data
-                console.log('=== No products found, initializing with MENU_ITEMS ===');
-                const uniqueItems = Array.from(new Map(MENU_ITEMS.map(item => [item.id, item])).values());
-                setProducts(uniqueItems);
-                await AsyncStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(uniqueItems));
-            }
+            // Listen for auth changes
+            onAuthStateChange((session) => {
+                setIsAuthenticated(!!session);
+            });
 
-            // Load subscribers
-            const subscribersJson = await AsyncStorage.getItem(STORAGE_KEY_SUBSCRIBERS);
-            if (subscribersJson) {
-                const loadedSubscribers = JSON.parse(subscribersJson);
-                setSubscribers(loadedSubscribers);
+            // Load subscribers from Supabase
+            try {
+                const subs = await supabaseGetSubscribers();
+                setSubscribers(subs);
+            } catch (error) {
+                console.error('Error loading subscribers from Supabase:', error);
             }
 
             // Load settings
@@ -237,97 +266,117 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const saveProducts = async (newProducts: Product[]) => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            await AsyncStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(newProducts));
-            setProducts(newProducts);
-        } catch (error) {
-            console.error('Error saving products:', error);
-            throw error;
-        }
-    };
-
-    const saveSubscribers = async (newSubscribers: Subscriber[]) => {
-        try {
-            await AsyncStorage.setItem(STORAGE_KEY_SUBSCRIBERS, JSON.stringify(newSubscribers));
-            setSubscribers(newSubscribers);
-        } catch (error) {
-            console.error('Error saving subscribers:', error);
-            throw error;
-        }
-    };
-
-    const login = (password: string): boolean => {
-        if (password === ADMIN_PASSWORD) {
-            setIsAuthenticated(true);
-            AsyncStorage.setItem(STORAGE_KEY_AUTH, 'true');
-            return true;
-        }
-        return false;
-    };
-
-    const logout = () => {
-        setIsAuthenticated(false);
-        AsyncStorage.removeItem(STORAGE_KEY_AUTH);
-    };
-
-    const updateProduct = async (id: string, updates: Partial<Product>) => {
-        try {
-            console.log('=== updateProduct called ===', id, updates);
-            const productIndex = products.findIndex(p => p.id === id);
-            if (productIndex === -1) {
-                throw new Error('Product not found');
+            const { data, error } = await signIn(email, password);
+            if (error) {
+                console.error('Login error:', error);
+                return false;
             }
-
-            const updatedProducts = [...products];
-            updatedProducts[productIndex] = { ...updatedProducts[productIndex], ...updates };
-
-            await saveProducts(updatedProducts);
-            console.log('=== Product updated successfully ===');
-        } catch (error) {
-            console.error("Error updating product: ", error);
-            throw error;
+            return !!data.session;
+        } catch (e) {
+            console.error('Login exception:', e);
+            return false;
         }
+    };
+
+    const logout = async () => {
+        await signOut();
+        setIsAuthenticated(false);
     };
 
     const createProduct = async (product: Omit<Product, 'id'>) => {
         try {
-            console.log('=== createProduct called ===', product);
-            const newId = `custom_${Date.now()}`;
-            const newProduct: Product = {
-                ...product,
-                id: newId,
+            console.log('=== createProduct called (Supabase) ===', product);
+            // Map camelCase to snake_case for Supabase
+            const supabaseProduct = {
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                image: product.image,
+                category: product.category,
+                allergens: product.allergens,
+                pairing: product.pairing,
+                available: product.available ?? true,
+                is_new: product.isNew ?? false,
+                is_recommendation: product.isRecommendation ?? false,
+                is_off_menu: product.isOffMenu ?? false,
+                is_banner: product.isBanner ?? false,
+                is_offer: product.isOffer ?? false,
+                translations: product.translations,
             };
 
-            const updatedProducts = [...products, newProduct];
-            await saveProducts(updatedProducts);
-            console.log('=== Product created successfully ===');
+            await supabaseCreateProduct(supabaseProduct as any);
+            console.log('=== Product created successfully in Supabase ===');
         } catch (error) {
-            console.error("Error creating product: ", error);
+            console.error("Error creating product in Supabase: ", error);
+            throw error;
+        }
+    };
+
+    const updateProduct = async (id: string, updates: Partial<Product>) => {
+        try {
+            console.log('=== updateProduct called (Supabase) ===', id, updates);
+            // Map camelCase to snake_case for Supabase
+            const supabaseUpdates: any = { ...updates };
+
+            if (updates.isNew !== undefined) { supabaseUpdates.is_new = updates.isNew; delete supabaseUpdates.isNew; }
+            if (updates.isRecommendation !== undefined) { supabaseUpdates.is_recommendation = updates.isRecommendation; delete supabaseUpdates.isRecommendation; }
+            if (updates.isOffMenu !== undefined) { supabaseUpdates.is_off_menu = updates.isOffMenu; delete supabaseUpdates.isOffMenu; }
+            if (updates.isBanner !== undefined) { supabaseUpdates.is_banner = updates.isBanner; delete supabaseUpdates.isBanner; }
+            if (updates.isOffer !== undefined) { supabaseUpdates.is_offer = updates.isOffer; delete supabaseUpdates.isOffer; }
+
+            await supabaseUpdateProduct(id, supabaseUpdates);
+            console.log('=== Product updated successfully in Supabase ===');
+        } catch (error) {
+            console.error("Error updating product in Supabase: ", error);
             throw error;
         }
     };
 
     const deleteProduct = async (id: string) => {
         try {
-            console.log('=== deleteProduct called ===', id);
-            const updatedProducts = products.filter(p => p.id !== id);
-            await saveProducts(updatedProducts);
-            console.log('=== Product deleted successfully ===');
+            console.log('=== deleteProduct called (Supabase) ===', id);
+            await supabaseDeleteProduct(id);
+            console.log('=== Product deleted successfully from Supabase ===');
         } catch (error) {
-            console.error("Error deleting product: ", error);
+            console.error("Error deleting product from Supabase: ", error);
             throw error;
         }
     };
 
     const resetProducts = async () => {
         try {
-            console.log('=== resetProducts called ===');
+            console.log('=== resetProducts called (Supabase) ===');
+            // Delete all existing products first
+            for (const product of products) {
+                await supabaseDeleteProduct(product.id);
+            }
+            // Then create new ones from MENU_ITEMS
             const uniqueItems = Array.from(new Map(MENU_ITEMS.map(item => [item.id, item])).values());
-            await saveProducts(uniqueItems);
-            console.log('=== Products reset successfully ===');
+            for (const item of uniqueItems) {
+                // Map item to snake_case
+                const supabaseItem = {
+                    title: item.title,
+                    description: item.description,
+                    price: item.price,
+                    image: item.image,
+                    category: item.category,
+                    allergens: item.allergens,
+                    pairing: item.pairing,
+                    available: true,
+                    is_new: false,
+                    is_recommendation: false,
+                    is_off_menu: false,
+                    is_banner: false,
+                    is_offer: false,
+                    translations: item.translations,
+                };
+                await supabaseCreateProduct(supabaseItem as any);
+            }
+            console.log('=== Products reset successfully in Supabase ===');
         } catch (error) {
-            console.error("Error resetting products: ", error);
+            console.error("Error resetting products in Supabase: ", error);
             throw error;
         }
     };
@@ -337,13 +386,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             // Check if already exists
             if (subscribers.some(s => s.email === email)) return;
 
-            const newSubscriber: Subscriber = {
-                email,
-                date: new Date().toISOString()
-            };
-
-            const updatedSubscribers = [newSubscriber, ...subscribers];
-            await saveSubscribers(updatedSubscribers);
+            const newSubscriber = await supabaseAddSubscriber(email);
+            setSubscribers([newSubscriber, ...subscribers]);
         } catch (error) {
             console.error("Error adding subscriber: ", error);
             throw error;
@@ -486,30 +530,21 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const translateAllProducts = async () => {
         try {
-            console.log('=== translateAllProducts called ===');
-            const updatedProducts = [];
-            let count = 0;
+            console.log('=== translateAllProducts called (Supabase) ===');
 
             for (const product of products) {
-                count++;
-                console.log(`Translating product ${count}/${products.length}: ${product.title}`);
-
-                // Add delay to avoid rate limiting (500ms)
-                if (count > 1) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
+                console.log(`Translating product: ${product.title}`);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Delay to avoid rate limits
 
                 const translations = await translateToAllLanguages({ title: product.title, description: product.description });
-                updatedProducts.push({
-                    ...product,
-                    translations
-                });
+
+                // Update product in Supabase with translations
+                await supabaseUpdateProduct(product.id, { translations });
             }
 
-            await saveProducts(updatedProducts);
-            console.log('=== All products translated successfully ===');
+            console.log('=== All products translated successfully in Supabase ===');
         } catch (error) {
-            console.error("Error translating all products: ", error);
+            console.error("Error translating all products in Supabase: ", error);
             throw error;
         }
     };
