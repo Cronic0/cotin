@@ -5,9 +5,9 @@ import { Language } from '@/constants/Translations';
 import { useAnalytics } from '@/context/AnalyticsContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Dimensions, ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -54,12 +54,12 @@ export default function LandingPage() {
     return (
         <View style={styles.container}>
             <ImageBackground
-                source={{ uri: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?q=80&w=1000&auto=format&fit=crop' }}
+                source={require('@/assets/wood_texture.png')}
                 style={styles.background}
                 resizeMode="cover"
             >
                 <LinearGradient
-                    colors={['rgba(15, 23, 42, 0.3)', 'rgba(15, 23, 42, 0.8)']}
+                    colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.6)']} // Darker overlay for better text contrast on wood
                     style={styles.overlay}
                 >
                     <View style={styles.safeArea}>
@@ -72,11 +72,16 @@ export default function LandingPage() {
                         {/* Main Content */}
                         <View style={styles.mainContent}>
                             <Animated.View style={[styles.titleContainer, titleStyle]}>
+                                <Image
+                                    source={require('@/assets/venta_cotin_logo.png')}
+                                    style={styles.heroLogo}
+                                    resizeMode="contain"
+                                />
                                 <Text style={styles.welcomeText}>{t('welcome')}</Text>
-                                <Text style={styles.mainTitle}>PURE BEACH</Text>
-                                <Text style={styles.mainTitleAccent}>CLUB</Text>
+                                <Text style={styles.mainTitle}>Venta</Text>
+                                <Text style={styles.mainTitleAccent}>el Cotin</Text>
                                 <View style={styles.separator} />
-                                <Text style={styles.tagline}>{t('experienceTagline')}</Text>
+                                <Text style={styles.tagline}>Tradición que se come con el alma</Text>
                             </Animated.View>
 
                             <Animated.View style={[styles.actionContainer, contentStyle]}>
@@ -180,29 +185,35 @@ const styles = StyleSheet.create({
     },
     mainTitle: {
         ...Typography.h1,
+        fontFamily: 'serif',
         color: '#FFFFFF',
-        fontSize: 56,
-        lineHeight: 60,
+        fontSize: 64, // Larger for impact
+        lineHeight: 70,
         textAlign: 'center',
-        textShadowColor: 'rgba(0,0,0,0.3)',
-        textShadowOffset: { width: 0, height: 4 },
+        textShadowColor: 'rgba(0,0,0,0.7)',
+        textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 10,
+        marginBottom: -10, // Tighten spacing
     },
     mainTitleAccent: {
         ...Typography.h1,
-        fontSize: 56,
-        lineHeight: 60,
+        fontFamily: 'serif',
+        fontSize: 48,
+        lineHeight: 56,
         textAlign: 'center',
-        color: '#FFFFFF', // Fallback
-        opacity: 0.9,
+        color: '#F7B500', // Albero Yellow for accent
         fontStyle: 'italic',
+        textShadowColor: 'rgba(0,0,0,0.7)',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 10,
     },
     separator: {
-        width: 60,
-        height: 4,
-        backgroundColor: Colors.primary,
+        width: 80,
+        height: 3,
+        backgroundColor: '#F7B500',
         marginVertical: Spacing.l,
         borderRadius: 2,
+        opacity: 0.8,
     },
     tagline: {
         ...Typography.body,
@@ -211,6 +222,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         maxWidth: 300,
         opacity: 0.9,
+    },
+    heroLogo: {
+        width: 120,
+        height: 120,
+        marginBottom: Spacing.m,
+        tintColor: '#D4A574', // Optional: tint to match gold accent if desired, or remove for full color
     },
     actionContainer: {
         width: '100%',

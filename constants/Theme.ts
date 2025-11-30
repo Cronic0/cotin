@@ -1,29 +1,31 @@
 import { Platform, TextStyle } from 'react-native';
 
 export const Colors = {
-    background: '#0F172A', // Deep Navy/Slate (Night mode)
-    surface: '#1E293B', // Lighter Slate
-    primary: '#2DD4BF', // Teal/Turquoise (Vibrant)
-    primaryDark: '#0F766E',
-    secondary: '#FBBF24', // Warm Gold
-    secondaryDark: '#B45309',
-    text: '#F8FAFC', // Off-white
-    textSecondary: '#94A3B8', // Muted Blue-Grey
-    border: 'rgba(255,255,255,0.1)',
+    // Andalusian Palette
+    background: '#FFFFFF', // White washed walls
+    surface: '#FDFBF7', // Warm off-white
+    primary: '#007A33', // Andalusian Green
+    primaryDark: '#005522',
+    secondary: '#F7B500', // Albero Yellow
+    secondaryDark: '#C49000',
+    accent: '#AC162C', // Almagra Red
+    text: '#2D1A13', // Dark Wood for text
+    textSecondary: '#5D4037',
+    border: '#E2E8F0',
     error: '#EF4444',
     success: '#10B981',
-    overlay: 'rgba(15, 23, 42, 0.8)',
+    overlay: 'rgba(0, 51, 0, 0.6)', // Dark green overlay
 };
 
 export const LightColors = {
-    background: '#F8FAFC', // Very light slate
+    background: '#F8FAFC',
     surface: '#FFFFFF',
-    primary: '#0D9488', // Teal (Darker for light mode contrast)
-    primaryDark: '#115E59',
-    secondary: '#D97706', // Amber/Gold
-    secondaryDark: '#92400E',
-    text: '#0F172A', // Slate 900
-    textSecondary: '#64748B', // Slate 500
+    primary: '#007A33',
+    primaryDark: '#005522',
+    secondary: '#F7B500',
+    secondaryDark: '#C49000',
+    text: '#0F172A',
+    textSecondary: '#64748B',
     border: '#E2E8F0',
     error: '#DC2626',
     success: '#059669',
@@ -75,51 +77,57 @@ interface TypographyStyles {
 }
 
 const fontPrimary = Platform.select({ ios: 'System', android: 'Roboto', web: 'Inter, sans-serif' });
-const fontDisplay = Platform.select({ ios: 'Georgia', android: 'serif', web: 'Playfair Display, serif' }); // More elegant for headers
+const fontDisplay = Platform.select({ ios: 'Georgia', android: 'serif', web: 'Playfair Display, serif' }); // Elegant Serif for headers
 
 export const Typography: TypographyStyles = {
     h1: {
         fontFamily: fontDisplay,
-        fontSize: 42,
+        fontSize: 48, // Increased size for impact
         fontWeight: '700',
         letterSpacing: -0.5,
+        color: Colors.text,
     },
     h2: {
-        fontFamily: fontPrimary,
-        fontSize: 28,
+        fontFamily: fontDisplay,
+        fontSize: 32,
         fontWeight: '600',
         letterSpacing: 0.5,
+        color: Colors.text,
     },
     h3: {
-        fontFamily: fontPrimary,
-        fontSize: 20,
+        fontFamily: fontDisplay,
+        fontSize: 24,
         fontWeight: '600',
         letterSpacing: 0.25,
+        color: Colors.text,
     },
     body: {
         fontFamily: fontPrimary,
         fontSize: 16,
         lineHeight: 24,
         fontWeight: '400',
+        color: Colors.textSecondary,
     },
     caption: {
         fontFamily: fontPrimary,
-        fontSize: 13,
-        lineHeight: 18,
+        fontSize: 14,
+        lineHeight: 20,
         letterSpacing: 0.5,
         fontWeight: '500',
+        color: Colors.textSecondary,
     },
     price: {
-        fontFamily: fontPrimary,
-        fontSize: 18,
+        fontFamily: fontDisplay, // Serif for prices looks premium
+        fontSize: 20,
         fontWeight: '700',
         letterSpacing: 0.5,
+        color: Colors.primary,
     },
     button: {
         fontFamily: fontPrimary,
         fontSize: 16,
         fontWeight: '700',
-        letterSpacing: 1.25,
+        letterSpacing: 1.5,
         textTransform: 'uppercase',
     },
 };

@@ -108,7 +108,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 
                 {/* Restaurant Name */}
                 <Animated.View style={textStyle}>
-                    <Text style={styles.restaurantName}>El Trébol</Text>
+                    <Text style={styles.restaurantName}>Venta El Cotin</Text>
                     <Text style={styles.slogan}>Sabores que conquistan</Text>
                 </Animated.View>
 

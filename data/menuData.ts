@@ -3,7 +3,7 @@ export interface MenuItem {
     title: string;
     description: string;
     price: number;
-    category: 'entrantes' | 'principales' | 'postres' | 'bebidas' | 'vinos' | 'semana-atun';
+    category: 'desayunos' | 'entrantes' | 'principales' | 'postres' | 'bebidas' | 'vinos' | 'semana-atun';
     image: string;
     allergens: string[];
     pairing?: string;
@@ -17,15 +17,63 @@ export interface MenuItem {
 }
 
 export const CATEGORIES = [
-    { id: 'el-trebol', title: 'El Trébol' },
-    { id: 'entrantes', title: 'Entrantes' },
-    { id: 'principales', title: 'Principales' },
-    { id: 'postres', title: 'Postres' },
-    { id: 'vinos', title: 'Vinos' },
-    { id: 'bebidas', title: 'Bebidas' },
+    { id: 'el-trebol', title: 'Venta El Cotin', icon: 'home' },
+    { id: 'desayunos', title: 'Desayunos', icon: 'coffee' },
+    { id: 'entrantes', title: 'Entrantes', icon: 'silverware-fork-knife' },
+    { id: 'principales', title: 'Principales', icon: 'food-steak' },
+    { id: 'postres', title: 'Postres', icon: 'cupcake' },
+    { id: 'vinos', title: 'Vinos', icon: 'glass-wine' },
+    { id: 'bebidas', title: 'Bebidas', icon: 'glass-cocktail' },
 ];
 
 export const MENU_ITEMS: MenuItem[] = [
+    // --- DESAYUNOS (5) ---
+    {
+        id: 'd1',
+        title: 'Tostada de Aguacate y Huevo',
+        description: 'Pan de masa madre tostado con aguacate cremoso, huevo poché, tomate cherry y un toque de aceite de oliva virgen extra.',
+        price: 8.50,
+        category: 'desayunos',
+        image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=800&auto=format&fit=crop',
+        allergens: ['Gluten', 'Huevos'],
+    },
+    {
+        id: 'd2',
+        title: 'Croissant Relleno de Jamón y Queso',
+        description: 'Croissant artesanal recién horneado, relleno de jamón ibérico y queso fundido, acompañado de mermelada casera.',
+        price: 6.50,
+        category: 'desayunos',
+        image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
+        allergens: ['Gluten', 'Lácteos'],
+    },
+    {
+        id: 'd3',
+        title: 'Bowl de Yogur y Granola',
+        description: 'Yogur griego natural con granola casera, frutos rojos frescos, miel de flores y semillas de chía.',
+        price: 7.00,
+        category: 'desayunos',
+        image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=800&auto=format&fit=crop',
+        allergens: ['Lácteos', 'Frutos secos'],
+    },
+    {
+        id: 'd4',
+        title: 'Tortilla Española Clásica',
+        description: 'Tortilla de patatas artesanal jugosa por dentro, servida con pan tostado y tomate rallado.',
+        price: 6.00,
+        category: 'desayunos',
+        image: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?q=80&w=800&auto=format&fit=crop',
+        allergens: ['Huevos', 'Gluten'],
+    },
+    {
+        id: 'd5',
+        title: 'Pancakes con Sirope de Arce',
+        description: 'Torre de pancakes esponjosos con mantequilla, sirope de arce puro canadiense y frutos rojos del bosque.',
+        price: 9.00,
+        category: 'desayunos',
+        image: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?q=80&w=800&auto=format&fit=crop',
+        allergens: ['Gluten', 'Huevos', 'Lácteos'],
+    },
+
     // --- ENTRANTES (5) ---
     {
         id: 'e1',
@@ -109,7 +157,7 @@ export const MENU_ITEMS: MenuItem[] = [
     },
     {
         id: 'p4',
-        title: 'Hamburguesa Gourmet "El Trébol"',
+        title: 'Hamburguesa Gourmet "V.Cotin"',
         description: '200g de carne de vaca madurada, queso cheddar fundido, cebolla caramelizada, bacon crujiente y nuestra salsa secreta en pan brioche.',
         price: 16.00,
         category: 'principales',

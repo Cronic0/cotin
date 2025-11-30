@@ -14,6 +14,10 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 
+// GastroCode brand colors (original teal/green theme)
+const GASTROCODE_PRIMARY = '#2DD4BF'; // Teal
+const GASTROCODE_SECONDARY = '#10B981'; // Green
+
 export default function GastroCodeScreen() {
     const router = useRouter();
 
@@ -75,7 +79,7 @@ export default function GastroCodeScreen() {
                     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                         <Animated.View style={[styles.heroSection, titleStyle]}>
                             <View style={styles.logoContainer}>
-                                <MaterialCommunityIcons name="code-braces" size={48} color={Colors.primary} />
+                                <MaterialCommunityIcons name="code-braces" size={48} color={GASTROCODE_PRIMARY} />
                             </View>
                             <Text style={styles.brandName}>GastroCode</Text>
                             <Text style={styles.tagline}>Cartas digitales que enamoran</Text>
@@ -83,19 +87,19 @@ export default function GastroCodeScreen() {
 
                         <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.featuresContainer}>
                             <View style={styles.featureItem}>
-                                <MaterialCommunityIcons name="palette" size={32} color={Colors.primary} />
+                                <MaterialCommunityIcons name="palette" size={32} color={GASTROCODE_PRIMARY} />
                                 <Text style={styles.featureTitle}>Diseño Premium</Text>
                                 <Text style={styles.featureText}>Interfaces visuales impactantes diseñadas para cautivar a tus clientes desde el primer segundo.</Text>
                             </View>
 
                             <View style={styles.featureItem}>
-                                <MaterialCommunityIcons name="cellphone-link" size={32} color={Colors.primary} />
+                                <MaterialCommunityIcons name="cellphone-link" size={32} color={GASTROCODE_PRIMARY} />
                                 <Text style={styles.featureTitle}>100% Adaptable</Text>
                                 <Text style={styles.featureText}>Nos adaptamos a tus necesidades específicas. Tu marca, tu estilo, tus reglas.</Text>
                             </View>
 
                             <View style={styles.featureItem}>
-                                <MaterialCommunityIcons name="rocket-launch" size={32} color={Colors.primary} />
+                                <MaterialCommunityIcons name="rocket-launch" size={32} color={GASTROCODE_PRIMARY} />
                                 <Text style={styles.featureTitle}>Tecnología Punta</Text>
                                 <Text style={styles.featureText}>Desarrollado con las últimas tecnologías para garantizar velocidad y fluidez.</Text>
                             </View>
@@ -147,7 +151,7 @@ export default function GastroCodeScreen() {
 
                             <View style={styles.benefitRow}>
                                 <View style={styles.benefitIconContainer}>
-                                    <MaterialCommunityIcons name="chart-line" size={28} color={Colors.primary} />
+                                    <MaterialCommunityIcons name="chart-line" size={28} color={GASTROCODE_PRIMARY} />
                                 </View>
                                 <View style={styles.benefitTextContainer}>
                                     <Text style={styles.benefitTitle}>Aumenta tus Ventas</Text>
@@ -157,7 +161,7 @@ export default function GastroCodeScreen() {
 
                             <View style={styles.benefitRow}>
                                 <View style={styles.benefitIconContainer}>
-                                    <MaterialCommunityIcons name="clock-fast" size={28} color={Colors.primary} />
+                                    <MaterialCommunityIcons name="clock-fast" size={28} color={GASTROCODE_PRIMARY} />
                                 </View>
                                 <View style={styles.benefitTextContainer}>
                                     <Text style={styles.benefitTitle}>Actualizaciones Instantáneas</Text>
@@ -167,7 +171,7 @@ export default function GastroCodeScreen() {
 
                             <View style={styles.benefitRow}>
                                 <View style={styles.benefitIconContainer}>
-                                    <MaterialCommunityIcons name="earth" size={28} color={Colors.primary} />
+                                    <MaterialCommunityIcons name="earth" size={28} color={GASTROCODE_PRIMARY} />
                                 </View>
                                 <View style={styles.benefitTextContainer}>
                                     <Text style={styles.benefitTitle}>Multiidioma Automático</Text>
@@ -187,7 +191,7 @@ export default function GastroCodeScreen() {
 
                         <Animated.View entering={FadeInDown.delay(2000).duration(800)}>
                             <Pressable style={styles.adminButton} onPress={() => router.push('/admin/login' as any)}>
-                                <MaterialCommunityIcons name="shield-account" size={20} color={Colors.primary} />
+                                <MaterialCommunityIcons name="shield-account" size={20} color={GASTROCODE_PRIMARY} />
                                 <Text style={styles.adminButtonText}>Acceso Clientes</Text>
                             </Pressable>
                         </Animated.View>
@@ -262,7 +266,7 @@ const styles = StyleSheet.create({
     },
     tagline: {
         fontSize: 18,
-        color: Colors.secondary,
+        color: GASTROCODE_SECONDARY,
         textAlign: 'center',
         letterSpacing: 0.5,
         opacity: 0.9,
@@ -302,14 +306,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     ctaButton: {
-        backgroundColor: Colors.primary,
+        backgroundColor: GASTROCODE_PRIMARY,
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 16,
         paddingHorizontal: 32,
         borderRadius: 30,
         gap: 8,
-        shadowColor: Colors.primary,
+        shadowColor: GASTROCODE_PRIMARY,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 12,
@@ -331,11 +335,11 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         gap: 8,
         borderWidth: 1,
-        borderColor: Colors.primary,
+        borderColor: GASTROCODE_PRIMARY,
         marginTop: Spacing.m,
     },
     adminButtonText: {
-        color: Colors.primary,
+        color: GASTROCODE_PRIMARY,
         fontSize: 16,
         fontWeight: 'bold',
     },
@@ -389,7 +393,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.3)',
     },
     indicatorActive: {
-        backgroundColor: Colors.primary,
+        backgroundColor: GASTROCODE_PRIMARY,
         width: 24,
     },
     whySection: {

@@ -3,19 +3,19 @@ export type Language = 'es' | 'en' | 'fr' | 'de';
 export const Translations = {
     es: {
         // Landing Page
-        welcome: 'BIENVENIDO AL PARAÍSO',
-        experienceTagline: 'Donde el verano nunca acaba',
-        viewMenu: 'EMPEZAR LA EXPERIENCIA',
+        welcome: 'BIENVENIDO A',
+        experienceTagline: 'Comida Tradicional Andaluza',
+        viewMenu: 'VER NUESTRA CARTA',
 
         menuTitle: 'Nuestra Carta',
         back: 'Volver',
         favoritesTitle: 'Mis Favoritos',
-        chefRecommendations: 'Los Hits del Verano',
-        infoTitle: 'Info & Vibes',
+        chefRecommendations: 'Sugerencias del Chef',
+        infoTitle: 'Sobre Nosotros',
         location: 'Playa de la Barrosa, Chiclana',
-        hours: 'Todos los días: 12:00 - Madrugada',
-        reservations: 'VIP & Reservas: 912 345 678',
-        familySignature: 'Pure Beach Club Team',
+        hours: 'Todos los días: 12:00 - Cierre',
+        reservations: 'Reservas: 912 345 678',
+        familySignature: 'Familia Venta El Cotin',
         addToFavorites: 'Añadir a Favoritos',
         removeFromFavorites: 'Eliminar de Favoritos',
         allergensTitle: 'Alérgenos e Intolerancias',
@@ -37,9 +37,9 @@ export const Translations = {
         semanaAtunBanner: 'Descubre nuestra Semana del Atún',
 
         // Story View
-        storyHeroTitle: 'Pure Beach Club',
-        storyHeroSubtitle: 'Vibes & Bites',
-        storyText: 'Más que un chiringuito, somos un estilo de vida. Nacidos en la arena, criados por el sol. Aquí la única regla es disfrutar.',
+        storyHeroTitle: 'Venta El Cotin',
+        storyHeroSubtitle: 'Sabor y Tradición',
+        storyText: 'Más que un restaurante, somos un hogar. Cocina de abuela, productos de la tierra y el calor de nuestra gente. Aquí se viene a comer bien y a sentirse en familia.',
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -54,15 +54,29 @@ export const Translations = {
         allergen_mostaza: 'Mostaza',
 
         // Categories
+        cat_desayunos: 'Desayunos',
         cat_entrantes: 'Para Picar',
         cat_principales: 'Platos Fuertes',
         cat_postres: 'Dulces',
         cat_bebidas: 'Tragos',
         cat_vinos: 'Bodega',
-        cat_el_trebol: 'Pure Specials',
+        cat_el_trebol: 'Especialidades de la Venta',
         cat_semana_atun: 'Tuna Week',
 
         // Menu Items
+        // Desayunos
+        product_d1_title: 'Tostada de Aguacate y Huevo',
+        product_d1_desc: 'Pan de masa madre tostado con aguacate cremoso, huevo poché, tomate cherry y un toque de aceite de oliva virgen extra.',
+        product_d2_title: 'Croissant Relleno de Jamón y Queso',
+        product_d2_desc: 'Croissant artesanal recién horneado, relleno de jamón ibérico y queso fundido, acompañado de mermelada casera.',
+        product_d3_title: 'Bowl de Yogur y Granola',
+        product_d3_desc: 'Yogur griego natural con granola casera, frutos rojos frescos, miel de flores y semillas de chía.',
+        product_d4_title: 'Tortilla Española Clásica',
+        product_d4_desc: 'Tortilla de patatas artesanal jugosa por dentro, servida con pan tostado y tomate rallado.',
+        product_d5_title: 'Pancakes con Sirope de Arce',
+        product_d5_desc: 'Torre de pancakes esponjosos con mantequilla, sirope de arce puro canadiense y frutos rojos del bosque.',
+
+        // Entrantes
         // Entrantes
         product_e1_title: 'Croquetas de Jamón Ibérico',
         product_e1_desc: 'Cremosas croquetas caseras elaboradas con bechamel suave y virutas de jamón ibérico de bellota 100%.',
@@ -146,18 +160,6 @@ export const Translations = {
         pairing_desc_e3: 'Un romance gallego. La salinidad del mar y la frescura del vino bailan un tango en tu paladar.',
         pairing_desc_e5: 'Clásicos que nunca fallan, como una buena historia de amor. Intensidad y carácter en perfecta armonía.',
         pairing_desc_p1: 'Potencia y elegancia. Una cita nocturna donde la carne se deshace y el vino susurra promesas.',
-        pairing_desc_p2: 'Frescura atlántica. Como una brisa de verano, este maridaje es ligero, vibrante y lleno de vida.',
-        pairing_desc_p3: 'Tierra y tradición. Los hongos y el vino tinto se abrazan en un confort cálido y sofisticado.',
-        pairing_desc_p4: 'Rebeldes con causa. La grasa jugosa de la carne encuentra su igual en el amargor cítrico de la IPA. Rock & Roll!',
-        pairing_desc_p5: 'Amor a fuego lento. Sabores profundos que se han tomado su tiempo para conocerse y enamorarte.',
-
-        // Allergen Info
-        allergenInfoText: 'En Pure Beach Club nos preocupamos por tu bienestar. Hemos preparado este filtro de alérgenos para que disfrutes de nuestra cocina con total tranquilidad.',
-        call: 'Llamar',
-        navigate: 'Cómo llegar',
-
-        // Schedule
-        monday: 'Lunes',
         tuesday: 'Martes',
         wednesday: 'Miércoles',
         thursday: 'Jueves',
@@ -172,18 +174,18 @@ export const Translations = {
     en: {
         // Landing Page
         welcome: 'WELCOME TO PARADISE',
-        experienceTagline: 'Where summer never ends',
-        viewMenu: 'START THE EXPERIENCE',
+        experienceTagline: 'Traditional Andalusian Food',
+        viewMenu: 'VIEW MENU',
 
         menuTitle: 'Our Menu',
         back: 'Back',
         favoritesTitle: 'My Favorites',
-        chefRecommendations: "Summer Hits",
-        infoTitle: 'Info & Vibes',
+        chefRecommendations: "Chef's Specials",
+        infoTitle: 'About Us',
         location: 'Playa de la Barrosa, Chiclana',
         hours: 'Every day: 12:00 - Late',
-        reservations: 'VIP & Bookings: 912 345 678',
-        familySignature: 'Pure Beach Club Team',
+        reservations: 'Bookings: 912 345 678',
+        familySignature: 'Venta El Cotin Family',
         addToFavorites: 'Add to Favorites',
         removeFromFavorites: 'Remove from Favorites',
         allergensTitle: 'Allergens & Intolerances',
@@ -218,9 +220,9 @@ export const Translations = {
         semanaAtunBanner: 'Discover our Tuna Week',
 
         // Story View
-        storyHeroTitle: 'Pure Beach Club',
-        storyHeroSubtitle: 'Vibes & Bites',
-        storyText: 'More than a beach bar, we are a lifestyle. Born in the sand, raised by the sun. Here the only rule is to enjoy.',
+        storyHeroTitle: 'Venta El Cotin',
+        storyHeroSubtitle: 'Taste & Tradition',
+        storyText: 'More than a restaurant, we are a home. Grandma\'s cooking, local products, and the warmth of our people. Here you come to eat well and feel like family.',
 
         // Allergens
         allergen_gluten: 'Gluten',
@@ -235,12 +237,13 @@ export const Translations = {
         allergen_mostaza: 'Mustard',
 
         // Categories
+        cat_desayunos: 'Breakfast',
         cat_entrantes: 'Starters',
         cat_principales: 'Main Courses',
         cat_postres: 'Desserts',
         cat_bebidas: 'Drinks',
         cat_vinos: 'Wines',
-        cat_el_trebol: 'Pure Specials',
+        cat_el_trebol: 'Venta Specials',
         cat_semana_atun: 'Tuna Week',
 
         // Menu Items
@@ -384,12 +387,13 @@ export const Translations = {
         allergen_mostaza: 'Moutarde',
 
         // Categories
+        cat_desayunos: 'Petit-déjeuner',
         cat_entrantes: 'Entrées',
         cat_principales: 'Plats Principaux',
         cat_postres: 'Desserts',
         cat_bebidas: 'Boissons',
         cat_vinos: 'Vins',
-        cat_el_trebol: 'Pure Specials',
+        cat_el_trebol: 'Spécialités V.Cotin',
         cat_semana_atun: 'Semaine du Thon',
 
         // Menu Items
@@ -546,12 +550,13 @@ export const Translations = {
         allergen_mostaza: 'Senf',
 
         // Categories
+        cat_desayunos: 'Frühstück',
         cat_entrantes: 'Vorspeisen',
         cat_principales: 'Hauptgerichte',
         cat_postres: 'Desserts',
         cat_bebidas: 'Getränke',
         cat_vinos: 'Weine',
-        cat_el_trebol: 'Pure Specials',
+        cat_el_trebol: 'V.Cotin Spezialitäten',
         cat_semana_atun: 'Thunfisch-Woche',
 
         // Menu Items

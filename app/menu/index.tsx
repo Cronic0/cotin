@@ -493,6 +493,7 @@ const getCategoryImage = (categoryId: string): string => {
 
 export default function MenuScreen() {
     const [activeCategory, setActiveCategory] = useState('el-trebol');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigation = useNavigation();
     const { t, language } = useLanguage();
     const { products, isLoading } = useAdmin();
@@ -532,88 +533,137 @@ export default function MenuScreen() {
 
     return (
         <View style={styles.container}>
-            {activeCategory === 'el-trebol' ? (
-                <StoryView key={language} />
-            ) : (
-                <>
-                    {/* Immersive Category Hero (Fixed Background) */}
-                    <View style={styles.immersiveHeader}>
-                        <ImageBackground
-                            source={{ uri: getCategoryImage(activeCategory) }}
-                            style={styles.immersiveHeroImage}
-                            resizeMode="cover"
-                        >
-                            <LinearGradient
-                                colors={['rgba(0,0,0,0.3)', 'rgba(15, 23, 42, 0.8)']}
-                                style={styles.immersiveGradient}
-                            />
-                            <View style={styles.immersiveTitleContainer}>
-                                <Text style={styles.immersiveTitle}>
-                                    {CATEGORIES.find(cat => cat.id === activeCategory)?.title}
-                                </Text>
-                                <Text style={styles.immersiveSubtitle}>
-                                    Explora nuestra selección
-                                </Text>
-                            </View>
-                        </ImageBackground>
-                    </View>
-
-                    {/* Sheet Container (Scrollable) */}
-                    <View style={styles.sheetContainer}>
-                        <RNFlatList
-                            key={activeCategory}
-                            data={filteredItems}
-                            keyExtractor={(item, index) => `${item.id}-${index}`}
-                            renderItem={renderItem}
-                            contentContainerStyle={styles.listContent}
-                            showsVerticalScrollIndicator={false}
-                            ItemSeparatorComponent={() => <View style={styles.separator} />}
-                        />
-                    </View>
-                </>
-            )}
-
-            {/* Floating Category Selector */}
-            <View style={styles.floatingSelectorContainer}>
-                <View style={styles.floatingSelectorGlass}>
-                    <ScrollView
-                        ref={scrollViewRef}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.floatingSelectorContent}
-                    >
-                        {CATEGORIES.map((cat) => {
-                            const isActive = activeCategory === cat.id;
-
-                            return (
-                                <Pressable
-                                    key={cat.id}
-                                    style={[
-                                        styles.pill,
-                                        isActive && styles.pillActive
-                                    ]}
-                                    onPress={() => setActiveCategory(cat.id)}
-                                >
-                                    <Text style={[
-                                        styles.pillText,
-                                        isActive && styles.pillTextActive
-                                    ]}>
-                                        {cat.title}
+            <ImageBackground
+                source={require('@/assets/wood_texture.png')}
+                style={styles.background}
+                resizeMode="cover"
+            >
+                {activeCategory === 'el-trebol' ? (
+                    <StoryView key={language} />
+                ) : (
+                    <>
+                        {/* Immersive Category Hero (Fixed Background) */}
+                        <View style={styles.immersiveHeader}>
+                            <ImageBackground
+                                source={{ uri: getCategoryImage(activeCategory) }}
+                                style={styles.immersiveHeroImage}
+                                resizeMode="cover"
+                            >
+                                <LinearGradient
+                                    colors={['rgba(0,0,0,0.3)', 'rgba(15, 23, 42, 0.8)']}
+                                    style={styles.immersiveGradient}
+                                />
+                                <View style={styles.immersiveTitleContainer}>
+                                    <MaterialCommunityIcons
+                                        name={CATEGORIES.find(cat => cat.id === activeCategory)?.icon as any}
+                                        size={40}
+                                        color="#FFF"
+                                        style={{ marginBottom: 8 }}
+                                    />
+                                    <Text style={styles.immersiveTitle}>
+                                        {CATEGORIES.find(cat => cat.id === activeCategory)?.title}
                                     </Text>
-                                </Pressable>
-                            );
-                        })}
-                    </ScrollView>
-                </View>
-            </View>
-        </View>
+                                    <Text style={styles.immersiveSubtitle}>
+                                        Explora nuestra selección
+                                    </Text>
+                                </View>
+                            </ImageBackground>
+                        </View>
+
+                        {/* Sheet Container (Scrollable) */}
+                        <View style={styles.sheetContainer}>
+                            <RNFlatList
+                                key={activeCategory}
+                                data={filteredItems}
+                                keyExtractor={(item, index) => `${item.id}-${index}`}
+                                renderItem={renderItem}
+                                contentContainerStyle={styles.listContent}
+                                showsVerticalScrollIndicator={false}
+                                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                            />
+                        </View>
+                    </>
+                )}
+
+                {/* Floating Category Selector */}
+                {/* Floating Category Selector - FAB Style */}
+                <View style={styles.floatingSelectorContainer}>
+                    {/* Menu Items (Horizontal List) */}
+                    {isMenuOpen && (
+                        <Animated.View
+                            entering={FadeInRight.springify()}
+                            style={styles.horizontalMenuContainer}
+                        >
+                            <View style={styles.horizontalMenuGlass}>
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+                                >
+                                    {CATEGORIES.map((cat, index) => {
+                                        const isActive = activeCategory === cat.id;
+                                        return (
+                                            <Pressable
+                                                key={cat.id}
+                                                style={[
+                                                    styles.horizontalMenuItem,
+                                                    isActive && styles.horizontalMenuItemActive
+                                                ]}
+                                                onPress={() => {
+                                                    setActiveCategory(cat.id);
+                                                    setIsMenuOpen(false);
+                                                }}
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name={cat.icon as any}
+                                                    size={20}
+                                                    color={isActive ? '#FFF' : Colors.textSecondary}
+                                                />
+                                                <Text style={[
+                                                    styles.horizontalMenuText,
+                                                    isActive && styles.horizontalMenuTextActive
+                                                ]}>
+                                                    {cat.title}
+                                                </Text>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </ScrollView>
+                            </View>
+                        </Animated.View>
+                    )}
+
+                    {/* Main FAB Button */}
+                    <Pressable
+                        style={styles.fabButton}
+                        onPress={() => setIsMenuOpen(!isMenuOpen)}
+                    >
+                        <LinearGradient
+                            colors={[Colors.primary, Colors.primaryDark]}
+                            style={styles.fabGradient}
+                        >
+                            <MaterialCommunityIcons
+                                name={isMenuOpen ? "close" : "clover"}
+                                size={32}
+                                color="#FFF"
+                            />
+                        </LinearGradient>
+                    </Pressable>
+                </View >
+            </ImageBackground >
+        </View >
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: LightColors.background,
+        backgroundColor: Colors.background,
+    },
+    background: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
     },
     listContent: {
         padding: Spacing.m,
@@ -1465,5 +1515,66 @@ const styles = StyleSheet.create({
     pillTextActive: {
         color: '#FFFFFF',
         fontWeight: 'bold',
+    },
+    // Horizontal Menu Styles
+    horizontalMenuContainer: {
+        position: 'absolute',
+        bottom: 80,
+        alignItems: 'center',
+        width: '100%',
+        zIndex: 100,
+    },
+    horizontalMenuGlass: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: 32,
+        padding: 8,
+        maxWidth: '95%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
+    },
+    horizontalMenuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 24,
+        gap: 8,
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    horizontalMenuItemActive: {
+        backgroundColor: Colors.primary,
+    },
+    horizontalMenuText: {
+        fontSize: 14,
+        color: Colors.text,
+        fontWeight: '600',
+    },
+    horizontalMenuTextActive: {
+        color: '#FFF',
+        fontWeight: 'bold',
+    },
+    fabButton: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    fabGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
 });
