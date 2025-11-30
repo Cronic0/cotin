@@ -7,14 +7,11 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-const CATEGORIES = [
-    { id: 'all', label: 'Todos', icon: 'view-grid' },
-    { id: 'entrantes', label: 'Entrantes', icon: 'food-variant' },
-    { id: 'principales', label: 'Principales', icon: 'silverware-fork-knife' },
-    { id: 'postres', label: 'Postres', icon: 'cupcake' },
-    { id: 'bebidas', label: 'Bebidas', icon: 'cup' },
-    { id: 'vinos', label: 'Vinos', icon: 'glass-wine' },
-    { id: 'semana-atun', label: 'Semana del Atún', icon: 'fish' },
+import { CATEGORIES as SHARED_CATEGORIES } from '@/data/menuData';
+
+const FILTER_CATEGORIES = [
+    { id: 'all', title: 'Todos', icon: 'view-grid' },
+    ...SHARED_CATEGORIES.filter(c => c.id !== 'el-trebol')
 ];
 
 export default function ProductsListScreen() {
@@ -82,7 +79,7 @@ export default function ProductsListScreen() {
                         style={styles.categoryScroll}
                         contentContainerStyle={styles.categoryScrollContent}
                     >
-                        {CATEGORIES.map(cat => {
+                        {FILTER_CATEGORIES.map(cat => {
                             const isActive = selectedCategory === cat.id;
                             return (
                                 <Pressable
@@ -99,7 +96,7 @@ export default function ProductsListScreen() {
                                         />
                                     )}
                                     <Text style={[styles.categoryChipText, isActive && styles.categoryChipTextActive]}>
-                                        {cat.label}
+                                        {cat.title}
                                     </Text>
                                 </Pressable>
                             );

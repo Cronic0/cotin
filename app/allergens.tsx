@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { HeaderRight } from '@/components/HeaderRight';
 
@@ -75,9 +75,26 @@ export default function AllergensScreen() {
                 headerTintColor: '#FFF',
             }} />
 
-            <View style={styles.header}>
-                <Text style={styles.title}>{t('allergenFilterBanner')}</Text>
-                <Text style={styles.subtitle}>{t('allergenFilterSub')}</Text>
+            {/* Hero Section */}
+            <View style={styles.heroContainer}>
+                <ImageBackground
+                    source={{ uri: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?q=80&w=1200&auto=format&fit=crop' }}
+                    style={styles.heroImage}
+                    resizeMode="cover"
+                >
+                    <LinearGradient
+                        colors={['rgba(15, 23, 42, 0.85)', 'rgba(15, 23, 42, 0.95)']}
+                        style={styles.heroGradient}
+                    >
+                        <View style={styles.heroContent}>
+                            <View style={styles.iconContainer}>
+                                <MaterialCommunityIcons name="shield-check" size={48} color={Colors.primary} />
+                            </View>
+                            <Text style={styles.heroTitle}>{t('allergenFilterBanner')}</Text>
+                            <Text style={styles.heroSubtitle}>{t('allergenFilterSub')}</Text>
+                        </View>
+                    </LinearGradient>
+                </ImageBackground>
             </View>
 
             <View style={styles.filterContainer}>
@@ -143,20 +160,49 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    header: {
-        padding: Spacing.m,
-        paddingTop: Spacing.l,
-        backgroundColor: Colors.background,
+    heroContainer: {
+        height: 220,
+        overflow: 'hidden',
     },
-    title: {
-        ...Typography.h2,
+    heroImage: {
+        width: '100%',
+        height: '100%',
+    },
+    heroGradient: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: Spacing.l,
+    },
+    heroContent: {
+        alignItems: 'center',
+        maxWidth: 600,
+    },
+    iconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(45, 212, 191, 0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: Spacing.m,
+        borderWidth: 2,
+        borderColor: 'rgba(45, 212, 191, 0.3)',
+        ...Shadows.medium,
+    },
+    heroTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
         color: '#FFFFFF',
-        marginBottom: Spacing.xs,
+        marginBottom: Spacing.s,
+        textAlign: 'center',
+        letterSpacing: 0.5,
     },
-    subtitle: {
-        ...Typography.body,
-        fontSize: 14,
-        color: Colors.textSecondary,
+    heroSubtitle: {
+        fontSize: 15,
+        color: 'rgba(255, 255, 255, 0.8)',
+        textAlign: 'center',
+        lineHeight: 22,
     },
     filterContainer: {
         paddingVertical: Spacing.m,
