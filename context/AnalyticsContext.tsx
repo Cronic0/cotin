@@ -87,7 +87,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
 
     const trackSessionStart = () => {
-        const currentMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+        const now = new Date();
+        const currentMonth = now.toISOString().slice(0, 7); // 'YYYY-MM'
+        const currentDay = now.toISOString().slice(0, 10);  // 'YYYY-MM-DD'
         // Detect if web/desktop by checking window.innerWidth
         const isWeb = typeof window !== 'undefined' && window.innerWidth > 768;
 
@@ -98,6 +100,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
             monthlyViews: {
                 ...prev.monthlyViews,
                 [currentMonth]: (prev.monthlyViews[currentMonth] || 0) + 1,
+                [currentDay]: (prev.monthlyViews[currentDay] || 0) + 1, // Track daily too
             },
             lastSessionTime: Date.now(),
         }));

@@ -23,7 +23,7 @@ const { width, height } = Dimensions.get('window');
 export default function LandingPage() {
     const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
-    const { trackLanguage } = useAnalytics();
+    const { trackLanguage, trackSessionStart } = useAnalytics();
     const languages: Language[] = ['es', 'en', 'fr', 'de'];
 
     // Animation values
@@ -38,6 +38,7 @@ export default function LandingPage() {
     }, []);
 
     const handleViewMenu = () => {
+        trackSessionStart();
         trackLanguage(language);
         router.push('/menu');
     };

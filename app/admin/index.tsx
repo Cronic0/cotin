@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminLandingScreen() {
     const { isAuthenticated, logout } = useAdmin();
@@ -49,7 +49,11 @@ export default function AdminLandingScreen() {
                     <Text style={styles.headerSubtitle}>Selecciona una opción</Text>
                 </View>
 
-                <View style={styles.content}>
+                <ScrollView
+                    style={styles.content}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.contentContainer}
+                >
                     {/* Statistics Card */}
                     <Pressable
                         style={({ pressed }) => [
@@ -148,7 +152,7 @@ export default function AdminLandingScreen() {
                             </View>
                         </LinearGradient>
                     </Pressable>
-                </View>
+                </ScrollView>
             </LinearGradient>
         </View>
     );
@@ -212,6 +216,8 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: Spacing.l,
+    },
+    contentContainer: {
         gap: Spacing.l,
         paddingBottom: Spacing.xl,
     },

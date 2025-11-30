@@ -30,12 +30,25 @@ const SimpleBarChart = ({ data, maxValue }: { data: { label: string; value: numb
         </View>
     );
 };
+
+const CATEGORIES = [
+    { id: 'all', label: 'Todas', icon: 'all-inclusive' },
+    { id: 'entrantes', label: 'Entrantes', icon: 'food-variant' },
+    { id: 'principales', label: 'Principales', icon: 'silverware-fork-knife' },
+    { id: 'postres', label: 'Postres', icon: 'cupcake' },
+    { id: 'bebidas', label: 'Bebidas', icon: 'cup' },
+    { id: 'vinos', label: 'Vinos', icon: 'glass-wine' },
+];
+
 export default function AdminDashboard() {
     const { isAuthenticated, logout, products } = useAdmin();
     const { data } = useAnalytics();
     const [showFavorites, setShowFavorites] = useState(false);
     const [showTopProducts, setShowTopProducts] = useState(false);
     const [showLanguageStats, setShowLanguageStats] = useState(false);
+    const [showLeastViewed, setShowLeastViewed] = useState(false);
+    const [topProductsCategory, setTopProductsCategory] = useState('all');
+    const [leastViewedCategory, setLeastViewedCategory] = useState('all');
     const router = useRouter();
 
     useEffect(() => {
@@ -68,7 +81,7 @@ export default function AdminDashboard() {
             ...stats,
             product: products.find(p => p.id === id),
         }))
-        .filter(item => item.product)
+        .filter(item => item.product && (topProductsCategory === 'all' || item.product.category === topProductsCategory))
         .sort((a, b) => b.viewCount - a.viewCount)
         .slice(0, 15);
 
@@ -81,6 +94,17 @@ export default function AdminDashboard() {
         }))
         .filter(item => item.product)
         .sort((a, b) => b.count - a.count)
+        .slice(0, 15);
+
+    // Get least viewed products (up to 15)
+    const leastViewedProducts = Object.entries(data.productAnalytics)
+        .map(([id, stats]) => ({
+            id,
+            ...stats,
+            product: products.find(p => p.id === id),
+        }))
+        .filter(item => item.product && item.viewCount > 0 && (leastViewedCategory === 'all' || item.product.category === leastViewedCategory))
+        .sort((a, b) => a.viewCount - b.viewCount)
         .slice(0, 15);
 
     // Prepare monthly data for chart - total product VIEWS (last 12 months)
@@ -304,6 +328,40 @@ export default function AdminDashboard() {
                                 color="#FFF"
                             />
                         </Pressable>
+
+                        {/* Category Filter Pills */}
+                        {showTopProducts && (
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={{ marginBottom: Spacing.m }}
+                                contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+                            >
+                                {CATEGORIES.map((cat) => (
+                                    <Pressable
+                                        key={cat.id}
+                                        style={[
+                                            styles.categoryPill,
+                                            topProductsCategory === cat.id && styles.categoryPillActive
+                                        ]}
+                                        onPress={() => setTopProductsCategory(cat.id)}
+                                    >
+                                        <MaterialCommunityIcons
+                                            name={cat.icon as any}
+                                            size={16}
+                                            color={topProductsCategory === cat.id ? '#FFF' : Colors.primary}
+                                        />
+                                        <Text style={[
+                                            styles.categoryPillText,
+                                            topProductsCategory === cat.id && styles.categoryPillTextActive
+                                        ]}>
+                                            {cat.label}
+                                        </Text>
+                                    </Pressable>
+                                ))}
+                            </ScrollView>
+                        )}
+
                         {topProducts.length > 0 ? (
                             showTopProducts && topProducts.map((item, index) => (
                                 <Link key={item.id} href={`/admin/products/${item.id}` as any} asChild>
@@ -329,6 +387,80 @@ export default function AdminDashboard() {
                             !showTopProducts && <Text style={styles.emptyText}>Pulsa para ver los platos más vistos</Text>
                         )}
                     </View>
+
+                    {/* Least Viewed Products */}
+                    {leastViewedProducts.length > 0 && (
+                        <View style={styles.section}>
+                            <Pressable
+                                style={styles.sectionHeader}
+                                onPress={() => setShowLeastViewed(!showLeastViewed)}
+                            >
+                                <View style={styles.sectionHeaderLeft}>
+                                    <MaterialCommunityIcons name="eye-off" size={20} color={Colors.primary} />
+                                    <Text style={styles.sectionHeaderText}>Platos Menos Vistos ({leastViewedProducts.length})</Text>
+                                </View>
+                                <MaterialCommunityIcons
+                                    name={showLeastViewed ? "chevron-up" : "chevron-down"}
+                                    size={24}
+                                    color="#FFF"
+                                />
+                            </Pressable>
+
+                            {/* Category Filter Pills */}
+                            {showLeastViewed && (
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    style={{ marginBottom: Spacing.m }}
+                                    contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+                                >
+                                    {CATEGORIES.map((cat) => (
+                                        <Pressable
+                                            key={cat.id}
+                                            style={[
+                                                styles.categoryPill,
+                                                leastViewedCategory === cat.id && styles.categoryPillActive
+                                            ]}
+                                            onPress={() => setLeastViewedCategory(cat.id)}
+                                        >
+                                            <MaterialCommunityIcons
+                                                name={cat.icon as any}
+                                                size={16}
+                                                color={leastViewedCategory === cat.id ? '#FFF' : Colors.primary}
+                                            />
+                                            <Text style={[
+                                                styles.categoryPillText,
+                                                leastViewedCategory === cat.id && styles.categoryPillTextActive
+                                            ]}>
+                                                {cat.label}
+                                            </Text>
+                                        </Pressable>
+                                    ))}
+                                </ScrollView>
+                            )}
+
+                            {showLeastViewed && leastViewedProducts.map((item, index) => (
+                                <Link key={item.id} href={`/admin/products/${item.id}` as any} asChild>
+                                    <Pressable style={styles.productItem}>
+                                        <View style={[styles.productRank, { backgroundColor: '#ef4444' }]}>
+                                            <Text style={styles.productRankText}>#{index + 1}</Text>
+                                        </View>
+                                        <Image
+                                            source={{ uri: item.product!.image }}
+                                            style={styles.productImage}
+                                        />
+                                        <View style={styles.productInfo}>
+                                            <Text style={styles.productName}>{item.product!.title}</Text>
+                                            <Text style={styles.productStats}>
+                                                {item.viewCount} vistas · {(item.totalTimeSpent / item.viewCount).toFixed(0)}s promedio
+                                            </Text>
+                                        </View>
+                                        <MaterialCommunityIcons name="chevron-right" size={24} color={LightColors.textSecondary} />
+                                    </Pressable>
+                                </Link>
+                            ))}
+                        </View>
+                    )}
 
                     <View style={styles.footerSpacer} />
                 </ScrollView>
@@ -567,5 +699,29 @@ const styles = StyleSheet.create({
     },
     footerSpacer: {
         height: 40,
+    },
+    categoryPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 20,
+        gap: 6,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    categoryPillActive: {
+        backgroundColor: Colors.primary,
+        borderColor: Colors.primary,
+    },
+    categoryPillText: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.9)',
+        fontWeight: '600',
+    },
+    categoryPillTextActive: {
+        color: '#FFF',
+        fontWeight: 'bold',
     },
 });

@@ -616,7 +616,7 @@ export default function MenuScreen() {
                                             >
                                                 <MaterialCommunityIcons
                                                     name={cat.icon as any}
-                                                    size={20}
+                                                    size={22}
                                                     color={isActive ? '#FFF' : Colors.textSecondary}
                                                 />
                                                 <Text style={[
@@ -1519,38 +1519,38 @@ const styles = StyleSheet.create({
     // Horizontal Menu Styles
     horizontalMenuContainer: {
         position: 'absolute',
-        bottom: 80,
+        bottom: 100,
         alignItems: 'center',
         width: '100%',
         zIndex: 100,
     },
     horizontalMenuGlass: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
         borderRadius: 32,
-        padding: 8,
-        maxWidth: '95%',
+        padding: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 5,
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
+        borderColor: 'rgba(0,0,0,0.1)',
     },
     horizontalMenuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
         borderRadius: 24,
         gap: 8,
         backgroundColor: 'rgba(0,0,0,0.02)',
+        minWidth: 80,
     },
     horizontalMenuItemActive: {
         backgroundColor: Colors.primary,
     },
     horizontalMenuText: {
-        fontSize: 14,
+        fontSize: 15,
         color: Colors.text,
         fontWeight: '600',
     },
