@@ -97,30 +97,33 @@ export default function AdminDashboard() {
         .slice(0, 15);
 
     // Get least viewed products (up to 15)
-    const leastViewedProducts = Object.entries(data.productAnalytics)
-        .map(([id, stats]) => ({
-            id,
-            ...stats,
-            product: products.find(p => p.id === id),
-        }))
-        .filter(item => item.product && item.viewCount > 0 && (leastViewedCategory === 'all' || item.product.category === leastViewedCategory))
+    const leastViewedProducts = products
+        .map(product => {
+            const stats = data.productAnalytics[product.id] || { viewCount: 0, totalTimeSpent: 0 };
+            return {
+                id: product.id,
+                ...stats,
+                product,
+            };
+        })
+        .filter(item => (leastViewedCategory === 'all' || item.product.category === leastViewedCategory))
         .sort((a, b) => a.viewCount - b.viewCount)
         .slice(0, 15);
 
-    // Prepare monthly data for chart - total product VIEWS (last 12 months)
+    // Prepare monthly data for chart - current year from January to current month
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
     const monthlyData = [];
-    for (let i = 11; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthKey = date.toISOString().slice(0, 7);
+
+    // Generate data from January (month 0) to current month
+    for (let i = 0; i <= currentMonth; i++) {
+        const date = new Date(currentYear, i, 1);
+        const monthKey = date.toISOString().slice(0, 7); // Format: 'YYYY-MM'
         const monthLabel = date.toLocaleDateString('es-ES', { month: 'short' });
 
-        // Count total product views for this month
-        const monthViews = Object.values(data.productAnalytics).reduce((sum, productStats) => {
-            // This is a simplification - ideally we'd track views per month per product
-            // For now, we'll use the session count as a proxy
-            return sum;
-        }, data.monthlyViews?.[monthKey] || 0);
+        // Get total visits for this month from monthlyViews
+        const monthViews = data.monthlyViews?.[monthKey] || 0;
 
         monthlyData.push({
             label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1, 3),
@@ -376,7 +379,7 @@ export default function AdminDashboard() {
                                         <View style={styles.productInfo}>
                                             <Text style={styles.productName}>{item.product!.title}</Text>
                                             <Text style={styles.productStats}>
-                                                {item.viewCount} vistas · {(item.totalTimeSpent / item.viewCount).toFixed(0)}s promedio
+                                                {item.viewCount} vistas · {item.viewCount > 0 ? (item.totalTimeSpent / item.viewCount).toFixed(0) : '0'}s promedio
                                             </Text>
                                         </View>
                                         <MaterialCommunityIcons name="chevron-right" size={24} color={LightColors.textSecondary} />
@@ -452,7 +455,7 @@ export default function AdminDashboard() {
                                         <View style={styles.productInfo}>
                                             <Text style={styles.productName}>{item.product!.title}</Text>
                                             <Text style={styles.productStats}>
-                                                {item.viewCount} vistas · {(item.totalTimeSpent / item.viewCount).toFixed(0)}s promedio
+                                                {item.viewCount} vistas · {item.viewCount > 0 ? (item.totalTimeSpent / item.viewCount).toFixed(0) : '0'}s promedio
                                             </Text>
                                         </View>
                                         <MaterialCommunityIcons name="chevron-right" size={24} color={LightColors.textSecondary} />

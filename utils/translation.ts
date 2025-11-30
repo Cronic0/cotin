@@ -3,47 +3,34 @@
  * API gratuita sin necesidad de API key
  */
 
-const LIBRETRANSLATE_API = 'https://libretranslate.com/translate';
+const MYMEMORY_API = 'https://api.mymemory.translated.net/get';
 
 export type SupportedLanguage = 'en' | 'fr' | 'de';
 
-interface TranslationResponse {
-    translatedText: string;
-}
-
-/**
- * Traduce un texto del español a otro idioma
- * @param text - Texto en español a traducir
- * @param targetLang - Idioma destino ('en', 'fr', 'de')
- * @returns Texto traducido
- */
 export async function translateText(
     text: string,
     targetLang: SupportedLanguage
 ): Promise<string> {
     try {
-        const response = await fetch(LIBRETRANSLATE_API, {
-            method: 'POST',
-            body: JSON.stringify({
-                q: text,
-                source: 'es',
-                target: targetLang,
-                format: 'text',
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const url = `${MYMEMORY_API}?q=${encodeURIComponent(text)}&langpair=es|${targetLang}`;
+        console.log(`Translating "${text.substring(0, 20)}..." to ${targetLang} via ${url}`);
+        const response = await fetch(url);
 
         if (!response.ok) {
+            console.error(`API Error: ${response.status} ${response.statusText}`);
             throw new Error(`Translation failed: ${response.statusText}`);
         }
 
-        const data: TranslationResponse = await response.json();
-        return data.translatedText;
+        const data = await response.json();
+
+        if (data.responseStatus !== 200) {
+            console.error(`MyMemory Error: ${data.responseDetails}`);
+            throw new Error(data.responseDetails || 'Translation error');
+        }
+
+        return data.responseData.translatedText;
     } catch (error) {
         console.error(`Error translating to ${targetLang}:`, error);
-        // Retornar el texto original si falla la traducción
         return text;
     }
 }

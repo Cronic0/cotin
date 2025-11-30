@@ -3,6 +3,7 @@ import { useAdmin } from '@/context/AdminContext';
 import { useAnalytics } from '@/context/AnalyticsContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { getTranslatedProduct } from '@/utils/productTranslation';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,10 +33,11 @@ export default function ProductDetailScreen() {
     const { products } = useAdmin();
     const item = products.find((i) => i.id === id);
     const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const isFav = item ? isFavorite(item.id) : false;
     const { trackProductView, trackTimeSpent, trackFavoriteAdded } = useAnalytics();
     const startTimeRef = useRef<number>(Date.now());
+    const translated = item ? getTranslatedProduct(item, language) : { title: '', description: '' };
 
     // Animation values
     const slideAnim = useRef(new Animated.Value(100)).current;
@@ -225,14 +227,14 @@ export default function ProductDetailScreen() {
                     <View style={styles.headerBar}>
                         <View style={styles.titleContainer}>
                             <Text style={styles.categoryTag}>{t(`cat_${item.category}` as any).toUpperCase()}</Text>
-                            <Text style={styles.title}>{item.title}</Text>
+                            <Text style={styles.title}>{translated.title}</Text>
                         </View>
                         <Text style={styles.price}>{item.price.toFixed(2)}€</Text>
                     </View>
 
                     <View style={styles.divider} />
 
-                    <Text style={styles.description}>{item.description}</Text>
+                    <Text style={styles.description}>{translated.description}</Text>
 
                     {/* Allergens Section */}
                     {item.allergens && item.allergens.length > 0 && (

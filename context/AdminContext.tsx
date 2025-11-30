@@ -1,4 +1,5 @@
 import { MENU_ITEMS } from '@/data/menuData';
+import { translateToAllLanguages } from '@/utils/translation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -19,6 +20,12 @@ export interface Product {
     isBanner?: boolean;
     isOffer?: boolean;
     offerText?: string;
+    // Translations
+    translations?: {
+        en?: { title: string; description: string };
+        fr?: { title: string; description: string };
+        de?: { title: string; description: string };
+    };
 }
 
 export interface Subscriber {
@@ -86,6 +93,7 @@ interface AdminContextType {
     reorderSections: (newOrder: string[]) => Promise<void>;
     showAllergens: boolean;
     toggleAllergens: () => Promise<void>;
+    translateAllProducts: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -476,6 +484,36 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const translateAllProducts = async () => {
+        try {
+            console.log('=== translateAllProducts called ===');
+            const updatedProducts = [];
+            let count = 0;
+
+            for (const product of products) {
+                count++;
+                console.log(`Translating product ${count}/${products.length}: ${product.title}`);
+
+                // Add delay to avoid rate limiting (500ms)
+                if (count > 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                const translations = await translateToAllLanguages({ title: product.title, description: product.description });
+                updatedProducts.push({
+                    ...product,
+                    translations
+                });
+            }
+
+            await saveProducts(updatedProducts);
+            console.log('=== All products translated successfully ===');
+        } catch (error) {
+            console.error("Error translating all products: ", error);
+            throw error;
+        }
+    };
+
     return (
         <AdminContext.Provider
             value={{
@@ -511,6 +549,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 reorderSections,
                 showAllergens,
                 toggleAllergens,
+                translateAllProducts,
             }}
         >
             {children}

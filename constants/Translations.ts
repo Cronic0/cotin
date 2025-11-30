@@ -170,6 +170,7 @@ export const Translations = {
         open: 'Abierto',
         today: 'Hoy',
         scheduleTitle: 'Horario de Apertura',
+        allergenInfoText: 'En Venta El Cotin nos preocupamos por tu bienestar. Hemos preparado este filtro de alérgenos para que puedas disfrutar de nuestra cocina con total tranquilidad.',
     },
     en: {
         // Landing Page

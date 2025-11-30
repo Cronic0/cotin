@@ -1,3 +1,4 @@
+import { TranslateAllProductsButton } from '@/components/TranslateAllProductsButton';
 import { LightColors, Spacing } from '@/constants/Theme';
 import { useAdmin } from '@/context/AdminContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -152,6 +153,9 @@ export default function AdminLandingScreen() {
                             </View>
                         </LinearGradient>
                     </Pressable>
+
+                    {/* Translation Tool */}
+                    <TranslateAllProductsButton />
                 </ScrollView>
             </LinearGradient>
         </View>

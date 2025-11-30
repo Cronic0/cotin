@@ -3,6 +3,7 @@ import { Colors, LightColors, Spacing, Typography } from '@/constants/Theme';
 import { useAdmin } from '@/context/AdminContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CATEGORIES } from '@/data/menuData';
+import { getTranslatedProduct } from '@/utils/productTranslation';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useNavigation } from 'expo-router';
@@ -11,7 +12,8 @@ import { ActivityIndicator, Alert, Image, ImageBackground, Modal, Pressable, Fla
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const translated = getTranslatedProduct(item, language);
     return (
         <Link href={`/menu/${item.id}` as any} asChild>
             <Pressable>
@@ -56,7 +58,7 @@ const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) 
                         </LinearGradient>
                     )}
                     <View style={styles.recommendationContent}>
-                        <Text style={styles.recommendationTitle} numberOfLines={1}>{item.title}</Text>
+                        <Text style={styles.recommendationTitle} numberOfLines={1}>{translated.title}</Text>
                         <Text style={styles.recommendationPrice}>{item.price.toFixed(2)}€</Text>
                     </View>
                 </Animated.View>
@@ -575,6 +577,7 @@ export default function MenuScreen() {
                             <RNFlatList
                                 key={activeCategory}
                                 data={filteredItems}
+                                extraData={language}
                                 keyExtractor={(item, index) => `${item.id}-${index}`}
                                 renderItem={renderItem}
                                 contentContainerStyle={styles.listContent}

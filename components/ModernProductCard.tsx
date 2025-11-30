@@ -1,4 +1,7 @@
 import { Colors, Shadows, Spacing, Typography } from '@/constants/Theme';
+import { useLanguage } from '@/context/LanguageContext';
+import { CATEGORIES } from '@/data/menuData';
+import { getTranslatedProduct } from '@/utils/productTranslation';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import React from 'react';
@@ -14,12 +17,10 @@ interface ModernProductCardProps {
     index: number;
 }
 
-import { CATEGORIES } from '@/data/menuData';
-
-// ... imports
-
 export const ModernProductCard = ({ item, index }: ModernProductCardProps) => {
     const scale = useSharedValue(1);
+    const { language } = useLanguage();
+    const translated = getTranslatedProduct(item, language);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
@@ -89,12 +90,12 @@ export const ModernProductCard = ({ item, index }: ModernProductCardProps) => {
                                     {categoryTitle ? (
                                         <Text style={styles.categoryTag}>{categoryTitle.toUpperCase()}</Text>
                                     ) : null}
-                                    <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                                    <Text style={styles.title} numberOfLines={1}>{translated.title}</Text>
                                 </View>
                                 <Text style={styles.price}>{item.price.toFixed(2)}€</Text>
                             </View>
 
-                            <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
+                            <Text style={styles.description} numberOfLines={2}>{translated.description}</Text>
                         </View>
                     </Animated.View>
                 </Animated.View>

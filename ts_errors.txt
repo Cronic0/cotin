@@ -1,0 +1,3 @@
+﻿app/menu/index.tsx(339,44): error TS2345: Argument of type '"allergenInfoText"' is not assignable to parameter of type '"welcome" | "experienceTagline" | "viewMenu" | "menuTitle" | "back" | "favoritesTitle" | "chefRecommendations" | "infoTitle" | "location" | "hours" | "reservations" | "familySignature" | ... 127 more ... | "scheduleTitle"'.
+components/TranslateAllProductsButton.tsx(15,13): error TS2339: Property 'translateAllProducts' does not exist on type 'AdminContextType'.
+components/TranslateAllProductsButton.tsx(16,47): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
