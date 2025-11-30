@@ -255,12 +255,7 @@ export async function signIn(email: string, password: string) {
         password,
     });
 
-    if (error) {
-        console.error('Error signing in:', error);
-        throw error;
-    }
-
-    return data;
+    return { data, error };
 }
 
 /**
@@ -280,13 +275,7 @@ export async function signOut() {
  */
 export async function getSession() {
     const { data, error } = await supabase.auth.getSession();
-
-    if (error) {
-        console.error('Error getting session:', error);
-        return null;
-    }
-
-    return data.session;
+    return { session: data.session, error };
 }
 
 /**

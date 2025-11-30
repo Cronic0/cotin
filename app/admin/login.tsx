@@ -15,21 +15,35 @@ export default function AdminLoginScreen() {
     const router = useRouter();
 
     const handleLogin = async () => {
+        console.log('Login button pressed');
+        console.log('Email:', email);
+        console.log('Password length:', password.length);
+
         if (!email || !password) {
+            console.log('Missing credentials');
             Alert.alert('Error', 'Por favor ingrese email y contraseña');
             return;
         }
 
         setLoading(true);
         try {
-            const success = await login(email, password);
+            console.log('Calling login function...');
+            const { success, error } = await login(email, password);
+            console.log('Login result:', { success, error });
+
             if (success) {
+                console.log('Login successful, redirecting...');
                 router.replace('/admin');
             } else {
-                Alert.alert('Error', 'Credenciales incorrectas');
-                setPassword('');
+                console.log('Login failed:', error);
+                Alert.alert('Error', error || 'Credenciales incorrectas');
+                // Only clear password if it's a credential error, but for now keep behavior simple
+                if (error?.includes('Invalid login credentials')) {
+                    setPassword('');
+                }
             }
         } catch (error) {
+            console.error('Login exception in component:', error);
             Alert.alert('Error', 'Ocurrió un error al iniciar sesión');
             console.error(error);
         } finally {

@@ -79,7 +79,7 @@ interface AdminContextType {
     showOffMenu: boolean;
     showTunaWeek: boolean;
     showBannerCarousel: boolean;
-    login: (email: string, password: string) => Promise<boolean>;
+    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
     updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
     createProduct: (product: Omit<Product, 'id'>) => Promise<void>;
@@ -212,7 +212,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             // Load subscribers from Supabase
             try {
                 const subs = await supabaseGetSubscribers();
-                setSubscribers(subs);
+                // Map Supabase subscribers to Context subscribers if needed, or ensure types match
+                const mappedSubs: Subscriber[] = subs.map(s => ({
+                    email: s.email,
+                    date: s.created_at || new Date().toISOString() // Fallback if date is missing
+                }));
+                setSubscribers(mappedSubs);
             } catch (error) {
                 console.error('Error loading subscribers from Supabase:', error);
             }
@@ -266,17 +271,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = async (email: string, password: string): Promise<boolean> => {
+    const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
             const { data, error } = await signIn(email, password);
             if (error) {
                 console.error('Login error:', error);
-                return false;
+                return { success: false, error: error.message };
             }
-            return !!data.session;
-        } catch (e) {
+            return { success: !!data?.session };
+        } catch (e: any) {
             console.error('Login exception:', e);
-            return false;
+            return { success: false, error: e.message || 'An unexpected error occurred' };
         }
     };
 
