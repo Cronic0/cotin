@@ -7,7 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Dimensions, Image, ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -54,12 +54,12 @@ export default function LandingPage() {
     return (
         <View style={styles.container}>
             <ImageBackground
-                source={require('@/assets/wood_texture.png')}
+                source={require('@/assets/andalusian_patio.png')}
                 style={styles.background}
                 resizeMode="cover"
             >
                 <LinearGradient
-                    colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.6)']} // Darker overlay for better text contrast on wood
+                    colors={['rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.7)']} // Darker overlay for better text contrast
                     style={styles.overlay}
                 >
                     <View style={styles.safeArea}>
@@ -72,11 +72,7 @@ export default function LandingPage() {
                         {/* Main Content */}
                         <View style={styles.mainContent}>
                             <Animated.View style={[styles.titleContainer, titleStyle]}>
-                                <Image
-                                    source={require('@/assets/venta_cotin_logo.png')}
-                                    style={styles.heroLogo}
-                                    resizeMode="contain"
-                                />
+
                                 <Text style={styles.welcomeText}>{t('welcome')}</Text>
                                 <Text style={styles.mainTitle}>Venta</Text>
                                 <Text style={styles.mainTitleAccent}>el Cotin</Text>
@@ -187,30 +183,30 @@ const styles = StyleSheet.create({
         ...Typography.h1,
         fontFamily: 'serif',
         color: '#FFFFFF',
-        fontSize: 64, // Larger for impact
-        lineHeight: 70,
+        fontSize: 72, // Larger for impact
+        lineHeight: 78,
         textAlign: 'center',
-        textShadowColor: 'rgba(0,0,0,0.7)',
+        textShadowColor: 'rgba(0,0,0,0.9)',
         textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 10,
-        marginBottom: -10, // Tighten spacing
+        textShadowRadius: 15,
+        marginBottom: -12, // Tighten spacing
     },
     mainTitleAccent: {
         ...Typography.h1,
         fontFamily: 'serif',
-        fontSize: 48,
-        lineHeight: 56,
+        fontSize: 52,
+        lineHeight: 60,
         textAlign: 'center',
-        color: '#F7B500', // Albero Yellow for accent
+        color: '#FFD700', // Warmer Gold
         fontStyle: 'italic',
-        textShadowColor: 'rgba(0,0,0,0.7)',
+        textShadowColor: 'rgba(0,0,0,0.9)',
         textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 10,
+        textShadowRadius: 15,
     },
     separator: {
         width: 80,
         height: 3,
-        backgroundColor: '#F7B500',
+        backgroundColor: '#FFD700',
         marginVertical: Spacing.l,
         borderRadius: 2,
         opacity: 0.8,

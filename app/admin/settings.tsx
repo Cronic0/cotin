@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 
 export default function AdminSettingsScreen() {
@@ -21,7 +21,6 @@ export default function AdminSettingsScreen() {
     const router = useRouter();
     const [localSchedule, setLocalSchedule] = useState<Schedule>(schedule);
     const [hasChanges, setHasChanges] = useState(false);
-    const [showScheduleEditor, setShowScheduleEditor] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -55,37 +54,6 @@ export default function AdminSettingsScreen() {
 
     const handleToggleAllergens = async () => {
         await toggleAllergens();
-    };
-
-    const toggleDayOpen = (day: string) => {
-        setLocalSchedule(prev => ({
-            ...prev,
-            [day]: { ...prev[day], isOpen: !prev[day].isOpen }
-        }));
-        setHasChanges(true);
-    };
-
-    const updateDayTime = (day: string, field: 'openTime' | 'closeTime', value: string) => {
-        setLocalSchedule(prev => ({
-            ...prev,
-            [day]: { ...prev[day], [field]: value }
-        }));
-        setHasChanges(true);
-    };
-
-    const saveSchedule = async () => {
-        try {
-            await updateSchedule(localSchedule);
-            setHasChanges(false);
-            Alert.alert('Éxito', 'Horario actualizado correctamente');
-        } catch (error) {
-            Alert.alert('Error', 'No se pudo guardar el horario');
-        }
-    };
-
-    const resetSchedule = () => {
-        setLocalSchedule(schedule);
-        setHasChanges(false);
     };
 
     const renderItem = ({ item: sectionId, drag, isActive }: RenderItemParams<string>) => {
@@ -259,118 +227,7 @@ export default function AdminSettingsScreen() {
                             </Text>
                         </View>
                     }
-                    ListFooterComponent={
-                        <View style={[styles.section, { marginTop: Spacing.xl }]}>
-                            <Text style={styles.sectionTitle}>Horario del Restaurante</Text>
-                            <Text style={styles.sectionDescription}>
-                                Configura los horarios de apertura y cierre para cada día
-                            </Text>
-
-                            {/* Collapsible Button */}
-                            <Pressable
-                                style={styles.scheduleHeaderButton}
-                                onPress={() => setShowScheduleEditor(!showScheduleEditor)}
-                            >
-                                <View style={styles.scheduleHeaderContent}>
-                                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
-                                        <MaterialCommunityIcons
-                                            name="clock-edit-outline"
-                                            size={24}
-                                            color="#8b5cf6"
-                                        />
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.scheduleHeaderTitle}>Editar Horarios</Text>
-                                        <Text style={styles.scheduleHeaderSubtitle}>
-                                            {showScheduleEditor ? 'Ocultar editor' : 'Mostrar editor de horarios'}
-                                        </Text>
-                                    </View>
-                                    <MaterialCommunityIcons
-                                        name={showScheduleEditor ? "chevron-up" : "chevron-down"}
-                                        size={24}
-                                        color="#8b5cf6"
-                                    />
-                                </View>
-                            </Pressable>
-
-                            {showScheduleEditor && (
-                                <View>
-                                    {Object.keys(localSchedule).map((dayKey) => {
-                                        const day = localSchedule[dayKey];
-                                        const dayNames: { [key: string]: string } = {
-                                            monday: 'Lunes',
-                                            tuesday: 'Martes',
-                                            wednesday: 'Miércoles',
-                                            thursday: 'Jueves',
-                                            friday: 'Viernes',
-                                            saturday: 'Sábado',
-                                            sunday: 'Domingo'
-                                        };
-
-                                        return (
-                                            <View key={dayKey} style={styles.scheduleRow}>
-                                                <MaterialCommunityIcons name="calendar" size={60} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
-
-                                                <View style={styles.scheduleInfo}>
-                                                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.3)' }]}>
-                                                        <MaterialCommunityIcons
-                                                            name="clock-outline"
-                                                            size={24}
-                                                            color="#8b5cf6"
-                                                        />
-                                                    </View>
-                                                    <View style={styles.scheduleText}>
-                                                        <Text style={styles.scheduleDay}>{dayNames[dayKey]}</Text>
-                                                        {day.isOpen ? (
-                                                            <View style={styles.timeInputs}>
-                                                                <TextInput
-                                                                    style={styles.timeInput}
-                                                                    value={day.openTime}
-                                                                    onChangeText={(value) => updateDayTime(dayKey, 'openTime', value)}
-                                                                    placeholder="13:00"
-                                                                    placeholderTextColor="rgba(255,255,255,0.3)"
-                                                                />
-                                                                <Text style={styles.timeSeparator}>-</Text>
-                                                                <TextInput
-                                                                    style={styles.timeInput}
-                                                                    value={day.closeTime}
-                                                                    onChangeText={(value) => updateDayTime(dayKey, 'closeTime', value)}
-                                                                    placeholder="23:30"
-                                                                    placeholderTextColor="rgba(255,255,255,0.3)"
-                                                                />
-                                                            </View>
-                                                        ) : (
-                                                            <Text style={styles.closedText}>Cerrado</Text>
-                                                        )}
-                                                    </View>
-                                                </View>
-
-                                                <Pressable
-                                                    style={[styles.toggleButton, day.isOpen && styles.toggleButtonActive]}
-                                                    onPress={() => toggleDayOpen(dayKey)}
-                                                >
-                                                    <View style={[styles.toggleThumb, day.isOpen && styles.toggleThumbActive]} />
-                                                </Pressable>
-                                            </View>
-                                        );
-                                    })}
-
-                                    {hasChanges && (
-                                        <View style={styles.scheduleActions}>
-                                            <Pressable style={styles.resetButton} onPress={resetSchedule}>
-                                                <MaterialCommunityIcons name="refresh" size={20} color="#FFF" />
-                                                <Text style={styles.resetButtonText}>Cancelar</Text>
-                                            </Pressable>
-                                            <Pressable style={styles.saveButton} onPress={saveSchedule}>
-                                                <MaterialCommunityIcons name="check" size={20} color="#FFF" />
-                                                <Text style={styles.saveButtonText}>Guardar Horario</Text>
-                                            </Pressable>
-                                        </View>
-                                    )}
-                                </View>
-                            )}
-                        </View>
-                    }
+                    ListFooterComponent={null}
                 />
             </LinearGradient>
         </View>

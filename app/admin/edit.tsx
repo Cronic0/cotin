@@ -117,25 +117,25 @@ export default function AdminEditScreen() {
                             </View>
                         </Pressable>
 
-                        {/* Manage Settings */}
+                        {/* Manage Schedule */}
                         <Pressable
                             style={({ pressed }) => [
                                 styles.actionButton,
                                 styles.actionButtonSettings,
                                 pressed && styles.actionButtonPressed
                             ]}
-                            onPress={() => router.push('/admin/settings')}
+                            onPress={() => router.push('/admin/schedule')}
                         >
-                            <MaterialCommunityIcons name="cog" size={80} color="rgba(245, 158, 11, 0.05)" style={styles.watermarkIcon} />
+                            <MaterialCommunityIcons name="clock-outline" size={80} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
                             <View style={[styles.actionIconContainer, styles.iconContainerSettings]}>
-                                <MaterialCommunityIcons name="cog" size={24} color="#f59e0b" />
+                                <MaterialCommunityIcons name="clock-outline" size={24} color="#8b5cf6" />
                             </View>
                             <View style={styles.actionInfo}>
-                                <Text style={styles.actionTitle}>Gestión Página de Inicio</Text>
-                                <Text style={styles.actionSubtitle}>Activar/desactivar secciones</Text>
+                                <Text style={styles.actionTitle}>Gestionar Horarios</Text>
+                                <Text style={styles.actionSubtitle}>Configurar apertura y cierre</Text>
                             </View>
                             <View style={[styles.arrowContainer, styles.arrowSettings]}>
-                                <MaterialCommunityIcons name="chevron-right" size={24} color="#f59e0b" />
+                                <MaterialCommunityIcons name="chevron-right" size={24} color="#8b5cf6" />
                             </View>
                         </Pressable>
 
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(59, 130, 246, 0.3)',
     },
     actionButtonSettings: {
-        borderColor: 'rgba(245, 158, 11, 0.3)',
+        borderColor: 'rgba(139, 92, 246, 0.3)',
     },
     watermarkIcon: {
         position: 'absolute',
@@ -318,8 +318,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
     },
     iconContainerSettings: {
-        borderColor: 'rgba(245, 158, 11, 0.3)',
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderColor: 'rgba(139, 92, 246, 0.3)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
     },
     actionInfo: {
         flex: 1,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(59, 130, 246, 0.2)',
     },
     arrowSettings: {
-        borderColor: 'rgba(245, 158, 11, 0.2)',
+        borderColor: 'rgba(139, 92, 246, 0.2)',
     },
     actionButtonUnavailable: {
         borderColor: 'rgba(244, 63, 94, 0.3)',
