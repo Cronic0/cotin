@@ -14,7 +14,6 @@ import {
     saveSchedule as supabaseSaveSchedule
 } from '@/lib/supabase-helpers';
 import { translateToAllLanguages } from '@/utils/translation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export interface Product {
@@ -273,7 +272,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 console.error('Error loading banner config from Supabase:', error);
             }
 
-            // Load schedule
             // Load schedule from Supabase
             try {
                 const dbSchedules = await supabaseFetchSchedule();
@@ -290,24 +288,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                         }
                     });
                     setSchedule(newSchedule);
-                    // Also update local storage as backup
-                    await AsyncStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(newSchedule));
-                } else {
-                    // Fallback to local storage if DB is empty
-                    const scheduleJson = await AsyncStorage.getItem(STORAGE_KEY_SCHEDULE);
-                    if (scheduleJson) {
-                        const loadedSchedule = JSON.parse(scheduleJson);
-                        setSchedule(loadedSchedule);
-                    }
                 }
             } catch (error) {
                 console.error('Error loading schedule from Supabase:', error);
-                // Fallback to local storage on error
-                const scheduleJson = await AsyncStorage.getItem(STORAGE_KEY_SCHEDULE);
-                if (scheduleJson) {
-                    const loadedSchedule = JSON.parse(scheduleJson);
-                    setSchedule(loadedSchedule);
-                }
             }
 
             setIsLoading(false);
@@ -516,10 +499,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             // 1. Update local state immediately for UI responsiveness
             setSchedule(newSchedule);
 
-            // 2. Save to AsyncStorage (backup/offline)
-            await AsyncStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(newSchedule));
-
-            // 3. Save to Supabase
+            // 2. Save to Supabase
             const dbSchedules: DbSchedule[] = Object.values(newSchedule).map(day => ({
                 day: day.day,
                 is_open: day.isOpen,
