@@ -218,10 +218,11 @@ export default function ProductCreateEditScreen() {
                     }
                 }, 100);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('=== ERROR in handleSave, setting isSaving to FALSE ===', error);
             setIsSaving(false);
-            window.alert(`Error: Hubo un problema al guardar: ${error}`);
+            const errorMessage = error?.message || JSON.stringify(error);
+            window.alert(`Error: Hubo un problema al guardar: ${errorMessage}`);
         }
     };
 

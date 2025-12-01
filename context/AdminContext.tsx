@@ -302,12 +302,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 category: product.category,
                 allergens: product.allergens,
                 pairing: product.pairing,
+                pairing_description: product.pairingDescription,
                 available: product.available ?? true,
                 is_new: product.isNew ?? false,
                 is_recommendation: product.isRecommendation ?? false,
                 is_off_menu: product.isOffMenu ?? false,
                 is_banner: product.isBanner ?? false,
                 is_offer: product.isOffer ?? false,
+                offer_text: product.offerText,
                 translations: product.translations,
             };
 
@@ -330,6 +332,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             if (updates.isOffMenu !== undefined) { supabaseUpdates.is_off_menu = updates.isOffMenu; delete supabaseUpdates.isOffMenu; }
             if (updates.isBanner !== undefined) { supabaseUpdates.is_banner = updates.isBanner; delete supabaseUpdates.isBanner; }
             if (updates.isOffer !== undefined) { supabaseUpdates.is_offer = updates.isOffer; delete supabaseUpdates.isOffer; }
+            if (updates.offerText !== undefined) { supabaseUpdates.offer_text = updates.offerText; delete supabaseUpdates.offerText; }
+            if (updates.pairingDescription !== undefined) { supabaseUpdates.pairing_description = updates.pairingDescription; delete supabaseUpdates.pairingDescription; }
 
             await supabaseUpdateProduct(id, supabaseUpdates);
             console.log('=== Product updated successfully in Supabase ===');
