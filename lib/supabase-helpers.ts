@@ -291,6 +291,46 @@ export async function saveSchedule(schedules: DbSchedule[]): Promise<void> {
 }
 
 // =====================================================
+// SETTINGS
+// =====================================================
+
+/**
+ * Fetch a setting by key from Supabase
+ */
+export async function fetchSetting(key: string): Promise<any | null> {
+    const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', key)
+        .single();
+
+    if (error) {
+        if (error.code === 'PGRST116') {
+            // No rows returned, setting doesn't exist yet
+            return null;
+        }
+        console.error('Error fetching setting:', error);
+        throw error;
+    }
+
+    return data?.value || null;
+}
+
+/**
+ * Save a setting to Supabase (upsert)
+ */
+export async function saveSetting(key: string, value: any): Promise<void> {
+    const { error } = await supabase
+        .from('settings')
+        .upsert({ key, value }, { onConflict: 'key' });
+
+    if (error) {
+        console.error('Error saving setting:', error);
+        throw error;
+    }
+}
+
+// =====================================================
 // AUTH HELPERS
 // =====================================================
 

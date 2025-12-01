@@ -2,6 +2,7 @@ import { MENU_ITEMS } from '@/data/menuData';
 import { useSupabaseProducts } from '@/hooks/useSupabaseProducts';
 import {
     DbSchedule,
+    fetchSetting,
     getSession,
     onAuthStateChange,
     signIn,
@@ -225,39 +226,50 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 console.error('Error loading subscribers from Supabase:', error);
             }
 
-            // Load settings
-            const settingsJson = await AsyncStorage.getItem(STORAGE_KEY_SETTINGS);
-            if (settingsJson) {
-                const settings = JSON.parse(settingsJson);
-                setShowRecommendations(settings.showRecommendations ?? true);
-                setShowOffMenu(settings.showOffMenu ?? true);
-                setShowTunaWeek(settings.showTunaWeek ?? true);
-                setShowBannerCarousel(settings.showBannerCarousel ?? true);
-                setShowEvent(settings.showEvent ?? false);
-                setShowAllergens(settings.showAllergens ?? true);
+            // Load settings from Supabase
+            try {
+                const settings = await fetchSetting('global_settings');
+                if (settings) {
+                    setShowRecommendations(settings.showRecommendations ?? true);
+                    setShowOffMenu(settings.showOffMenu ?? true);
+                    setShowTunaWeek(settings.showTunaWeek ?? true);
+                    setShowBannerCarousel(settings.showBannerCarousel ?? true);
+                    setShowEvent(settings.showEvent ?? false);
+                    setShowAllergens(settings.showAllergens ?? true);
+                }
+            } catch (error) {
+                console.error('Error loading settings from Supabase:', error);
             }
 
-            // Load section order
-            const orderJson = await AsyncStorage.getItem(STORAGE_KEY_ORDER);
-            if (orderJson) {
-                const loadedOrder = JSON.parse(orderJson);
-                // Ensure all default sections are present (migration safety)
-                const mergedOrder = [...new Set([...loadedOrder, ...DEFAULT_SECTION_ORDER])];
-                setSectionOrder(mergedOrder);
+            // Load section order from Supabase
+            try {
+                const loadedOrder = await fetchSetting('section_order');
+                if (loadedOrder) {
+                    const mergedOrder = [...new Set([...loadedOrder, ...DEFAULT_SECTION_ORDER])];
+                    setSectionOrder(mergedOrder);
+                }
+            } catch (error) {
+                console.error('Error loading section order from Supabase:', error);
             }
 
-            // Load event config
-            const eventJson = await AsyncStorage.getItem(STORAGE_KEY_EVENT);
-            if (eventJson) {
-                const loadedEvent = JSON.parse(eventJson);
-                setEventConfig(loadedEvent);
+            // Load event config from Supabase
+            try {
+                const loadedEvent = await fetchSetting('event_config');
+                if (loadedEvent) {
+                    setEventConfig(loadedEvent);
+                }
+            } catch (error) {
+                console.error('Error loading event config from Supabase:', error);
             }
 
-            // Load banner config
-            const bannerJson = await AsyncStorage.getItem(STORAGE_KEY_BANNER);
-            if (bannerJson) {
-                const loadedBanner = JSON.parse(bannerJson);
-                setBannerConfig(loadedBanner);
+            // Load banner config from Supabase
+            try {
+                const loadedBanner = await fetchSetting('banner_config');
+                if (loadedBanner) {
+                    setBannerConfig(loadedBanner);
+                }
+            } catch (error) {
+                console.error('Error loading banner config from Supabase:', error);
             }
 
             // Load schedule
@@ -441,7 +453,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showRecommendations;
             setShowRecommendations(newValue);
             const settings = { showRecommendations: newValue, showOffMenu, showTunaWeek, showBannerCarousel, showEvent, showAllergens };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling recommendations: ", error);
             throw error;
@@ -453,7 +465,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showOffMenu;
             setShowOffMenu(newValue);
             const settings = { showRecommendations, showOffMenu: newValue, showTunaWeek, showBannerCarousel, showEvent, showAllergens };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling off menu: ", error);
             throw error;
@@ -465,7 +477,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showTunaWeek;
             setShowTunaWeek(newValue);
             const settings = { showRecommendations, showOffMenu, showTunaWeek: newValue, showBannerCarousel, showEvent, showAllergens };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling tuna week: ", error);
             throw error;
@@ -477,7 +489,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showBannerCarousel;
             setShowBannerCarousel(newValue);
             const settings = { showRecommendations, showOffMenu, showTunaWeek, showBannerCarousel: newValue, showEvent, showAllergens };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling banner carousel: ", error);
             throw error;
@@ -486,7 +498,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const updateBannerConfig = async (config: BannerConfig) => {
         try {
-            await AsyncStorage.setItem(STORAGE_KEY_BANNER, JSON.stringify(config));
+            await saveSetting('banner_config', config);
             setBannerConfig(config);
         } catch (error) {
             console.error("Error updating banner config: ", error);
@@ -524,7 +536,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showEvent;
             setShowEvent(newValue);
             const settings = { showRecommendations, showOffMenu, showTunaWeek, showBannerCarousel, showEvent: newValue, showAllergens };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling event: ", error);
             throw error;
@@ -533,7 +545,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const updateEventConfig = async (config: EventConfig) => {
         try {
-            await AsyncStorage.setItem(STORAGE_KEY_EVENT, JSON.stringify(config));
+            await saveSetting('event_config', config);
             setEventConfig(config);
         } catch (error) {
             console.error("Error updating event config: ", error);
@@ -546,7 +558,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             const newValue = !showAllergens;
             setShowAllergens(newValue);
             const settings = { showRecommendations, showOffMenu, showTunaWeek, showBannerCarousel, showEvent, showAllergens: newValue };
-            await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+            await saveSetting('global_settings', settings);
         } catch (error) {
             console.error("Error toggling allergens: ", error);
             throw error;
@@ -568,7 +580,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             }
 
             setSectionOrder(newOrder);
-            await AsyncStorage.setItem(STORAGE_KEY_ORDER, JSON.stringify(newOrder));
+            await saveSetting('section_order', newOrder);
         } catch (error) {
             console.error("Error moving section: ", error);
             throw error;
@@ -578,7 +590,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     const reorderSections = async (newOrder: string[]) => {
         try {
             setSectionOrder(newOrder);
-            await AsyncStorage.setItem(STORAGE_KEY_ORDER, JSON.stringify(newOrder));
+            await saveSetting('section_order', newOrder);
         } catch (error) {
             console.error("Error reordering sections: ", error);
             throw error;
