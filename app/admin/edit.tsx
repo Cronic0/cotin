@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminEditScreen() {
-    const { isAuthenticated, logout, products, updateProduct } = useAdmin();
+    const { isAuthenticated, logout, products, updateProduct, resetProducts } = useAdmin();
     const router = useRouter();
     const [unavailableExpanded, setUnavailableExpanded] = useState(false);
 
@@ -135,6 +135,37 @@ export default function AdminEditScreen() {
                                 <Text style={styles.actionSubtitle}>Configurar apertura y cierre</Text>
                             </View>
                             <View style={[styles.arrowContainer, styles.arrowSettings]}>
+                                <MaterialCommunityIcons name="chevron-right" size={24} color="#8b5cf6" />
+                            </View>
+                        </Pressable>
+
+                        {/* Reset Products */}
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.actionButton,
+                                styles.actionButtonReset,
+                                pressed && styles.actionButtonPressed
+                            ]}
+                            onPress={async () => {
+                                if (confirm('¿Resetear todos los productos? Esto cargará los 35 productos desde menuData.ts')) {
+                                    try {
+                                        await resetProducts();
+                                        alert('✅ Productos reseteados correctamente');
+                                    } catch (error) {
+                                        alert('❌ Error al resetear productos');
+                                    }
+                                }
+                            }}
+                        >
+                            <MaterialCommunityIcons name="database-refresh" size={80} color="rgba(139, 92, 246, 0.05)" style={styles.watermarkIcon} />
+                            <View style={[styles.actionIconContainer, styles.iconContainerReset]}>
+                                <MaterialCommunityIcons name="database-refresh" size={24} color="#8b5cf6" />
+                            </View>
+                            <View style={styles.actionInfo}>
+                                <Text style={styles.actionTitle}>Resetear Productos</Text>
+                                <Text style={styles.actionSubtitle}>Cargar todos los productos desde menuData.ts</Text>
+                            </View>
+                            <View style={[styles.arrowContainer, styles.arrowReset]}>
                                 <MaterialCommunityIcons name="chevron-right" size={24} color="#8b5cf6" />
                             </View>
                         </Pressable>
@@ -365,6 +396,16 @@ const styles = StyleSheet.create({
     },
     arrowUnavailable: {
         borderColor: 'rgba(244, 63, 94, 0.2)',
+    },
+    actionButtonReset: {
+        borderColor: 'rgba(139, 92, 246, 0.3)',
+    },
+    iconContainerReset: {
+        borderColor: 'rgba(139, 92, 246, 0.3)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    },
+    arrowReset: {
+        borderColor: 'rgba(139, 92, 246, 0.2)',
     },
     unavailableListContainer: {
         marginTop: Spacing.m,
