@@ -83,12 +83,14 @@ export default function AdminDashboard() {
         return null;
     }
 
-    // Calculate analytics
-    const totalViews = Object.values(data.productAnalytics).reduce(
-        (sum, item) => sum + item.viewCount,
+    // Calculate analytics (from Supabase)
+    const totalViews = Object.values(supabaseAnalytics.productViews).reduce(
+        (sum, count) => sum + count,
         0
     );
 
+    // Note: avgTimePerView is not available from Supabase analytics (only stored locally)
+    // We keep the local calculation for now, but it won't be global
     const avgTimePerView = totalViews > 0
         ? Object.values(data.productAnalytics).reduce(
             (sum, item) => sum + item.totalTimeSpent,
