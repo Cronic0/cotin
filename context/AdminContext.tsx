@@ -442,7 +442,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             if (subscribers.some(s => s.email === email)) return;
 
             const newSubscriber = await supabaseAddSubscriber(email);
-            setSubscribers([newSubscriber, ...subscribers]);
+            const mappedSubscriber: Subscriber = {
+                email: newSubscriber.email,
+                date: newSubscriber.created_at || new Date().toISOString()
+            };
+            setSubscribers([mappedSubscriber, ...subscribers]);
         } catch (error) {
             console.error("Error adding subscriber: ", error);
             throw error;
