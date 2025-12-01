@@ -602,20 +602,22 @@ export default function MenuScreen() {
                                     horizontal
                                     showsHorizontalScrollIndicator={false}
                                     contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+                                    keyboardShouldPersistTaps="handled"
                                 >
                                     {CATEGORIES.map((cat, index) => {
                                         const isActive = activeCategory === cat.id;
                                         return (
                                             <Pressable
                                                 key={cat.id}
-                                                style={[
-                                                    styles.horizontalMenuItem,
-                                                    isActive && styles.horizontalMenuItemActive
-                                                ]}
                                                 onPress={() => {
                                                     setActiveCategory(cat.id);
                                                     setIsMenuOpen(false);
                                                 }}
+                                                style={({ pressed }) => [
+                                                    styles.horizontalMenuItem,
+                                                    isActive && styles.horizontalMenuItemActive,
+                                                    pressed && { opacity: 0.7 }
+                                                ]}
                                             >
                                                 <MaterialCommunityIcons
                                                     name={cat.icon as any}
@@ -1554,18 +1556,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         zIndex: 100,
+        pointerEvents: 'box-none',
     },
     horizontalMenuGlass: {
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderRadius: 32,
-        padding: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.25,
         shadowRadius: 12,
         elevation: 8,
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.1)',
+        borderColor: 'rgba(0,0,0,0.05)',
+        maxWidth: '95%',
     },
     horizontalMenuItem: {
         flexDirection: 'row',
@@ -1574,8 +1579,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         borderRadius: 24,
         gap: 8,
-        backgroundColor: 'rgba(0,0,0,0.02)',
+        backgroundColor: 'rgba(0,0,0,0.03)',
         minWidth: 80,
+        ...Platform.select({
+            web: {
+                cursor: 'pointer',
+                userSelect: 'none',
+            } as any,
+            default: {}
+        }),
     },
     horizontalMenuItemActive: {
         backgroundColor: Colors.primary,
