@@ -61,12 +61,19 @@ export async function createProduct(product: Omit<Product, 'id' | 'created_at' |
  * Update an existing product
  */
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
+    console.log('=== updateProduct in supabase-helpers ===');
+    console.log('ID:', id);
+    console.log('Updates:', updates);
+
     const { data, error } = await supabase
         .from('products')
         .update(updates)
         .eq('id', id)
         .select()
         .single();
+
+    console.log('Update result - data:', data);
+    console.log('Update result - error:', error);
 
     if (error) {
         console.error('Error updating product:', error);
