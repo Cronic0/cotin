@@ -250,6 +250,47 @@ export async function getProductStats(): Promise<Record<string, number>> {
 }
 
 // =====================================================
+// SCHEDULE
+// =====================================================
+
+export interface DbSchedule {
+    day: string;
+    is_open: boolean;
+    open_time: string;
+    close_time: string;
+}
+
+/**
+ * Fetch schedule from Supabase
+ */
+export async function fetchSchedule(): Promise<DbSchedule[]> {
+    const { data, error } = await supabase
+        .from('schedules')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching schedule:', error);
+        throw error;
+    }
+
+    return data || [];
+}
+
+/**
+ * Save schedule to Supabase (upsert)
+ */
+export async function saveSchedule(schedules: DbSchedule[]): Promise<void> {
+    const { error } = await supabase
+        .from('schedules')
+        .upsert(schedules, { onConflict: 'day' });
+
+    if (error) {
+        console.error('Error saving schedule:', error);
+        throw error;
+    }
+}
+
+// =====================================================
 // AUTH HELPERS
 // =====================================================
 

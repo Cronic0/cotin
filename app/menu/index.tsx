@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useNavigation } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, ImageBackground, Modal, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ImageBackground, Modal, Platform, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) => {
@@ -671,6 +671,14 @@ const styles = StyleSheet.create({
     listContent: {
         padding: Spacing.m,
         paddingBottom: 100, // Space for bottom bar
+        ...Platform.select({
+            web: {
+                maxWidth: 800,
+                alignSelf: 'center',
+                width: '100%',
+            },
+            default: {},
+        }),
     },
     minimalCard: {
         backgroundColor: LightColors.surface,
@@ -760,22 +768,42 @@ const styles = StyleSheet.create({
     },
     // Recommendation Card Styles
     recommendationCard: {
-        width: 200,
+        width: Platform.select({
+            web: 220,
+            default: 200
+        }),
         backgroundColor: LightColors.surface,
         borderRadius: 16,
         overflow: 'hidden',
         marginRight: Spacing.m,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
         borderWidth: 1,
         borderColor: LightColors.border,
+        ...Platform.select({
+            web: {
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                cursor: 'pointer',
+            },
+            default: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+                elevation: 4,
+            },
+        }),
     },
     recommendationImage: {
         width: '100%',
-        height: 120,
+        height: Platform.select({
+            web: 140,
+            default: 120
+        }),
+        ...Platform.select({
+            web: {
+                objectFit: 'cover' as any,
+            },
+            default: {},
+        }),
     },
     recommendationContent: {
         padding: Spacing.m,

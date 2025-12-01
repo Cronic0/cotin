@@ -5,11 +5,14 @@ import { getTranslatedProduct } from '@/utils/productTranslation';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import React from 'react';
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - Spacing.l * 2;
+const CARD_WIDTH = Platform.select({
+  web: '100%',
+  default: width - Spacing.l * 2
+}) as any;
 const CARD_HEIGHT = 280;
 
 interface ModernProductCardProps {
@@ -114,15 +117,32 @@ const styles = StyleSheet.create({
         ...Shadows.medium,
         overflow: 'hidden',
         alignSelf: 'center',
+        ...Platform.select({
+            web: {
+                maxWidth: 800,
+                cursor: 'pointer',
+            },
+            default: {},
+        }),
     },
     imageContainer: {
-        height: 200, // 2/3 of card
+        height: Platform.select({
+            web: 240,
+            default: 200
+        }),
         width: '100%',
         position: 'relative',
+        overflow: 'hidden',
     },
     image: {
         width: '100%',
         height: '100%',
+        ...Platform.select({
+            web: {
+                objectFit: 'cover' as any,
+            },
+            default: {},
+        }),
     },
     imageUnavailable: {
         opacity: 0.5,

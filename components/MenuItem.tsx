@@ -1,7 +1,7 @@
 import { LightColors as Colors, Spacing, Typography } from '@/constants/Theme';
 import { MenuItem as MenuItemType } from '@/data/menuData';
 import { Link } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Animated, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useLanguage } from '@/context/LanguageContext';
@@ -124,18 +124,31 @@ const styles = StyleSheet.create({
             web: {
                 cursor: 'pointer',
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                maxWidth: 800,
+                alignSelf: 'center',
+                width: '100%',
             },
             default: {},
         }),
     },
     imageContainer: {
-        height: 200,
+        height: Platform.select({
+            web: 220,
+            default: 200
+        }),
         width: '100%',
         backgroundColor: '#F5F5F5',
+        overflow: 'hidden',
     },
     image: {
         width: '100%',
         height: '100%',
+        ...Platform.select({
+            web: {
+                objectFit: 'cover' as any,
+            },
+            default: {},
+        }),
     },
     contentContainer: {
         padding: Spacing.m,

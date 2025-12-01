@@ -1,16 +1,19 @@
 import { MENU_ITEMS } from '@/data/menuData';
 import { useSupabaseProducts } from '@/hooks/useSupabaseProducts';
 import {
+    DbSchedule,
     getSession,
     onAuthStateChange,
     signIn,
     signOut,
     addSubscriber as supabaseAddSubscriber,
-    getSubscribers as supabaseGetSubscribers
+    fetchSchedule as supabaseFetchSchedule,
+    getSubscribers as supabaseGetSubscribers,
+    saveSchedule as supabaseSaveSchedule
 } from '@/lib/supabase-helpers';
 import { translateToAllLanguages } from '@/utils/translation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export interface Product {
     id: string;
@@ -258,10 +261,40 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             }
 
             // Load schedule
-            const scheduleJson = await AsyncStorage.getItem(STORAGE_KEY_SCHEDULE);
-            if (scheduleJson) {
-                const loadedSchedule = JSON.parse(scheduleJson);
-                setSchedule(loadedSchedule);
+            // Load schedule from Supabase
+            try {
+                const dbSchedules = await supabaseFetchSchedule();
+                if (dbSchedules && dbSchedules.length > 0) {
+                    const newSchedule: Schedule = { ...DEFAULT_SCHEDULE };
+                    dbSchedules.forEach(s => {
+                        if (newSchedule[s.day]) {
+                            newSchedule[s.day] = {
+                                day: s.day,
+                                isOpen: s.is_open,
+                                openTime: s.open_time,
+                                closeTime: s.close_time
+                            };
+                        }
+                    });
+                    setSchedule(newSchedule);
+                    // Also update local storage as backup
+                    await AsyncStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(newSchedule));
+                } else {
+                    // Fallback to local storage if DB is empty
+                    const scheduleJson = await AsyncStorage.getItem(STORAGE_KEY_SCHEDULE);
+                    if (scheduleJson) {
+                        const loadedSchedule = JSON.parse(scheduleJson);
+                        setSchedule(loadedSchedule);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading schedule from Supabase:', error);
+                // Fallback to local storage on error
+                const scheduleJson = await AsyncStorage.getItem(STORAGE_KEY_SCHEDULE);
+                if (scheduleJson) {
+                    const loadedSchedule = JSON.parse(scheduleJson);
+                    setSchedule(loadedSchedule);
+                }
             }
 
             setIsLoading(false);
@@ -463,10 +496,25 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const updateSchedule = async (newSchedule: Schedule) => {
         try {
-            await AsyncStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(newSchedule));
+            // 1. Update local state immediately for UI responsiveness
             setSchedule(newSchedule);
+
+            // 2. Save to AsyncStorage (backup/offline)
+            await AsyncStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(newSchedule));
+
+            // 3. Save to Supabase
+            const dbSchedules: DbSchedule[] = Object.values(newSchedule).map(day => ({
+                day: day.day,
+                is_open: day.isOpen,
+                open_time: day.openTime,
+                close_time: day.closeTime
+            }));
+
+            await supabaseSaveSchedule(dbSchedules);
+            console.log('Schedule synced to Supabase');
         } catch (error) {
-            console.error("Error updating schedule: ", error);
+            console.error("Error updating schedule:", error);
+            // Revert local state if needed, or show error toast
             throw error;
         }
     };
