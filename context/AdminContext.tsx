@@ -5,6 +5,7 @@ import {
     fetchSetting,
     getSession,
     onAuthStateChange,
+    saveSetting,
     signIn,
     signOut,
     addSubscriber as supabaseAddSubscriber,
