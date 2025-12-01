@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function AdminScheduleScreen() {
@@ -47,7 +47,7 @@ export default function AdminScheduleScreen() {
         try {
             await updateSchedule(localSchedule);
             setHasChanges(false);
-            Alert.alert('Éxito', 'Horario actualizado correctamente');
+            Alert.alert('Éxito', 'Se han corregido los horarios');
         } catch (error) {
             Alert.alert('Error', 'No se pudo guardar el horario');
         }
