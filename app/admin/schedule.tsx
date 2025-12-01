@@ -48,8 +48,9 @@ export default function AdminScheduleScreen() {
             await updateSchedule(localSchedule);
             setHasChanges(false);
             Alert.alert('Éxito', 'Se han corregido los horarios');
-        } catch (error) {
-            Alert.alert('Error', 'No se pudo guardar el horario');
+        } catch (error: any) {
+            console.error('Save schedule error:', error);
+            Alert.alert('Error', `No se pudo guardar el horario: ${error.message || 'Error desconocido'}`);
         }
     };
 

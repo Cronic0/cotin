@@ -1,3 +1,4 @@
+import { trackEvent } from '@/lib/supabase-helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -107,6 +108,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
 
     const trackProductView = (productId: string) => {
+        // Track in Supabase
+        trackEvent('product_view', productId).catch(console.error);
+
         setData(prev => {
             const productStats = prev.productAnalytics[productId] || { viewCount: 0, totalTimeSpent: 0 };
             return {
@@ -123,6 +127,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
 
     const trackTimeSpent = (productId: string, duration: number) => {
+        // Optional: Track time spent in Supabase if needed, but maybe too many requests
+        // For now, we'll just keep it local or send it on unmount
+
         setData(prev => {
             const productStats = prev.productAnalytics[productId] || { viewCount: 0, totalTimeSpent: 0 };
             return {
@@ -139,6 +146,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
 
     const trackFavoriteAdded = (productId: string) => {
+        // Track in Supabase
+        trackEvent('add_to_favorites', productId).catch(console.error);
+
         setData(prev => ({
             ...prev,
             favoriteAdditions: {
@@ -149,6 +159,9 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     };
 
     const trackLanguage = (lang: string) => {
+        // Track in Supabase
+        trackEvent('language_change', undefined, { language: lang }).catch(console.error);
+
         setData(prev => ({
             ...prev,
             languageUsage: {
