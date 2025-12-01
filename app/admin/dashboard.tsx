@@ -1,6 +1,7 @@
 import { Colors, LightColors, Spacing } from '@/constants/Theme';
 import { useAdmin } from '@/context/AdminContext';
 import { useAnalytics } from '@/context/AnalyticsContext';
+import { getDashboardAnalytics } from '@/lib/supabase-helpers';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, Stack, useRouter } from 'expo-router';
@@ -43,6 +44,8 @@ const CATEGORIES = [
 export default function AdminDashboard() {
     const { isAuthenticated, logout, products } = useAdmin();
     const { data } = useAnalytics();
+    const [supabaseAnalytics, setSupabaseAnalytics] = useState<{ productViews: Record<string, number>; favorites: Record<string, number> }>({ productViews: {}, favorites: {} });
+    const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
     const [showFavorites, setShowFavorites] = useState(false);
     const [showTopProducts, setShowTopProducts] = useState(false);
     const [showLanguageStats, setShowLanguageStats] = useState(false);
@@ -56,6 +59,25 @@ export default function AdminDashboard() {
             router.replace('/admin/login');
         }
     }, [isAuthenticated]);
+
+    // Load analytics from Supabase
+    useEffect(() => {
+        if (isAuthenticated) {
+            loadAnalytics();
+        }
+    }, [isAuthenticated]);
+
+    const loadAnalytics = async () => {
+        setIsLoadingAnalytics(true);
+        try {
+            const analytics = await getDashboardAnalytics();
+            setSupabaseAnalytics(analytics);
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+        } finally {
+            setIsLoadingAnalytics(false);
+        }
+    };
 
     if (!isAuthenticated) {
         return null;
@@ -74,19 +96,19 @@ export default function AdminDashboard() {
         ) / totalViews
         : 0;
 
-    // Get top 15 most viewed products
-    const topProducts = Object.entries(data.productAnalytics)
-        .map(([id, stats]) => ({
+    // Get top 15 most viewed products (from Supabase)
+    const topProducts = Object.entries(supabaseAnalytics.productViews)
+        .map(([id, viewCount]) => ({
             id,
-            ...stats,
+            viewCount,
             product: products.find(p => p.id === id),
         }))
         .filter(item => item.product && (topProductsCategory === 'all' || item.product.category === topProductsCategory))
         .sort((a, b) => b.viewCount - a.viewCount)
         .slice(0, 15);
 
-    // Get most favorited products (up to 15)
-    const topFavorites = Object.entries(data.favoriteAdditions || {})
+    // Get most favorited products (up to 15) (from Supabase)
+    const topFavorites = Object.entries(supabaseAnalytics.favorites)
         .map(([id, count]) => ({
             id,
             count,
@@ -96,13 +118,13 @@ export default function AdminDashboard() {
         .sort((a, b) => b.count - a.count)
         .slice(0, 15);
 
-    // Get least viewed products (up to 15)
+    // Get least viewed products (up to 15) (from Supabase)
     const leastViewedProducts = products
         .map(product => {
-            const stats = data.productAnalytics[product.id] || { viewCount: 0, totalTimeSpent: 0 };
+            const viewCount = supabaseAnalytics.productViews[product.id] || 0;
             return {
                 id: product.id,
-                ...stats,
+                viewCount,
                 product,
             };
         })

@@ -249,6 +249,55 @@ export async function getProductStats(): Promise<Record<string, number>> {
     return stats;
 }
 
+/**
+ * Get favorite counts from analytics
+ */
+export async function getFavoriteStats(): Promise<Record<string, number>> {
+    const { data, error } = await supabase
+        .from('analytics')
+        .select('product_id')
+        .eq('event_type', 'add_to_favorites')
+        .not('product_id', 'is', null);
+
+    if (error) {
+        console.error('Error fetching favorite stats:', error);
+        return {};
+    }
+
+    // Count favorites per product
+    const stats: Record<string, number> = {};
+    data.forEach((event) => {
+        if (event.product_id) {
+            stats[event.product_id] = (stats[event.product_id] || 0) + 1;
+        }
+    });
+
+    return stats;
+}
+
+/**
+ * Get all analytics data for dashboard
+ */
+export async function getDashboardAnalytics() {
+    try {
+        const [productViews, favorites] = await Promise.all([
+            getProductStats(),
+            getFavoriteStats(),
+        ]);
+
+        return {
+            productViews,
+            favorites,
+        };
+    } catch (error) {
+        console.error('Error fetching dashboard analytics:', error);
+        return {
+            productViews: {},
+            favorites: {},
+        };
+    }
+}
+
 // =====================================================
 // SCHEDULE
 // =====================================================
