@@ -146,6 +146,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         createProduct: supabaseCreateProduct,
         updateProduct: supabaseUpdateProduct,
         deleteProduct: supabaseDeleteProduct,
+        refresh: refreshProducts,
     } = useSupabaseProducts();
 
     // Map Supabase products (snake_case) to App products (camelCase)
@@ -343,6 +344,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             };
 
             await supabaseCreateProduct(supabaseProduct as any);
+            await refreshProducts();
             console.log('=== Product created successfully in Supabase ===');
         } catch (error) {
             console.error("Error creating product in Supabase: ", error);
@@ -365,6 +367,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             if (updates.pairingDescription !== undefined) { supabaseUpdates.pairing_description = updates.pairingDescription; delete supabaseUpdates.pairingDescription; }
 
             await supabaseUpdateProduct(id, supabaseUpdates);
+            await refreshProducts();
             console.log('=== Product updated successfully in Supabase ===');
         } catch (error) {
             console.error("Error updating product in Supabase: ", error);
@@ -376,6 +379,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         try {
             console.log('=== deleteProduct called (Supabase) ===', id);
             await supabaseDeleteProduct(id);
+            await refreshProducts();
             console.log('=== Product deleted successfully from Supabase ===');
         } catch (error) {
             console.error("Error deleting product from Supabase: ", error);
@@ -412,6 +416,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 };
                 await supabaseCreateProduct(supabaseItem as any);
             }
+            await refreshProducts();
             console.log('=== Products reset successfully in Supabase ===');
         } catch (error) {
             console.error("Error resetting products in Supabase: ", error);
