@@ -94,6 +94,14 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
         // Detect if web/desktop by checking window.innerWidth
         const isWeb = typeof window !== 'undefined' && window.innerWidth > 768;
 
+        // Track in Supabase
+        trackEvent('session_start', undefined, {
+            date: currentDay,
+            isWeb,
+            timestamp: now.toISOString()
+        }).catch(console.error);
+
+        // Keep local tracking for backward compatibility
         setData(prev => ({
             ...prev,
             sessionCount: prev.sessionCount + 1,

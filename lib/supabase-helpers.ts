@@ -280,22 +280,70 @@ export async function getFavoriteStats(): Promise<Record<string, number>> {
  */
 export async function getDashboardAnalytics() {
     try {
-        const [productViews, favorites] = await Promise.all([
+        const [productViews, favorites, dailyVisits, totalSessions] = await Promise.all([
             getProductStats(),
             getFavoriteStats(),
+            getDailyVisits(30),
+            getTotalSessions(),
         ]);
 
         return {
             productViews,
             favorites,
+            dailyVisits,
+            totalSessions,
         };
     } catch (error) {
         console.error('Error fetching dashboard analytics:', error);
         return {
             productViews: {},
             favorites: {},
+            dailyVisits: {},
+            totalSessions: 0,
         };
     }
+}
+
+/**
+ * Get daily visit counts for the last N days
+ */
+export async function getDailyVisits(days: number = 30): Promise<Record<string, number>> {
+    const { data, error } = await supabase
+        .from('analytics')
+        .select('created_at, metadata')
+        .eq('event_type', 'session_start')
+        .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
+
+    if (error) {
+        console.error('Error fetching daily visits:', error);
+        return {};
+    }
+
+    // Group by date
+    const visitsByDate: Record<string, number> = {};
+    data.forEach((event) => {
+        const date = new Date(event.created_at).toISOString().slice(0, 10);
+        visitsByDate[date] = (visitsByDate[date] || 0) + 1;
+    });
+
+    return visitsByDate;
+}
+
+/**
+ * Get total session count
+ */
+export async function getTotalSessions(): Promise<number> {
+    const { count, error } = await supabase
+        .from('analytics')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'session_start');
+
+    if (error) {
+        console.error('Error fetching session count:', error);
+        return 0;
+    }
+
+    return count || 0;
 }
 
 // =====================================================

@@ -44,7 +44,17 @@ const CATEGORIES = [
 export default function AdminDashboard() {
     const { isAuthenticated, logout, products } = useAdmin();
     const { data } = useAnalytics();
-    const [supabaseAnalytics, setSupabaseAnalytics] = useState<{ productViews: Record<string, number>; favorites: Record<string, number> }>({ productViews: {}, favorites: {} });
+    const [supabaseAnalytics, setSupabaseAnalytics] = useState<{
+        productViews: Record<string, number>;
+        favorites: Record<string, number>;
+        dailyVisits: Record<string, number>;
+        totalSessions: number;
+    }>({
+        productViews: {},
+        favorites: {},
+        dailyVisits: {},
+        totalSessions: 0
+    });
     const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
     const [showFavorites, setShowFavorites] = useState(false);
     const [showTopProducts, setShowTopProducts] = useState(false);
@@ -138,6 +148,24 @@ export default function AdminDashboard() {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-11 (0=January, 11=December)
+
+    // Prepare daily visits data for last 30 days
+    const dailyVisitsData = [];
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateKey = date.toISOString().slice(0, 10);
+        const dayLabel = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+
+        dailyVisitsData.push({
+            label: dayLabel.replace('.', ''),
+            value: supabaseAnalytics.dailyVisits[dateKey] || 0,
+        });
+    }
+
+    const maxDailyVisits = Math.max(...dailyVisitsData.map(d => d.value), 1);
+    const avgDailyVisits = dailyVisitsData.reduce((sum, d) => sum + d.value, 0) / dailyVisitsData.length;
+
     const monthlyData = [];
 
     // Generate data from January (month 0) to current month
@@ -194,15 +222,15 @@ export default function AdminDashboard() {
                 </View>
 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                    {/* Stats Grid - Row 1: Total, Web, QR */}
+                    {/* Stats Grid - Row 1: Total Sessions, Avg Daily, Total Views */}
                     <View style={styles.statsGrid}>
                         <View style={styles.statCard}>
                             <MaterialCommunityIcons name="qrcode-scan" size={80} color="rgba(16, 185, 129, 0.05)" style={styles.watermarkIcon} />
                             <View style={styles.statIconContainer}>
                                 <MaterialCommunityIcons name="qrcode-scan" size={24} color="#10b981" />
                             </View>
-                            <Text style={styles.statValue}>{data.sessionCount}</Text>
-                            <Text style={styles.statLabel}>TOTAL ACCESOS</Text>
+                            <Text style={styles.statValue}>{supabaseAnalytics.totalSessions}</Text>
+                            <Text style={styles.statLabel}>TOTAL SESIONES</Text>
                         </View>
 
                         <View style={styles.statCard}>
@@ -215,12 +243,12 @@ export default function AdminDashboard() {
                         </View>
 
                         <View style={styles.statCard}>
-                            <MaterialCommunityIcons name="cellphone" size={80} color="rgba(245, 158, 11, 0.05)" style={styles.watermarkIcon} />
+                            <MaterialCommunityIcons name="chart-line" size={80} color="rgba(245, 158, 11, 0.05)" style={styles.watermarkIcon} />
                             <View style={[styles.statIconContainer, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-                                <MaterialCommunityIcons name="cellphone" size={24} color="#f59e0b" />
+                                <MaterialCommunityIcons name="chart-line" size={24} color="#f59e0b" />
                             </View>
-                            <Text style={styles.statValue}>{data.sessionCount - data.webAccessCount}</Text>
-                            <Text style={styles.statLabel}>QR</Text>
+                            <Text style={styles.statValue}>{avgDailyVisits.toFixed(1)}</Text>
+                            <Text style={styles.statLabel}>PROMEDIO DIARIO</Text>
                         </View>
                     </View>
 
@@ -242,6 +270,14 @@ export default function AdminDashboard() {
                             </View>
                             <Text style={styles.statValue}>{avgTimePerView.toFixed(0)}s</Text>
                             <Text style={styles.statLabel}>TIEMPO PROMEDIO</Text>
+                        </View>
+                    </View>
+
+                    {/* Daily Visits Chart */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Visitas Diarias (Últimos 30 días)</Text>
+                        <View style={styles.chartCard}>
+                            <SimpleBarChart data={dailyVisitsData.filter((_, i) => i % 3 === 0)} maxValue={maxDailyVisits} />
                         </View>
                     </View>
 
