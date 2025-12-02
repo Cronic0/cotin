@@ -392,37 +392,113 @@ export async function saveSchedule(schedules: DbSchedule[]): Promise<void> {
 // =====================================================
 
 /**
- * Fetch a setting by key from Supabase
+ * Get the singleton settings row ID
  */
-export async function fetchSetting(key: string): Promise<any | null> {
+async function getSettingsId(): Promise<number | string | null> {
     const { data, error } = await supabase
         .from('settings')
-        .select('value')
-        .eq('key', key)
+        .select('id')
+        .limit(1)
         .single();
 
-    if (error) {
-        if (error.code === 'PGRST116') {
-            // No rows returned, setting doesn't exist yet
-            return null;
-        }
-        console.error('Error fetching setting:', error);
-        throw error;
-    }
-
-    return data?.value || null;
+    if (error || !data) return null;
+    return data.id;
 }
 
 /**
- * Save a setting to Supabase (upsert)
+ * Fetch a setting by key from Supabase
+ * Adapts to the single-row structure with specific columns
  */
-export async function saveSetting(key: string, value: any): Promise<void> {
-    const { error } = await supabase
+export async function fetchSetting(key: string): Promise<any | null> {
+    // Map legacy keys to actual columns
+    const columnMap: Record<string, string> = {
+        'global_settings': 'general_settings',
+        'event_config': 'event_config',
+        'banner_config': 'banner_config',
+        'section_order': 'general_settings' // Store inside general_settings
+    };
+
+    const columnName = columnMap[key] || key;
+
+    const { data, error } = await supabase
         .from('settings')
-        .upsert({ key, value }, { onConflict: 'key' });
+        .select(columnName)
+        .limit(1)
+        .single();
 
     if (error) {
-        console.error('Error saving setting:', error);
+        console.error(`Error fetching setting ${key} (col: ${columnName}):`, error);
+        return null;
+    }
+
+    if (!data) return null;
+
+    // Handle nested keys in general_settings
+    if (columnName === 'general_settings' && key === 'section_order') {
+        return data.general_settings?.section_order || null;
+    }
+
+    return data[columnName as keyof typeof data] || null;
+}
+
+/**
+ * Save a setting to Supabase
+ * Adapts to the single-row structure with specific columns
+ */
+export async function saveSetting(key: string, value: any): Promise<void> {
+    // Map legacy keys to actual columns
+    const columnMap: Record<string, string> = {
+        'global_settings': 'general_settings',
+        'event_config': 'event_config',
+        'banner_config': 'banner_config',
+        'section_order': 'general_settings' // Store inside general_settings
+    };
+
+    const columnName = columnMap[key] || key;
+    let updateData: any = {};
+
+    // Get existing ID
+    let id = await getSettingsId();
+
+    // Special handling for nested data in general_settings
+    if (columnName === 'general_settings' && key === 'section_order') {
+        // We need to fetch existing general_settings first to merge
+        const { data } = await supabase.from('settings').select('general_settings').limit(1).single();
+        const currentSettings = data?.general_settings || {};
+        updateData = {
+            general_settings: {
+                ...currentSettings,
+                section_order: value
+            },
+            updated_at: new Date().toISOString()
+        };
+    } else {
+        // Direct column update
+        updateData = {
+            [columnName]: value,
+            updated_at: new Date().toISOString()
+        };
+    }
+
+    let error;
+
+    if (id) {
+        // Update existing row
+        const result = await supabase
+            .from('settings')
+            .update(updateData)
+            .eq('id', id);
+        error = result.error;
+    } else {
+        // Insert new row (should rarely happen if initialized)
+        const result = await supabase
+            .from('settings')
+            .insert(updateData);
+        error = result.error;
+    }
+
+    if (error) {
+        console.error(`Error saving setting ${key}:`, error);
         throw error;
     }
 }
