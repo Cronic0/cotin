@@ -65,10 +65,11 @@ export default function EventEditScreen() {
             setTimeout(() => {
                 router.back();
             }, 100);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving event:', error);
             setIsSaving(false);
-            window.alert(`Error: Hubo un problema al guardar: ${error}`);
+            const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+            window.alert(`Error: Hubo un problema al guardar: ${errorMessage}`);
         }
     };
 
