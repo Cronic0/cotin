@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useNavigation } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, ImageBackground, Modal, Platform, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ImageBackground, Linking, Modal, Platform, Pressable, FlatList as RNFlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) => {
@@ -422,10 +422,10 @@ const StoryView = () => {
                                     onPress={() => {
                                         const query = encodeURIComponent("Puesto Cruz Roja, Playa de la Barrosa, Chiclana de la Frontera");
                                         const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
-                                        import('react-native').then(({ Linking }) => Linking.openURL(url));
+                                        Linking.openURL(url);
                                     }}
                                 >
-                                    <Text style={styles.mapButtonText}>{t('navigate' as any)}</Text>
+                                    <Text style={styles.mapButtonText}>{t('Como llegar' as any)}</Text>
                                     <MaterialCommunityIcons name="arrow-right" size={16} color="#FFF" />
                                 </Pressable>
                             </View>
@@ -470,7 +470,7 @@ const StoryView = () => {
                 <View style={styles.footerContainer}>
                     <Link href="/gastrocode" asChild>
                         <Pressable>
-                            <Text style={styles.footerText}>App creada por GastroCode</Text>
+                            <Text style={styles.footerText}>Powered by GastroCode</Text>
                         </Pressable>
                     </Link>
                 </View>

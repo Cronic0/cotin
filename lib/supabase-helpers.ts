@@ -435,7 +435,7 @@ export async function fetchSetting(key: string): Promise<any | null> {
 
     // Handle nested keys in general_settings
     if (columnName === 'general_settings' && key === 'section_order') {
-        return data.general_settings?.section_order || null;
+        return (data as any).general_settings?.section_order || null;
     }
 
     return data[columnName as keyof typeof data] || null;
