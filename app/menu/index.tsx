@@ -273,7 +273,25 @@ const StoryView = () => {
                         case 'banner':
                             return showTunaWeek && bannerItems.length > 0 ? (
                                 <View key={sectionId} style={styles.sectionContainer}>
-                                    <Link href={bannerConfig.linkPath as any} asChild>
+                                    {bannerConfig.linkPath ? (
+                                        <Link href={bannerConfig.linkPath as any} asChild>
+                                            <Pressable>
+                                                <ImageBackground
+                                                    source={{ uri: bannerConfig.imageUrl }}
+                                                    style={styles.tunaBanner}
+                                                    imageStyle={{ borderRadius: 16 }}
+                                                >
+                                                    <LinearGradient
+                                                        colors={['transparent', 'rgba(0,0,0,0.7)']}
+                                                        style={styles.tunaBannerOverlay}
+                                                    >
+                                                        <Text style={styles.tunaBannerTitle}>{bannerConfig.title}</Text>
+                                                        <Text style={styles.tunaBannerSubtitle}>{bannerConfig.subtitle}</Text>
+                                                    </LinearGradient>
+                                                </ImageBackground>
+                                            </Pressable>
+                                        </Link>
+                                    ) : (
                                         <Pressable>
                                             <ImageBackground
                                                 source={{ uri: bannerConfig.imageUrl }}
@@ -289,7 +307,7 @@ const StoryView = () => {
                                                 </LinearGradient>
                                             </ImageBackground>
                                         </Pressable>
-                                    </Link>
+                                    )}
 
                                     {/* Banner Carousel */}
                                     {showBannerCarousel && (
@@ -311,7 +329,31 @@ const StoryView = () => {
                         case 'event':
                             return showEvent ? (
                                 <View key={sectionId} style={styles.sectionContainer}>
-                                    <Link href={eventConfig.linkPath as any || '/menu'} asChild>
+                                    {eventConfig.linkPath ? (
+                                        <Link href={eventConfig.linkPath as any} asChild>
+                                            <Pressable>
+                                                <ImageBackground
+                                                    source={{ uri: eventConfig.imageUrl }}
+                                                    style={styles.tunaBanner}
+                                                    imageStyle={{ borderRadius: 16 }}
+                                                >
+                                                    <LinearGradient
+                                                        colors={['transparent', 'rgba(0,0,0,0.7)']}
+                                                        style={styles.tunaBannerOverlay}
+                                                    >
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                                            <MaterialCommunityIcons name="calendar-star" size={20} color={Colors.secondary} />
+                                                            <Text style={[styles.tunaBannerSubtitle, { color: Colors.secondary, fontWeight: 'bold' }]}>
+                                                                {eventConfig.date}
+                                                            </Text>
+                                                        </View>
+                                                        <Text style={styles.tunaBannerTitle}>{eventConfig.title}</Text>
+                                                        <Text style={styles.tunaBannerSubtitle}>{eventConfig.subtitle}</Text>
+                                                    </LinearGradient>
+                                                </ImageBackground>
+                                            </Pressable>
+                                        </Link>
+                                    ) : (
                                         <Pressable>
                                             <ImageBackground
                                                 source={{ uri: eventConfig.imageUrl }}
@@ -333,7 +375,7 @@ const StoryView = () => {
                                                 </LinearGradient>
                                             </ImageBackground>
                                         </Pressable>
-                                    </Link>
+                                    )}
                                 </View>
                             ) : null;
 

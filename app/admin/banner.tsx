@@ -12,10 +12,10 @@ export default function BannerEditScreen() {
     const { bannerConfig, updateBannerConfig, showBannerCarousel, toggleBannerCarousel } = useAdmin();
     const router = useRouter();
 
-    const [title, setTitle] = useState(bannerConfig.title);
-    const [subtitle, setSubtitle] = useState(bannerConfig.subtitle);
-    const [image, setImage] = useState(bannerConfig.imageUrl);
-    const [linkPath, setLinkPath] = useState(bannerConfig.linkPath);
+    const [title, setTitle] = useState(bannerConfig.title || '');
+    const [subtitle, setSubtitle] = useState(bannerConfig.subtitle || '');
+    const [image, setImage] = useState(bannerConfig.imageUrl || '');
+    const [linkPath, setLinkPath] = useState(bannerConfig.linkPath || '');
     const [isSaving, setIsSaving] = useState(false);
 
     const pickImage = async () => {
@@ -39,7 +39,11 @@ export default function BannerEditScreen() {
     };
 
     const handleSave = async () => {
-        if (!title.trim()) {
+        const safeTitle = (title || '').trim();
+        const safeSubtitle = (subtitle || '').trim();
+        const safeLinkPath = (linkPath || '').trim();
+
+        if (!safeTitle) {
             window.alert('Error: El título es obligatorio');
             return;
         }
@@ -52,10 +56,10 @@ export default function BannerEditScreen() {
 
         try {
             await updateBannerConfig({
-                title: title.trim(),
-                subtitle: subtitle.trim(),
+                title: safeTitle,
+                subtitle: safeSubtitle,
                 imageUrl: image,
-                linkPath: linkPath.trim(),
+                linkPath: safeLinkPath,
             });
 
             setIsSaving(false);
