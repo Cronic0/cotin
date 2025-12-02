@@ -10,8 +10,8 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } fr
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Platform.select({
-  web: '100%',
-  default: width - Spacing.l * 2
+    web: '100%',
+    default: width - Spacing.l * 2
 }) as any;
 const CARD_HEIGHT = 280;
 
@@ -38,6 +38,8 @@ export const ModernProductCard = ({ item, index }: ModernProductCardProps) => {
     };
 
     const categoryTitle = CATEGORIES.find(c => c.id === item.category)?.title || '';
+
+    if (!item || !item.id) return null;
 
     return (
         <Link href={`/menu/${item.id}` as any} asChild>

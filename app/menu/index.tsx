@@ -14,6 +14,9 @@ import Animated, { FadeInRight } from 'react-native-reanimated';
 const RecommendationCard = ({ item, index = 0 }: { item: any, index?: number }) => {
     const { t, language } = useLanguage();
     const translated = getTranslatedProduct(item, language);
+
+    if (!item || !item.id) return null;
+
     return (
         <Link href={`/menu/${item.id}` as any} asChild>
             <Pressable>
