@@ -5,9 +5,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { FlatList, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { HeaderRight } from '@/components/HeaderRight';
 
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -68,89 +67,81 @@ export default function AllergensScreen() {
     return (
         <View style={styles.container}>
             <Stack.Screen options={{
-                title: t('allergenFilterTitle'),
-                headerBackTitle: t('back'),
-                headerRight: () => <HeaderRight />,
-                headerStyle: { backgroundColor: Colors.background },
-                headerTintColor: '#FFF',
+                headerShown: false,
             }} />
 
-            {/* Hero Section */}
-            <View style={styles.heroContainer}>
-                <ImageBackground
-                    source={{ uri: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?q=80&w=1200&auto=format&fit=crop' }}
-                    style={styles.heroImage}
-                    resizeMode="cover"
-                >
-                    <LinearGradient
-                        colors={['rgba(15, 23, 42, 0.85)', 'rgba(15, 23, 42, 0.95)']}
-                        style={styles.heroGradient}
-                    >
-                        <View style={styles.heroContent}>
-                            <View style={styles.iconContainer}>
-                                <MaterialCommunityIcons name="shield-check" size={48} color={Colors.primary} />
-                            </View>
-                            <Text style={styles.heroTitle}>{t('allergenFilterBanner')}</Text>
-                            <Text style={styles.heroSubtitle}>{t('allergenFilterSub')}</Text>
+            <LinearGradient
+                colors={['#0f172a', '#1e293b']}
+                style={styles.gradient}
+            >
+                {/* Hero Section */}
+                <View style={styles.heroContainer}>
+                    <View style={styles.heroContent}>
+                        <View style={styles.iconContainer}>
+                            <MaterialCommunityIcons name="shield-check" size={56} color={Colors.primary} />
                         </View>
-                    </LinearGradient>
-                </ImageBackground>
-            </View>
+                        <Text style={styles.heroTitle}>Filtrar por Alérgenos</Text>
+                        <Text style={styles.heroSubtitle}>Selecciona los alérgenos que deseas evitar</Text>
+                    </View>
+                </View>
 
-            <View style={styles.filterContainer}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.allergensRow}>
-                    {ALLERGEN_KEYS.map(allergenKey => {
-                        const isSelected = selectedAllergens.includes(allergenKey);
-                        const iconName = ALLERGEN_ICONS[allergenKey] || 'alert-circle-outline';
+                {/* Allergen Filter Pills */}
+                <View style={styles.filterContainer}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.allergensRow}
+                    >
+                        {ALLERGEN_KEYS.map(allergenKey => {
+                            const isSelected = selectedAllergens.includes(allergenKey);
+                            const iconName = ALLERGEN_ICONS[allergenKey] || 'alert-circle-outline';
 
-                        return (
-                            <Pressable
-                                key={allergenKey}
-                                onPress={() => toggleAllergen(allergenKey)}
-                            >
-                                <LinearGradient
-                                    colors={isSelected ? [Colors.primary, Colors.primaryDark] : [Colors.surface, Colors.surface]}
-                                    style={[styles.allergenChip, isSelected && styles.allergenChipSelected]}
+                            return (
+                                <Pressable
+                                    key={allergenKey}
+                                    onPress={() => toggleAllergen(allergenKey)}
+                                    style={({ pressed }) => [
+                                        styles.allergenChip,
+                                        isSelected && styles.allergenChipSelected,
+                                        pressed && { opacity: 0.7 }
+                                    ]}
                                 >
                                     <MaterialCommunityIcons
                                         name={iconName}
-                                        size={20}
+                                        size={22}
                                         color={isSelected ? "#FFF" : Colors.textSecondary}
                                         style={{ marginRight: 8 }}
                                     />
                                     <Text style={[styles.allergenText, isSelected && styles.allergenTextSelected]}>
                                         {t(`allergen_${allergenKey}` as any)}
                                     </Text>
-                                </LinearGradient>
-                            </Pressable>
-                        );
-                    })}
-                </ScrollView>
-            </View>
+                                </Pressable>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
 
-            <View style={styles.resultsHeader}>
-                <Text style={styles.resultsTitle}>
-                    {selectedAllergens.length > 0
-                        ? t('showingDishes')
-                        : t('menuTitle')}
-                </Text>
-                <Text style={styles.resultsCount}>{filteredItems.length} resultados</Text>
-            </View>
+                {/* Results Header */}
+                <View style={styles.resultsHeader}>
+                    <Text style={styles.resultsCount}>{filteredItems.length} resultados</Text>
+                </View>
 
-            <FlatList
-                data={filteredItems}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => <ModernProductCard item={item} index={index} />}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <MaterialCommunityIcons name="food-off" size={64} color={Colors.textSecondary} style={{ opacity: 0.5 }} />
-                        <Text style={styles.emptyText}>{t('noSafeDishes')}</Text>
-                        <Text style={styles.emptySubText}>Intenta deseleccionar algunos alérgenos</Text>
-                    </View>
-                }
-            />
+                {/* Products List */}
+                <FlatList
+                    data={filteredItems}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item, index }) => <ModernProductCard item={item} index={index} />}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <MaterialCommunityIcons name="food-off" size={64} color={Colors.textSecondary} style={{ opacity: 0.5 }} />
+                            <Text style={styles.emptyText}>{t('noSafeDishes')}</Text>
+                            <Text style={styles.emptySubText}>Intenta deseleccionar algunos alérgenos</Text>
+                        </View>
+                    }
+                />
+            </LinearGradient>
         </View>
     );
 }
@@ -160,38 +151,31 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    heroContainer: {
-        height: 220,
-        overflow: 'hidden',
-    },
-    heroImage: {
-        width: '100%',
-        height: '100%',
-    },
-    heroGradient: {
+    gradient: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: Spacing.l,
+    },
+    heroContainer: {
+        paddingTop: 60,
+        paddingBottom: Spacing.xl,
+        paddingHorizontal: Spacing.l,
     },
     heroContent: {
         alignItems: 'center',
-        maxWidth: 600,
     },
     iconContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
         backgroundColor: 'rgba(45, 212, 191, 0.15)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: Spacing.m,
-        borderWidth: 2,
+        marginBottom: Spacing.l,
+        borderWidth: 3,
         borderColor: 'rgba(45, 212, 191, 0.3)',
-        ...Shadows.medium,
+        ...Shadows.large,
     },
     heroTitle: {
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: 'bold',
         color: '#FFFFFF',
         marginBottom: Spacing.s,
@@ -199,63 +183,59 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     heroSubtitle: {
-        fontSize: 15,
-        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.7)',
         textAlign: 'center',
-        lineHeight: 22,
+        lineHeight: 24,
     },
     filterContainer: {
-        paddingVertical: Spacing.m,
-        backgroundColor: Colors.background,
+        paddingVertical: Spacing.l,
+        backgroundColor: 'transparent',
     },
     allergensRow: {
         paddingHorizontal: Spacing.m,
-        gap: Spacing.s,
+        gap: Spacing.m,
     },
     allergenChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 16,
-        backgroundColor: Colors.surface,
-        borderWidth: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        borderRadius: 20,
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        borderWidth: 2,
         borderColor: 'rgba(255,255,255,0.1)',
-        ...Shadows.small,
-    },
-    allergenChipSelected: {
-        borderColor: Colors.primary,
         ...Shadows.medium,
     },
+    allergenChipSelected: {
+        backgroundColor: Colors.primary,
+        borderColor: Colors.primary,
+        ...Shadows.large,
+    },
     allergenText: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '600',
         color: Colors.textSecondary,
     },
     allergenTextSelected: {
         color: '#FFFFFF',
+        fontWeight: 'bold',
     },
     resultsHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: Spacing.m,
+        paddingHorizontal: Spacing.l,
         paddingBottom: Spacing.m,
-    },
-    resultsTitle: {
-        ...Typography.h3,
-        fontSize: 18,
-        color: '#FFFFFF',
-        flex: 1,
+        alignItems: 'center',
     },
     resultsCount: {
-        fontSize: 12,
+        fontSize: 14,
         color: Colors.primary,
         fontWeight: '700',
-        backgroundColor: 'rgba(45, 212, 191, 0.1)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
+        backgroundColor: 'rgba(45, 212, 191, 0.15)',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(45, 212, 191, 0.3)',
     },
     listContent: {
         padding: Spacing.m,
