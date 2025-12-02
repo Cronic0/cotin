@@ -60,6 +60,7 @@ export default function AdminDashboard() {
     const [showTopProducts, setShowTopProducts] = useState(false);
     const [showLanguageStats, setShowLanguageStats] = useState(false);
     const [showLeastViewed, setShowLeastViewed] = useState(false);
+    const [showDailyVisits, setShowDailyVisits] = useState(false);
     const [topProductsCategory, setTopProductsCategory] = useState('all');
     const [leastViewedCategory, setLeastViewedCategory] = useState('all');
     const router = useRouter();
@@ -273,12 +274,56 @@ export default function AdminDashboard() {
                         </View>
                     </View>
 
-                    {/* Daily Visits Chart */}
+                    {/* Daily Visits Expandable Section */}
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Visitas Diarias (Últimos 30 días)</Text>
-                        <View style={styles.chartCard}>
-                            <SimpleBarChart data={dailyVisitsData.filter((_, i) => i % 3 === 0)} maxValue={maxDailyVisits} />
-                        </View>
+                        <Pressable
+                            style={styles.sectionHeader}
+                            onPress={() => setShowDailyVisits(!showDailyVisits)}
+                        >
+                            <View style={styles.sectionHeaderLeft}>
+                                <MaterialCommunityIcons
+                                    name="calendar-today"
+                                    size={24}
+                                    color="#10b981"
+                                    style={styles.sectionIcon}
+                                />
+                                <View>
+                                    <Text style={styles.sectionTitle}>Visitas Diarias Detalladas</Text>
+                                    <Text style={styles.sectionSubtitle}>
+                                        Últimos 30 días • {dailyVisitsData.reduce((sum, d) => sum + d.value, 0)} visitas totales
+                                    </Text>
+                                </View>
+                            </View>
+                            <MaterialCommunityIcons
+                                name={showDailyVisits ? 'chevron-up' : 'chevron-down'}
+                                size={24}
+                                color="rgba(255,255,255,0.5)"
+                            />
+                        </Pressable>
+
+                        {showDailyVisits && (
+                            <View style={styles.expandableContent}>
+                                <View style={styles.chartCard}>
+                                    <SimpleBarChart data={dailyVisitsData} maxValue={maxDailyVisits} />
+                                </View>
+                                <View style={styles.statsRow}>
+                                    <View style={styles.miniStatCard}>
+                                        <Text style={styles.miniStatValue}>{maxDailyVisits}</Text>
+                                        <Text style={styles.miniStatLabel}>Máximo</Text>
+                                    </View>
+                                    <View style={styles.miniStatCard}>
+                                        <Text style={styles.miniStatValue}>{avgDailyVisits.toFixed(1)}</Text>
+                                        <Text style={styles.miniStatLabel}>Promedio</Text>
+                                    </View>
+                                    <View style={styles.miniStatCard}>
+                                        <Text style={styles.miniStatValue}>
+                                            {dailyVisitsData[dailyVisitsData.length - 1]?.value || 0}
+                                        </Text>
+                                        <Text style={styles.miniStatLabel}>Hoy</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        )}
                     </View>
 
                     {/* Monthly Chart */}
@@ -786,5 +831,42 @@ const styles = StyleSheet.create({
     categoryPillTextActive: {
         color: '#FFF',
         fontWeight: 'bold',
+    },
+    sectionIcon: {
+        marginRight: Spacing.m,
+    },
+    sectionSubtitle: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.6)',
+        marginTop: 2,
+    },
+    expandableContent: {
+        marginTop: Spacing.m,
+    },
+    statsRow: {
+        flexDirection: 'row',
+        gap: Spacing.m,
+        marginTop: Spacing.m,
+    },
+    miniStatCard: {
+        flex: 1,
+        backgroundColor: 'rgba(30, 41, 59, 0.6)',
+        padding: Spacing.m,
+        borderRadius: 12,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    miniStatValue: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+    },
+    miniStatLabel: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.6)',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
 });
